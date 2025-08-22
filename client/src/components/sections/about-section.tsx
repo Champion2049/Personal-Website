@@ -26,22 +26,15 @@ export function AboutSection() {
           >
             <div className="relative">
               <motion.div 
-                className="w-full h-96 rounded-3xl shadow-2xl bg-gradient-to-br from-orange-500 via-red-500 to-amber-500 p-1 overflow-hidden"
+                className="w-full h-96 rounded-3xl shadow-2xl bg-gradient-to-br from-orange-500 via-red-500 to-amber-500 p-1"
                 variants={animations.liquidMorph}
                 animate="animate"
                 data-testid="about-image"
               >
-                <div className="w-full h-full rounded-3xl overflow-hidden relative">
-                  <img 
-                    src="/attached_assets/generated_images/Abstract_tech_portfolio_background_3fd6910d.png" 
-                    alt="Abstract tech background representing AI and Data Science"
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent flex items-end justify-center pb-8">
-                    <div className="text-center text-white">
-                      <div className="text-4xl mb-2">🎓</div>
-                      <p className="text-lg font-mono font-semibold">AI & Data Science Student</p>
-                    </div>
+                <div className="w-full h-full bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl flex items-center justify-center">
+                  <div className="text-center text-white">
+                    <div className="text-6xl mb-4">🎓</div>
+                    <p className="text-lg font-mono opacity-80">AI & Data Science Student</p>
                   </div>
                 </div>
               </motion.div>
