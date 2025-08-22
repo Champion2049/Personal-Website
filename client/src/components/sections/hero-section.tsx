@@ -7,7 +7,11 @@ export function HeroSection() {
   const lenis = useLenis();
 
   const handleExploreClick = () => {
-    lenis.scrollTo('#about');
+    lenis.scrollTo('#projects', {
+      duration: 1.0,
+      easing: (t: number) => t * t * (3 - 2 * t),
+      offset: -80
+    });
   };
 
   const handleContactClick = () => {

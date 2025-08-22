@@ -3,13 +3,6 @@ import { ArrowRight } from 'lucide-react';
 
 const projectsData = [
   {
-    title: 'SigNoz Model Context Protocol Server',
-    description: 'Architected and developed an MCP server from scratch using Node.js and TypeScript for SigNoz internship. Integrated official APIs to fetch real-time trace and log data, enabling comprehensive observability for GPT-based clients.',
-    tags: ['Node.js', 'TypeScript', 'APIs'],
-    period: 'May 2025 – Jul 2025',
-    github: '#' // Internship project - no public repo
-  },
-  {
     title: 'LLM Optimized Gold Nanoparticle Synthesis',
     description: 'Engineered a system using Gemini API and Keras deep learning to optimize AuNP synthesis for cancer treatment. The system predicts nanoparticle properties and provides intelligent suggestions for process improvement.',
     tags: ['Python', 'Keras', 'Gemini API'],

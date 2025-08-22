@@ -18,12 +18,12 @@ export function Navigation() {
 
   const handleNavClick = (href: string) => {
     lenis.scrollTo(href, {
-      duration: 1.2,
+      duration: 1.0,
       easing: (t: number) => {
-        // Smoother easing function
-        return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+        // Simple but smooth cubic easing
+        return t * t * (3 - 2 * t);
       },
-      offset: -100
+      offset: -80
     });
     setIsOpen(false);
   };

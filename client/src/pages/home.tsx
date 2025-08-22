@@ -62,7 +62,7 @@ export default function Home() {
             
             <div className="flex flex-wrap justify-center gap-4">
               <a 
-                href="https://github.com/chirayunilesh" 
+                href="https://github.com/Champion2049" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="hover:text-primary transition-colors"

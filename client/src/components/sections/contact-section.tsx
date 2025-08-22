@@ -20,8 +20,8 @@ const contactInfo = [
 ];
 
 const socialLinks = [
-  { icon: Github, href: 'https://github.com/chirayunilesh', label: 'GitHub' },
-  { icon: Linkedin, href: 'https://www.linkedin.com/in/chirayu-chaudhari', label: 'LinkedIn' },
+  { icon: Github, href: 'https://github.com/Champion2049', label: 'GitHub' },
+  { icon: Linkedin, href: 'https://www.linkedin.com/in/chirayu-chaudhari-086aa3314', label: 'LinkedIn' },
 ];
 
 export function ContactSection() {
