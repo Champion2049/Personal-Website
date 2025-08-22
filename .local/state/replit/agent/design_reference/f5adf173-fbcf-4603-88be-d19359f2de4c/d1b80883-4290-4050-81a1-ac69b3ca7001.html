@@ -1,0 +1,823 @@
+<html lang="en" class="lenis">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio - Creative Developer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'electric': '#00D4FF',
+                        'magenta': '#FF006E',
+                        'charcoal': '#1A1A1A',
+                        'deep': '#0A0A0A'
+                    },
+                    fontFamily: {
+                        'space': ['Space Grotesk', 'sans-serif'],
+                        'inter': ['Inter', 'sans-serif']
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'spin-slow': 'spin 8s linear infinite',
+                    }
+                }
+            }
+        };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lenis@latest/dist/lenis.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <style>
+        html.lenis, html.lenis body {
+            height: auto;
+        }
+        .lenis.lenis-smooth {
+            scroll-behavior: auto !important;
+        }
+        .lenis.lenis-smooth [data-lenis-prevent] {
+            overscroll-behavior: contain;
+        }
+        .lenis.lenis-stopped {
+            overflow: hidden;
+        }
+        .lenis.lenis-smooth iframe {
+            pointer-events: none;
+        }
+        
+        .custom-cursor {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 20px;
+            height: 20px;
+            background: #00D4FF;
+            border-radius: 50%;
+            pointer-events: none;
+            mix-blend-mode: difference;
+            z-index: 9999;
+            transition: transform 0.2s ease;
+        }
+        
+        .cursor-hover {
+            transform: scale(3);
+        }
+        
+        .magnetic-btn {
+            transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        
+        .glass-effect {
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .text-gradient {
+            background: linear-gradient(135deg, #00D4FF, #FF006E);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .skill-bar {
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .skill-fill {
+            transform: translateX(-100%);
+            transition: transform 1s ease-out;
+        }
+        
+        .skill-animate .skill-fill {
+            transform: translateX(0);
+        }
+        
+        .parallax-bg {
+            will-change: transform;
+        }
+        
+        .reveal-text {
+            overflow: hidden;
+        }
+        
+        .reveal-text span {
+            display: block;
+            transform: translateY(100%);
+            transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        
+        .reveal-animate span {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="bg-black text-white font-inter overflow-x-hidden">
+    <!-- Custom Cursor -->
+    <div class="custom-cursor" id="cursor"></div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 p-6">
+        <div class="glass-effect rounded-2xl px-8 py-4 mx-auto max-w-fit">
+            <div class="flex items-center space-x-8">
+                <div class="text-xl font-space font-bold text-gradient">Portfolio</div>
+                <div class="hidden md:flex space-x-6">
+                    <a href="#about" class="hover:text-electric transition-colors cursor-pointer magnetic-btn">About</a>
+                    <a href="#skills" class="hover:text-electric transition-colors cursor-pointer magnetic-btn">Skills</a>
+                    <a href="#projects" class="hover:text-electric transition-colors cursor-pointer magnetic-btn">Projects</a>
+                    <a href="#contact" class="hover:text-electric transition-colors cursor-pointer magnetic-btn">Contact</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="min-h-screen relative flex items-center justify-center overflow-hidden" id="hero">
+        <!-- Animated abstract digital art background -->
+        <div class="absolute inset-0 parallax-bg" style="background-image: url('https://images.unsplash.com/photo-1519501025264-65ba15a82390?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&h=1080'); background-size: cover; background-position: center;"></div>
+        
+        <div class="absolute inset-0 bg-gradient-to-br from-black/80 via-black/60 to-transparent"></div>
+        
+        <!-- Floating geometric elements -->
+        <div class="absolute top-20 left-20 w-32 h-32 border border-electric/30 rotate-45 animate-spin-slow"></div>
+        <div class="absolute bottom-32 right-32 w-24 h-24 bg-magenta/20 rounded-full animate-pulse-slow"></div>
+        <div class="absolute top-1/2 left-10 w-4 h-4 bg-electric animate-float"></div>
+        
+        <div class="relative z-10 text-center px-6 max-w-6xl">
+            <div class="reveal-text mb-8">
+                <span class="text-6xl md:text-8xl font-space font-bold mb-4 block">Creative</span>
+            </div>
+            <div class="reveal-text mb-8">
+                <span class="text-6xl md:text-8xl font-space font-bold text-gradient block">Developer</span>
+            </div>
+            <div class="reveal-text mb-12">
+                <span class="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto block">Crafting digital experiences that push boundaries and inspire innovation through code, design, and imagination.</span>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row gap-6 justify-center items-center">
+                <button class="magnetic-btn glass-effect px-8 py-4 rounded-2xl hover:bg-electric/20 transition-all duration-300 cursor-pointer group">
+                    <span class="flex items-center space-x-2">
+                        <span>View My Work</span>
+                        <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                        </svg>
+                    </span>
+                </button>
+                <button class="magnetic-btn border border-white/20 px-8 py-4 rounded-2xl hover:border-magenta hover:text-magenta transition-all duration-300 cursor-pointer">
+                    Download Resume
+                </button>
+            </div>
+        </div>
+        
+        <!-- Mouse indicator -->
+        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+            <div class="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
+                <div class="w-1 h-3 bg-white/60 rounded-full mt-2 animate-pulse"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="py-32 px-6 relative" id="about">
+        <!-- Futuristic technology elements background -->
+        <div class="absolute inset-0 opacity-10 parallax-bg" style="background-image: url('https://pixabay.com/get/g6faab132e0d0267d0101bd6f71e409aa8a1c7b71900f69634a6a1807f9b615f77ec9a7888ef23ee5395a9c17904afa480a0f9f7c6de3bc1a82fa56d1cb434a38_1280.jpg'); background-size: cover; background-position: center;"></div>
+        
+        <div class="max-w-7xl mx-auto">
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+                <div>
+                    <div class="reveal-text mb-8">
+                        <span class="text-5xl md:text-6xl font-space font-bold text-gradient block">About Me</span>
+                    </div>
+                    <div class="space-y-6 text-lg text-gray-300">
+                        <p data-mock="true">I'm a passionate creative developer with 5+ years of experience in crafting digital experiences that seamlessly blend aesthetics with functionality. My journey began with a simple curiosity about how beautiful websites come to life.</p>
+                        <p data-mock="true">Today, I specialize in creating immersive web experiences using cutting-edge technologies like React, Three.js, and advanced animation libraries. I believe that great design isn't just about how it looks, but how it feels and functions.</p>
+                        <p data-mock="true">When I'm not coding, you'll find me exploring new design trends, contributing to open-source projects, or experimenting with emerging technologies that push the boundaries of what's possible on the web.</p>
+                    </div>
+                    
+                    <!-- Experience Timeline -->
+                    <div class="mt-12 space-y-8">
+                        <div class="glass-effect p-6 rounded-2xl hover:bg-electric/5 transition-all duration-300 cursor-pointer">
+                            <div class="flex items-start space-x-4">
+                                <div class="w-12 h-12 bg-electric/20 rounded-xl flex items-center justify-center">
+                                    <div class="w-6 h-6 bg-electric rounded-full"></div>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-semibold text-white" data-mock="true">Senior Frontend Developer</h3>
+                                    <p class="text-electric font-medium" data-mock="true">Tech Innovations Inc. • 2022 - Present</p>
+                                    <p class="text-gray-400 mt-2" data-mock="true">Leading development of award-winning web applications with focus on performance and user experience.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="glass-effect p-6 rounded-2xl hover:bg-magenta/5 transition-all duration-300 cursor-pointer">
+                            <div class="flex items-start space-x-4">
+                                <div class="w-12 h-12 bg-magenta/20 rounded-xl flex items-center justify-center">
+                                    <div class="w-6 h-6 bg-magenta rounded-full"></div>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-semibold text-white" data-mock="true">Creative Developer</h3>
+                                    <p class="text-magenta font-medium" data-mock="true">Digital Studios • 2020 - 2022</p>
+                                    <p class="text-gray-400 mt-2" data-mock="true">Specialized in creating interactive experiences and animations for high-profile clients.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="relative">
+                    <!-- Creative geometric patterns background -->
+                    <div class="absolute inset-0 bg-gradient-to-br from-electric/20 to-magenta/20 rounded-3xl transform rotate-3"></div>
+                    <div class="relative glass-effect p-8 rounded-3xl">
+                        <!-- Modern workspace aesthetics image -->
+                        <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600" alt="Modern workspace with laptop and design tools" class="w-full h-96 object-cover rounded-2xl mb-6" />
+                        
+                        <div class="grid grid-cols-2 gap-6">
+                            <div class="text-center">
+                                <div class="text-3xl font-bold text-electric" data-mock="true">50+</div>
+                                <div class="text-gray-400" data-mock="true">Projects Completed</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-3xl font-bold text-magenta" data-mock="true">98%</div>
+                                <div class="text-gray-400" data-mock="true">Client Satisfaction</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-3xl font-bold text-electric" data-mock="true">5+</div>
+                                <div class="text-gray-400" data-mock="true">Years Experience</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-3xl font-bold text-magenta" data-mock="true">15+</div>
+                                <div class="text-gray-400" data-mock="true">Technologies</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section class="py-32 px-6 relative" id="skills">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-20">
+                <div class="reveal-text mb-8">
+                    <span class="text-5xl md:text-6xl font-space font-bold text-gradient block">Skills & Expertise</span>
+                </div>
+                <p class="text-xl text-gray-300 max-w-3xl mx-auto" data-mock="true">
+                    Constantly evolving my skillset to stay at the forefront of web development and design innovation.
+                </p>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-16">
+                <!-- Technical Skills -->
+                <div class="space-y-8">
+                    <h3 class="text-3xl font-space font-bold mb-8">Technical Skills</h3>
+                    
+                    <div class="space-y-6">
+                        <div class="skill-item">
+                            <div class="flex justify-between mb-2">
+                                <span class="text-lg font-medium">React & Next.js</span>
+                                <span class="text-electric">95%</span>
+                            </div>
+                            <div class="skill-bar h-3 bg-charcoal rounded-full">
+                                <div class="skill-fill h-full bg-gradient-to-r from-electric to-electric/60 rounded-full" style="width: 95%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="skill-item">
+                            <div class="flex justify-between mb-2">
+                                <span class="text-lg font-medium">JavaScript & TypeScript</span>
+                                <span class="text-magenta">90%</span>
+                            </div>
+                            <div class="skill-bar h-3 bg-charcoal rounded-full">
+                                <div class="skill-fill h-full bg-gradient-to-r from-magenta to-magenta/60 rounded-full" style="width: 90%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="skill-item">
+                            <div class="flex justify-between mb-2">
+                                <span class="text-lg font-medium">Three.js & WebGL</span>
+                                <span class="text-electric">85%</span>
+                            </div>
+                            <div class="skill-bar h-3 bg-charcoal rounded-full">
+                                <div class="skill-fill h-full bg-gradient-to-r from-electric to-electric/60 rounded-full" style="width: 85%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="skill-item">
+                            <div class="flex justify-between mb-2">
+                                <span class="text-lg font-medium">GSAP & Animations</span>
+                                <span class="text-magenta">92%</span>
+                            </div>
+                            <div class="skill-bar h-3 bg-charcoal rounded-full">
+                                <div class="skill-fill h-full bg-gradient-to-r from-magenta to-magenta/60 rounded-full" style="width: 92%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="skill-item">
+                            <div class="flex justify-between mb-2">
+                                <span class="text-lg font-medium">Node.js & APIs</span>
+                                <span class="text-electric">88%</span>
+                            </div>
+                            <div class="skill-bar h-3 bg-charcoal rounded-full">
+                                <div class="skill-fill h-full bg-gradient-to-r from-electric to-electric/60 rounded-full" style="width: 88%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Design & Tools -->
+                <div class="space-y-8">
+                    <h3 class="text-3xl font-space font-bold mb-8">Design & Tools</h3>
+                    
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="glass-effect p-6 rounded-2xl hover:bg-electric/10 transition-all duration-300 cursor-pointer group">
+                            <div class="w-12 h-12 bg-electric/20 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                <svg class="w-6 h-6 text-electric" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                </svg>
+                            </div>
+                            <h4 class="text-lg font-semibold mb-2">Figma</h4>
+                            <p class="text-gray-400 text-sm" data-mock="true">Advanced prototyping & design systems</p>
+                        </div>
+                        
+                        <div class="glass-effect p-6 rounded-2xl hover:bg-magenta/10 transition-all duration-300 cursor-pointer group">
+                            <div class="w-12 h-12 bg-magenta/20 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                <svg class="w-6 h-6 text-magenta" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                </svg>
+                            </div>
+                            <h4 class="text-lg font-semibold mb-2">Adobe Creative</h4>
+                            <p class="text-gray-400 text-sm" data-mock="true">Photoshop, Illustrator, After Effects</p>
+                        </div>
+                        
+                        <div class="glass-effect p-6 rounded-2xl hover:bg-electric/10 transition-all duration-300 cursor-pointer group">
+                            <div class="w-12 h-12 bg-electric/20 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                <svg class="w-6 h-6 text-electric" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                </svg>
+                            </div>
+                            <h4 class="text-lg font-semibold mb-2">Git & DevOps</h4>
+                            <p class="text-gray-400 text-sm" data-mock="true">Version control & deployment</p>
+                        </div>
+                        
+                        <div class="glass-effect p-6 rounded-2xl hover:bg-magenta/10 transition-all duration-300 cursor-pointer group">
+                            <div class="w-12 h-12 bg-magenta/20 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                <svg class="w-6 h-6 text-magenta" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                </svg>
+                            </div>
+                            <h4 class="text-lg font-semibold mb-2">Blender</h4>
+                            <p class="text-gray-400 text-sm" data-mock="true">3D modeling & animation</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section class="py-32 px-6 relative" id="projects">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-20">
+                <div class="reveal-text mb-8">
+                    <span class="text-5xl md:text-6xl font-space font-bold text-gradient block">Featured Projects</span>
+                </div>
+                <p class="text-xl text-gray-300 max-w-3xl mx-auto" data-mock="true">
+                    A curated selection of projects that showcase my passion for creating exceptional digital experiences.
+                </p>
+            </div>
+
+            <div class="space-y-32">
+                <!-- Project 1 -->
+                <div class="grid lg:grid-cols-2 gap-16 items-center">
+                    <div class="order-2 lg:order-1">
+                        <div class="reveal-text mb-6">
+                            <span class="text-3xl md:text-4xl font-space font-bold block" data-mock="true">Interactive 3D Portfolio</span>
+                        </div>
+                        <p class="text-lg text-gray-300 mb-6" data-mock="true">
+                            A cutting-edge portfolio website featuring Three.js 3D elements, GSAP animations, and immersive user interactions. Built with React and optimized for performance across all devices.
+                        </p>
+                        <div class="flex flex-wrap gap-3 mb-8">
+                            <span class="px-3 py-1 bg-electric/20 text-electric rounded-full text-sm">React</span>
+                            <span class="px-3 py-1 bg-electric/20 text-electric rounded-full text-sm">Three.js</span>
+                            <span class="px-3 py-1 bg-electric/20 text-electric rounded-full text-sm">GSAP</span>
+                            <span class="px-3 py-1 bg-electric/20 text-electric rounded-full text-sm">WebGL</span>
+                        </div>
+                        <div class="flex space-x-4">
+                            <button class="magnetic-btn glass-effect px-6 py-3 rounded-xl hover:bg-electric/20 transition-all duration-300 cursor-pointer">
+                                <span class="flex items-center space-x-2">
+                                    <span>Live Demo</span>
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                                    </svg>
+                                </span>
+                            </button>
+                            <button class="magnetic-btn border border-white/20 px-6 py-3 rounded-xl hover:border-electric transition-all duration-300 cursor-pointer">
+                                View Code
+                            </button>
+                        </div>
+                    </div>
+                    <div class="order-1 lg:order-2 relative group">
+                        <!-- Abstract digital art background for project -->
+                        <div class="absolute inset-0 bg-gradient-to-br from-electric/20 to-magenta/20 rounded-3xl transform rotate-3 group-hover:rotate-6 transition-transform duration-500"></div>
+                        <div class="relative glass-effect p-4 rounded-3xl overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600" alt="Interactive 3D portfolio website mockup" class="w-full h-80 object-cover rounded-2xl group-hover:scale-105 transition-transform duration-500" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project 2 -->
+                <div class="grid lg:grid-cols-2 gap-16 items-center">
+                    <div class="relative group">
+                        <div class="absolute inset-0 bg-gradient-to-br from-magenta/20 to-electric/20 rounded-3xl transform -rotate-3 group-hover:-rotate-6 transition-transform duration-500"></div>
+                        <div class="relative glass-effect p-4 rounded-3xl overflow-hidden">
+                            <!-- Futuristic technology elements for e-commerce project -->
+                            <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600" alt="Modern e-commerce platform interface" class="w-full h-80 object-cover rounded-2xl group-hover:scale-105 transition-transform duration-500" />
+                        </div>
+                    </div>
+                    <div>
+                        <div class="reveal-text mb-6">
+                            <span class="text-3xl md:text-4xl font-space font-bold block" data-mock="true">E-Commerce Platform</span>
+                        </div>
+                        <p class="text-lg text-gray-300 mb-6" data-mock="true">
+                            A modern e-commerce solution with advanced animations, smooth transitions, and intuitive user experience. Features real-time inventory, secure payments, and responsive design.
+                        </p>
+                        <div class="flex flex-wrap gap-3 mb-8">
+                            <span class="px-3 py-1 bg-magenta/20 text-magenta rounded-full text-sm">Next.js</span>
+                            <span class="px-3 py-1 bg-magenta/20 text-magenta rounded-full text-sm">TypeScript</span>
+                            <span class="px-3 py-1 bg-magenta/20 text-magenta rounded-full text-sm">Stripe</span>
+                            <span class="px-3 py-1 bg-magenta/20 text-magenta rounded-full text-sm">MongoDB</span>
+                        </div>
+                        <div class="flex space-x-4">
+                            <button class="magnetic-btn glass-effect px-6 py-3 rounded-xl hover:bg-magenta/20 transition-all duration-300 cursor-pointer">
+                                <span class="flex items-center space-x-2">
+                                    <span>Live Demo</span>
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                                    </svg>
+                                </span>
+                            </button>
+                            <button class="magnetic-btn border border-white/20 px-6 py-3 rounded-xl hover:border-magenta transition-all duration-300 cursor-pointer">
+                                View Code
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project 3 -->
+                <div class="grid lg:grid-cols-2 gap-16 items-center">
+                    <div class="order-2 lg:order-1">
+                        <div class="reveal-text mb-6">
+                            <span class="text-3xl md:text-4xl font-space font-bold block" data-mock="true">Creative Agency Website</span>
+                        </div>
+                        <p class="text-lg text-gray-300 mb-6" data-mock="true">
+                            An award-winning agency website featuring innovative layouts, scroll-triggered animations, and immersive storytelling. Optimized for both performance and visual impact.
+                        </p>
+                        <div class="flex flex-wrap gap-3 mb-8">
+                            <span class="px-3 py-1 bg-electric/20 text-electric rounded-full text-sm">React</span>
+                            <span class="px-3 py-1 bg-electric/20 text-electric rounded-full text-sm">Lenis</span>
+                            <span class="px-3 py-1 bg-electric/20 text-electric rounded-full text-sm">Framer Motion</span>
+                            <span class="px-3 py-1 bg-electric/20 text-electric rounded-full text-sm">Sanity</span>
+                        </div>
+                        <div class="flex space-x-4">
+                            <button class="magnetic-btn glass-effect px-6 py-3 rounded-xl hover:bg-electric/20 transition-all duration-300 cursor-pointer">
+                                <span class="flex items-center space-x-2">
+                                    <span>Live Demo</span>
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                                    </svg>
+                                </span>
+                            </button>
+                            <button class="magnetic-btn border border-white/20 px-6 py-3 rounded-xl hover:border-electric transition-all duration-300 cursor-pointer">
+                                View Code
+                            </button>
+                        </div>
+                    </div>
+                    <div class="order-1 lg:order-2 relative group">
+                        <div class="absolute inset-0 bg-gradient-to-br from-electric/20 to-magenta/20 rounded-3xl transform rotate-3 group-hover:rotate-6 transition-transform duration-500"></div>
+                        <div class="relative glass-effect p-4 rounded-3xl overflow-hidden">
+                            <!-- Creative geometric patterns for agency website -->
+                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600" alt="Creative agency website with modern design elements" class="w-full h-80 object-cover rounded-2xl group-hover:scale-105 transition-transform duration-500" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="py-32 px-6 relative" id="contact">
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-20">
+                <div class="reveal-text mb-8">
+                    <span class="text-5xl md:text-6xl font-space font-bold text-gradient block">Let's Create Together</span>
+                </div>
+                <p class="text-xl text-gray-300 max-w-3xl mx-auto" data-mock="true">
+                    Ready to bring your vision to life? Let's discuss your next project and create something extraordinary.
+                </p>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-16">
+                <!-- Contact Info -->
+                <div class="space-y-8">
+                    <div class="glass-effect p-8 rounded-3xl">
+                        <h3 class="text-2xl font-space font-bold mb-6">Get in Touch</h3>
+                        
+                        <div class="space-y-6">
+                            <div class="flex items-center space-x-4 group cursor-pointer">
+                                <div class="w-12 h-12 bg-electric/20 rounded-xl flex items-center justify-center group-hover:bg-electric/30 transition-colors">
+                                    <svg class="w-6 h-6 text-electric" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-gray-400 text-sm">Email</p>
+                                    <p class="text-white font-medium" data-mock="true">hello@johndoe.dev</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center space-x-4 group cursor-pointer">
+                                <div class="w-12 h-12 bg-magenta/20 rounded-xl flex items-center justify-center group-hover:bg-magenta/30 transition-colors">
+                                    <svg class="w-6 h-6 text-magenta" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-gray-400 text-sm">Phone</p>
+                                    <p class="text-white font-medium" data-mock="true">+1 (555) 123-4567</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center space-x-4 group cursor-pointer">
+                                <div class="w-12 h-12 bg-electric/20 rounded-xl flex items-center justify-center group-hover:bg-electric/30 transition-colors">
+                                    <svg class="w-6 h-6 text-electric" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-gray-400 text-sm">Location</p>
+                                    <p class="text-white font-medium" data-mock="true">San Francisco, CA</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Social Links -->
+                        <div class="mt-8 pt-8 border-t border-white/10">
+                            <p class="text-gray-400 mb-4">Follow me on</p>
+                            <div class="flex space-x-4">
+                                <button class="magnetic-btn w-12 h-12 bg-electric/20 rounded-xl flex items-center justify-center hover:bg-electric/30 transition-colors cursor-pointer">
+                                    <svg class="w-5 h-5 text-electric" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
+                                    </svg>
+                                </button>
+                                <button class="magnetic-btn w-12 h-12 bg-magenta/20 rounded-xl flex items-center justify-center hover:bg-magenta/30 transition-colors cursor-pointer">
+                                    <svg class="w-5 h-5 text-magenta" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                                    </svg>
+                                </button>
+                                <button class="magnetic-btn w-12 h-12 bg-electric/20 rounded-xl flex items-center justify-center hover:bg-electric/30 transition-colors cursor-pointer">
+                                    <svg class="w-5 h-5 text-electric" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Form -->
+                <div class="glass-effect p-8 rounded-3xl">
+                    <h3 class="text-2xl font-space font-bold mb-6">Send Message</h3>
+                    
+                    <form class="space-y-6" data-implementation="Replace with functional form handling">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-gray-400 text-sm mb-2">First Name</label>
+                                <input type="text" class="w-full bg-charcoal/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-electric focus:outline-none transition-colors" placeholder="John" data-mock="true">
+                            </div>
+                            <div>
+                                <label class="block text-gray-400 text-sm mb-2">Last Name</label>
+                                <input type="text" class="w-full bg-charcoal/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-electric focus:outline-none transition-colors" placeholder="Doe" data-mock="true">
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-400 text-sm mb-2">Email</label>
+                            <input type="email" class="w-full bg-charcoal/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-electric focus:outline-none transition-colors" placeholder="john@example.com" data-mock="true">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-400 text-sm mb-2">Subject</label>
+                            <input type="text" class="w-full bg-charcoal/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-electric focus:outline-none transition-colors" placeholder="Project Collaboration" data-mock="true">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-400 text-sm mb-2">Message</label>
+                            <textarea rows="5" class="w-full bg-charcoal/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-electric focus:outline-none transition-colors resize-none" placeholder="Tell me about your project..." data-mock="true"></textarea>
+                        </div>
+                        
+                        <button type="submit" class="w-full magnetic-btn bg-gradient-to-r from-electric to-magenta px-8 py-4 rounded-xl font-semibold hover:shadow-lg hover:shadow-electric/25 transition-all duration-300 cursor-pointer">
+                            Send Message
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-16 px-6 border-t border-white/10">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="text-2xl font-space font-bold text-gradient mb-4 md:mb-0">Portfolio</div>
+                <div class="flex items-center space-x-8">
+                    <p class="text-gray-400" data-mock="true">© 2024 John Doe. All rights reserved.</p>
+                    <button class="text-gray-400 hover:text-electric transition-colors cursor-pointer">Privacy</button>
+                    <button class="text-gray-400 hover:text-electric transition-colors cursor-pointer">Terms</button>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize Lenis smooth scroll
+        (function() {
+            const lenis = new Lenis({
+                duration: 1.2,
+                easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+                direction: 'vertical',
+                gestureDirection: 'vertical',
+                smooth: true,
+                smoothTouch: false,
+                touchMultiplier: 2,
+                autoRaf: true
+            });
+
+            // GSAP ScrollTrigger integration
+            lenis.on('scroll', ScrollTrigger.update);
+
+            gsap.ticker.add((time) => {
+                lenis.raf(time * 1000);
+            });
+
+            gsap.ticker.lagSmoothing(0);
+
+            // Custom cursor
+            const cursor = document.getElementById('cursor');
+            const magneticElements = document.querySelectorAll('.magnetic-btn');
+
+            document.addEventListener('mousemove', (e) => {
+                gsap.to(cursor, {
+                    x: e.clientX - 10,
+                    y: e.clientY - 10,
+                    duration: 0.2,
+                    ease: "power2.out"
+                });
+            });
+
+            // Magnetic effect for buttons
+            magneticElements.forEach(btn => {
+                btn.addEventListener('mouseenter', () => {
+                    cursor.classList.add('cursor-hover');
+                });
+                
+                btn.addEventListener('mouseleave', () => {
+                    cursor.classList.remove('cursor-hover');
+                    gsap.to(btn, {
+                        x: 0,
+                        y: 0,
+                        duration: 0.3,
+                        ease: "power2.out"
+                    });
+                });
+                
+                btn.addEventListener('mousemove', (e) => {
+                    const rect = btn.getBoundingClientRect();
+                    const x = e.clientX - rect.left - rect.width / 2;
+                    const y = e.clientY - rect.top - rect.height / 2;
+                    
+                    gsap.to(btn, {
+                        x: x * 0.3,
+                        y: y * 0.3,
+                        duration: 0.3,
+                        ease: "power2.out"
+                    });
+                });
+            });
+
+            // Text reveal animations
+            const revealTexts = document.querySelectorAll('.reveal-text');
+            revealTexts.forEach(text => {
+                gsap.set(text.querySelector('span'), { y: '100%' });
+                
+                ScrollTrigger.create({
+                    trigger: text,
+                    start: 'top 80%',
+                    end: 'bottom 20%',
+                    onEnter: () => {
+                        text.classList.add('reveal-animate');
+                        gsap.to(text.querySelector('span'), {
+                            y: '0%',
+                            duration: 0.8,
+                            ease: "power3.out"
+                        });
+                    }
+                });
+            });
+
+            // Skills animation
+            const skillItems = document.querySelectorAll('.skill-item');
+            skillItems.forEach((item, index) => {
+                ScrollTrigger.create({
+                    trigger: item,
+                    start: 'top 80%',
+                    onEnter: () => {
+                        setTimeout(() => {
+                            item.classList.add('skill-animate');
+                            const skillFill = item.querySelector('.skill-fill');
+                            const width = skillFill.style.width;
+                            gsap.fromTo(skillFill, 
+                                { width: '0%' },
+                                { width: width, duration: 1.5, ease: "power2.out" }
+                            );
+                        }, index * 200);
+                    }
+                });
+            });
+
+            // Parallax backgrounds
+            const parallaxElements = document.querySelectorAll('.parallax-bg');
+            parallaxElements.forEach(element => {
+                gsap.to(element, {
+                    yPercent: -50,
+                    ease: "none",
+                    scrollTrigger: {
+                        trigger: element,
+                        start: "top bottom",
+                        end: "bottom top",
+                        scrub: true
+                    }
+                });
+            });
+
+            // Smooth anchor scrolling
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        lenis.scrollTo(target, {
+                            offset: -100,
+                            duration: 2
+                        });
+                    }
+                });
+            });
+
+            // Hero floating elements animation
+            gsap.to('.animate-float', {
+                y: -20,
+                duration: 3,
+                ease: "power2.inOut",
+                yoyo: true,
+                repeat: -1
+            });
+
+            // Project cards hover effects
+            const projectCards = document.querySelectorAll('.group');
+            projectCards.forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    gsap.to(card.querySelector('img'), {
+                        scale: 1.05,
+                        duration: 0.5,
+                        ease: "power2.out"
+                    });
+                });
+                
+                card.addEventListener('mouseleave', () => {
+                    gsap.to(card.querySelector('img'), {
+                        scale: 1,
+                        duration: 0.5,
+                        ease: "power2.out"
+                    });
+                });
+            });
+
+            // TODO: Implement form submission functionality
+            // TODO: Add loading states for interactive elements
+            // TODO: Implement proper error handling for animations
+        })();
+    </script>
+</body>
+</html>

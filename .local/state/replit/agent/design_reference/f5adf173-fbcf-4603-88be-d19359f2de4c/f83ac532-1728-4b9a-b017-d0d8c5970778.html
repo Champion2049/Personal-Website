@@ -1,0 +1,671 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio - Creative Developer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                        'mono': ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        'dark-primary': '#0F0F23',
+                        'dark-secondary': '#1A1A2E',
+                        'electric-blue': '#00D4FF',
+                        'electric-blue-dark': '#0099CC',
+                        'purple-primary': '#6366F1',
+                        'purple-secondary': '#8B5CF6',
+                        'accent-yellow': '#F59E0B',
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'glow': 'glow 2s ease-in-out infinite alternate',
+                        'slide-up': 'slideUp 0.8s ease-out',
+                        'fade-in': 'fadeIn 1s ease-out',
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        @keyframes glow {
+            from { box-shadow: 0 0 20px #00D4FF; }
+            to { box-shadow: 0 0 30px #00D4FF, 0 0 40px #00D4FF; }
+        }
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .glassmorphism {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .text-gradient {
+            background: linear-gradient(135deg, #00D4FF, #8B5CF6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+        .parallax-bg {
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+    </style>
+</head>
+<body class="font-inter bg-dark-primary text-white overflow-x-hidden">
+    
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 glassmorphism transition-all duration-300" id="navbar">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="text-2xl font-bold text-gradient">
+                    Portfolio
+                </div>
+                
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex space-x-8">
+                    <a href="#home" class="hover:text-electric-blue transition-colors duration-300">Home</a>
+                    <a href="#about" class="hover:text-electric-blue transition-colors duration-300">About</a>
+                    <a href="#skills" class="hover:text-electric-blue transition-colors duration-300">Skills</a>
+                    <a href="#projects" class="hover:text-electric-blue transition-colors duration-300">Projects</a>
+                    <a href="#contact" class="hover:text-electric-blue transition-colors duration-300">Contact</a>
+                </div>
+                
+                <!-- Mobile Menu Button -->
+                <button class="md:hidden text-2xl" id="mobile-menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            
+            <!-- Mobile Navigation -->
+            <div class="md:hidden mt-4 space-y-4 hidden" id="mobile-menu">
+                <a href="#home" class="block hover:text-electric-blue transition-colors duration-300">Home</a>
+                <a href="#about" class="block hover:text-electric-blue transition-colors duration-300">About</a>
+                <a href="#skills" class="block hover:text-electric-blue transition-colors duration-300">Skills</a>
+                <a href="#projects" class="block hover:text-electric-blue transition-colors duration-300">Projects</a>
+                <a href="#contact" class="block hover:text-electric-blue transition-colors duration-300">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="min-h-screen flex items-center justify-center relative overflow-hidden">
+        <!-- Background with parallax effect -->
+        <!-- Modern professional workspace with multiple monitors and tech setup -->
+        <div class="absolute inset-0 parallax-bg" style="background-image: linear-gradient(rgba(15, 15, 35, 0.8), rgba(26, 26, 46, 0.8)), url('https://images.unsplash.com/photo-1498050108023-c5249f4df085?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&h=1080');"></div>
+        
+        <!-- Floating Elements -->
+        <div class="absolute inset-0">
+            <div class="absolute top-20 left-20 w-32 h-32 bg-gradient-to-r from-electric-blue to-purple-primary rounded-full opacity-20 animate-float"></div>
+            <div class="absolute bottom-20 right-20 w-24 h-24 bg-gradient-to-r from-purple-secondary to-accent-yellow rounded-full opacity-30 animate-float" style="animation-delay: -2s;"></div>
+            <div class="absolute top-1/2 left-10 w-16 h-16 bg-gradient-to-r from-accent-yellow to-electric-blue rounded-full opacity-25 animate-float" style="animation-delay: -4s;"></div>
+        </div>
+        
+        <div class="relative z-10 text-center max-w-6xl mx-auto px-6 animate-slide-up">
+            <h1 class="text-6xl md:text-8xl font-black mb-6 leading-tight">
+                <span class="text-gradient">Creative</span><br>
+                <span class="text-white">Developer</span>
+            </h1>
+            <p class="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
+                Crafting digital experiences that push boundaries and inspire innovation through cutting-edge technology and creative design.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-6 justify-center items-center">
+                <button class="px-8 py-4 bg-gradient-to-r from-electric-blue to-purple-primary text-white font-semibold rounded-full hover:scale-105 transition-all duration-300 animate-glow">
+                    View My Work
+                </button>
+                <button class="px-8 py-4 glassmorphism text-white font-semibold rounded-full hover:bg-white/20 transition-all duration-300">
+                    Download Resume
+                </button>
+            </div>
+        </div>
+        
+        <!-- Scroll Indicator -->
+        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+            <i class="fas fa-chevron-down text-2xl text-electric-blue"></i>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-20 relative">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="animate-slide-up">
+                    <h2 class="text-5xl font-bold mb-8 text-gradient">About Me</h2>
+                    <p class="text-lg text-gray-300 mb-6 leading-relaxed">
+                        I'm a passionate full-stack developer with a keen eye for design and a love for creating seamless digital experiences. With expertise spanning modern web technologies, I bring ideas to life through clean code and innovative solutions.
+                    </p>
+                    <p class="text-lg text-gray-300 mb-8 leading-relaxed">
+                        When I'm not coding, you'll find me exploring the latest tech trends, contributing to open-source projects, or experimenting with new creative tools and frameworks.
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <span class="px-4 py-2 glassmorphism rounded-full text-sm">Web Development</span>
+                        <span class="px-4 py-2 glassmorphism rounded-full text-sm">UI/UX Design</span>
+                        <span class="px-4 py-2 glassmorphism rounded-full text-sm">Mobile Apps</span>
+                        <span class="px-4 py-2 glassmorphism rounded-full text-sm">Cloud Solutions</span>
+                    </div>
+                </div>
+                <div class="relative">
+                    <!-- Professional developer workspace with modern setup -->
+                    <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=800" alt="Professional developer workspace" class="rounded-2xl shadow-2xl w-full h-auto transform hover:scale-105 transition-transform duration-300" />
+                    <div class="absolute -bottom-6 -right-6 w-32 h-32 bg-gradient-to-r from-purple-primary to-electric-blue rounded-2xl opacity-50 -z-10"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section id="skills" class="py-20 bg-dark-secondary relative">
+        <div class="container mx-auto px-6">
+            <h2 class="text-5xl font-bold text-center mb-16 text-gradient">Technical Skills</h2>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Frontend Skills -->
+                <div class="glassmorphism p-8 rounded-2xl hover:bg-white/20 transition-all duration-300 group">
+                    <div class="text-4xl mb-6 text-electric-blue group-hover:scale-110 transition-transform duration-300">
+                        <i class="fab fa-html5"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Frontend Development</h3>
+                    <div class="space-y-4">
+                        <div class="skill-item">
+                            <div class="flex justify-between mb-2">
+                                <span>React/Next.js</span>
+                                <span>95%</span>
+                            </div>
+                            <div class="w-full bg-gray-700 rounded-full h-2">
+                                <div class="bg-gradient-to-r from-electric-blue to-purple-primary h-2 rounded-full" style="width: 95%"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item">
+                            <div class="flex justify-between mb-2">
+                                <span>TypeScript</span>
+                                <span>90%</span>
+                            </div>
+                            <div class="w-full bg-gray-700 rounded-full h-2">
+                                <div class="bg-gradient-to-r from-electric-blue to-purple-primary h-2 rounded-full" style="width: 90%"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item">
+                            <div class="flex justify-between mb-2">
+                                <span>CSS/Tailwind</span>
+                                <span>98%</span>
+                            </div>
+                            <div class="w-full bg-gray-700 rounded-full h-2">
+                                <div class="bg-gradient-to-r from-electric-blue to-purple-primary h-2 rounded-full" style="width: 98%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Backend Skills -->
+                <div class="glassmorphism p-8 rounded-2xl hover:bg-white/20 transition-all duration-300 group">
+                    <div class="text-4xl mb-6 text-purple-primary group-hover:scale-110 transition-transform duration-300">
+                        <i class="fas fa-server"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Backend Development</h3>
+                    <div class="space-y-4">
+                        <div class="skill-item">
+                            <div class="flex justify-between mb-2">
+                                <span>Node.js/Express</span>
+                                <span>88%</span>
+                            </div>
+                            <div class="w-full bg-gray-700 rounded-full h-2">
+                                <div class="bg-gradient-to-r from-purple-primary to-accent-yellow h-2 rounded-full" style="width: 88%"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item">
+                            <div class="flex justify-between mb-2">
+                                <span>Python/Django</span>
+                                <span>85%</span>
+                            </div>
+                            <div class="w-full bg-gray-700 rounded-full h-2">
+                                <div class="bg-gradient-to-r from-purple-primary to-accent-yellow h-2 rounded-full" style="width: 85%"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item">
+                            <div class="flex justify-between mb-2">
+                                <span>Databases</span>
+                                <span>82%</span>
+                            </div>
+                            <div class="w-full bg-gray-700 rounded-full h-2">
+                                <div class="bg-gradient-to-r from-purple-primary to-accent-yellow h-2 rounded-full" style="width: 82%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tools & Others -->
+                <div class="glassmorphism p-8 rounded-2xl hover:bg-white/20 transition-all duration-300 group">
+                    <div class="text-4xl mb-6 text-accent-yellow group-hover:scale-110 transition-transform duration-300">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Tools & Technologies</h3>
+                    <div class="space-y-4">
+                        <div class="skill-item">
+                            <div class="flex justify-between mb-2">
+                                <span>Git/GitHub</span>
+                                <span>95%</span>
+                            </div>
+                            <div class="w-full bg-gray-700 rounded-full h-2">
+                                <div class="bg-gradient-to-r from-accent-yellow to-electric-blue h-2 rounded-full" style="width: 95%"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item">
+                            <div class="flex justify-between mb-2">
+                                <span>Docker/AWS</span>
+                                <span>78%</span>
+                            </div>
+                            <div class="w-full bg-gray-700 rounded-full h-2">
+                                <div class="bg-gradient-to-r from-accent-yellow to-electric-blue h-2 rounded-full" style="width: 78%"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item">
+                            <div class="flex justify-between mb-2">
+                                <span>Design Tools</span>
+                                <span>88%</span>
+                            </div>
+                            <div class="w-full bg-gray-700 rounded-full h-2">
+                                <div class="bg-gradient-to-r from-accent-yellow to-electric-blue h-2 rounded-full" style="width: 88%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="py-20 relative">
+        <div class="container mx-auto px-6">
+            <h2 class="text-5xl font-bold text-center mb-16 text-gradient">Featured Projects</h2>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Project 1 -->
+                <div class="group relative glassmorphism rounded-2xl overflow-hidden hover:scale-105 transition-all duration-300">
+                    <!-- Abstract digital technology interface with neon elements -->
+                    <img src="https://pixabay.com/get/gbcbebefb459741da97a5f628482a3bebeb0adfa29f6831c27897f06b49038cc8aceee2b39976b99ae2ec810e6e6a0eb6b0f1c03e3dffef722b924d4bc8c8d9ce_1280.jpg" alt="Digital technology interface" class="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-300" />
+                    <div class="absolute inset-0 bg-gradient-to-t from-dark-primary via-transparent to-transparent opacity-80"></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-6">
+                        <h3 class="text-xl font-bold mb-2">E-Commerce Platform</h3>
+                        <p class="text-gray-300 text-sm mb-4">Full-stack web application with modern UI and seamless user experience</p>
+                        <div class="flex gap-2 flex-wrap">
+                            <span class="px-2 py-1 bg-electric-blue/20 text-electric-blue text-xs rounded">React</span>
+                            <span class="px-2 py-1 bg-purple-primary/20 text-purple-primary text-xs rounded">Node.js</span>
+                            <span class="px-2 py-1 bg-accent-yellow/20 text-accent-yellow text-xs rounded">MongoDB</span>
+                        </div>
+                    </div>
+                    <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <button class="p-2 glassmorphism rounded-full hover:bg-white/30">
+                            <i class="fas fa-external-link-alt text-white"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Project 2 -->
+                <div class="group relative glassmorphism rounded-2xl overflow-hidden hover:scale-105 transition-all duration-300">
+                    <!-- Creative design with abstract geometric patterns -->
+                    <img src="https://images.unsplash.com/photo-1561736778-92e52a7769ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400" alt="Abstract geometric design patterns" class="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-300" />
+                    <div class="absolute inset-0 bg-gradient-to-t from-dark-primary via-transparent to-transparent opacity-80"></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-6">
+                        <h3 class="text-xl font-bold mb-2">Mobile App Design</h3>
+                        <p class="text-gray-300 text-sm mb-4">Cross-platform mobile application with intuitive design and smooth animations</p>
+                        <div class="flex gap-2 flex-wrap">
+                            <span class="px-2 py-1 bg-electric-blue/20 text-electric-blue text-xs rounded">React Native</span>
+                            <span class="px-2 py-1 bg-purple-primary/20 text-purple-primary text-xs rounded">Firebase</span>
+                            <span class="px-2 py-1 bg-accent-yellow/20 text-accent-yellow text-xs rounded">Figma</span>
+                        </div>
+                    </div>
+                    <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <button class="p-2 glassmorphism rounded-full hover:bg-white/30">
+                            <i class="fas fa-external-link-alt text-white"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Project 3 -->
+                <div class="group relative glassmorphism rounded-2xl overflow-hidden hover:scale-105 transition-all duration-300">
+                    <!-- Modern data visualization dashboard interface -->
+                    <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400" alt="Data visualization dashboard" class="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-300" />
+                    <div class="absolute inset-0 bg-gradient-to-t from-dark-primary via-transparent to-transparent opacity-80"></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-6">
+                        <h3 class="text-xl font-bold mb-2">Analytics Dashboard</h3>
+                        <p class="text-gray-300 text-sm mb-4">Real-time data visualization platform with interactive charts and insights</p>
+                        <div class="flex gap-2 flex-wrap">
+                            <span class="px-2 py-1 bg-electric-blue/20 text-electric-blue text-xs rounded">Vue.js</span>
+                            <span class="px-2 py-1 bg-purple-primary/20 text-purple-primary text-xs rounded">D3.js</span>
+                            <span class="px-2 py-1 bg-accent-yellow/20 text-accent-yellow text-xs rounded">Python</span>
+                        </div>
+                    </div>
+                    <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <button class="p-2 glassmorphism rounded-full hover:bg-white/30">
+                            <i class="fas fa-external-link-alt text-white"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Project 4 -->
+                <div class="group relative glassmorphism rounded-2xl overflow-hidden hover:scale-105 transition-all duration-300">
+                    <!-- AI and machine learning visualization -->
+                    <img src="https://images.unsplash.com/photo-1555949963-aa79dcee981c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400" alt="AI machine learning visualization" class="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-300" />
+                    <div class="absolute inset-0 bg-gradient-to-t from-dark-primary via-transparent to-transparent opacity-80"></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-6">
+                        <h3 class="text-xl font-bold mb-2">AI Chat Assistant</h3>
+                        <p class="text-gray-300 text-sm mb-4">Intelligent chatbot with natural language processing and machine learning</p>
+                        <div class="flex gap-2 flex-wrap">
+                            <span class="px-2 py-1 bg-electric-blue/20 text-electric-blue text-xs rounded">OpenAI</span>
+                            <span class="px-2 py-1 bg-purple-primary/20 text-purple-primary text-xs rounded">FastAPI</span>
+                            <span class="px-2 py-1 bg-accent-yellow/20 text-accent-yellow text-xs rounded">Docker</span>
+                        </div>
+                    </div>
+                    <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <button class="p-2 glassmorphism rounded-full hover:bg-white/30">
+                            <i class="fas fa-external-link-alt text-white"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Project 5 -->
+                <div class="group relative glassmorphism rounded-2xl overflow-hidden hover:scale-105 transition-all duration-300">
+                    <!-- Blockchain and cryptocurrency interface -->
+                    <img src="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400" alt="Blockchain cryptocurrency interface" class="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-300" />
+                    <div class="absolute inset-0 bg-gradient-to-t from-dark-primary via-transparent to-transparent opacity-80"></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-6">
+                        <h3 class="text-xl font-bold mb-2">Crypto Trading Platform</h3>
+                        <p class="text-gray-300 text-sm mb-4">Secure cryptocurrency trading platform with real-time market data</p>
+                        <div class="flex gap-2 flex-wrap">
+                            <span class="px-2 py-1 bg-electric-blue/20 text-electric-blue text-xs rounded">Web3</span>
+                            <span class="px-2 py-1 bg-purple-primary/20 text-purple-primary text-xs rounded">Solidity</span>
+                            <span class="px-2 py-1 bg-accent-yellow/20 text-accent-yellow text-xs rounded">Next.js</span>
+                        </div>
+                    </div>
+                    <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <button class="p-2 glassmorphism rounded-full hover:bg-white/30">
+                            <i class="fas fa-external-link-alt text-white"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Project 6 -->
+                <div class="group relative glassmorphism rounded-2xl overflow-hidden hover:scale-105 transition-all duration-300">
+                    <!-- Modern cloud computing and DevOps -->
+                    <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400" alt="Cloud computing and DevOps visualization" class="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-300" />
+                    <div class="absolute inset-0 bg-gradient-to-t from-dark-primary via-transparent to-transparent opacity-80"></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-6">
+                        <h3 class="text-xl font-bold mb-2">Cloud Infrastructure</h3>
+                        <p class="text-gray-300 text-sm mb-4">Scalable microservices architecture with automated deployment pipelines</p>
+                        <div class="flex gap-2 flex-wrap">
+                            <span class="px-2 py-1 bg-electric-blue/20 text-electric-blue text-xs rounded">AWS</span>
+                            <span class="px-2 py-1 bg-purple-primary/20 text-purple-primary text-xs rounded">Kubernetes</span>
+                            <span class="px-2 py-1 bg-accent-yellow/20 text-accent-yellow text-xs rounded">Terraform</span>
+                        </div>
+                    </div>
+                    <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <button class="p-2 glassmorphism rounded-full hover:bg-white/30">
+                            <i class="fas fa-external-link-alt text-white"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-20 bg-dark-secondary relative">
+        <!-- Abstract technology background pattern -->
+        <div class="absolute inset-0 opacity-10" style="background-image: url('https://pixabay.com/get/gfc4a657b5ee3b79cf544d8797f31e7f5d085a0e60e920fc9b65fa321326ab42c9d48311fc6a9c0fd286626a4faaf82a150a312cb210447aea5a06f1a199b0d93_1280.jpg'); background-size: cover; background-position: center;"></div>
+        
+        <div class="container mx-auto px-6 relative z-10">
+            <h2 class="text-5xl font-bold text-center mb-16 text-gradient">Let's Connect</h2>
+            
+            <div class="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto">
+                <!-- Contact Info -->
+                <div class="space-y-8">
+                    <div>
+                        <h3 class="text-3xl font-bold mb-6">Get In Touch</h3>
+                        <p class="text-lg text-gray-300 leading-relaxed">
+                            Ready to bring your next project to life? Let's discuss how we can work together to create something amazing. I'm always excited to tackle new challenges and collaborate on innovative solutions.
+                        </p>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <div class="flex items-center space-x-4 group">
+                            <div class="w-12 h-12 glassmorphism rounded-full flex items-center justify-center text-electric-blue group-hover:scale-110 transition-transform duration-300">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-400">Email</p>
+                                <p class="text-white font-semibold">hello@portfolio.com</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center space-x-4 group">
+                            <div class="w-12 h-12 glassmorphism rounded-full flex items-center justify-center text-purple-primary group-hover:scale-110 transition-transform duration-300">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-400">Phone</p>
+                                <p class="text-white font-semibold">+1 (555) 123-4567</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center space-x-4 group">
+                            <div class="w-12 h-12 glassmorphism rounded-full flex items-center justify-center text-accent-yellow group-hover:scale-110 transition-transform duration-300">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-400">Location</p>
+                                <p class="text-white font-semibold">San Francisco, CA</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Social Links -->
+                    <div class="flex space-x-4 pt-6">
+                        <a href="#" class="w-12 h-12 glassmorphism rounded-full flex items-center justify-center text-white hover:text-electric-blue hover:scale-110 transition-all duration-300">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="#" class="w-12 h-12 glassmorphism rounded-full flex items-center justify-center text-white hover:text-purple-primary hover:scale-110 transition-all duration-300">
+                            <i class="fab fa-linkedin"></i>
+                        </a>
+                        <a href="#" class="w-12 h-12 glassmorphism rounded-full flex items-center justify-center text-white hover:text-accent-yellow hover:scale-110 transition-all duration-300">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="w-12 h-12 glassmorphism rounded-full flex items-center justify-center text-white hover:text-electric-blue hover:scale-110 transition-all duration-300">
+                            <i class="fab fa-dribbble"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Contact Form -->
+                <form class="space-y-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <input type="text" placeholder="Your Name" class="w-full p-4 glassmorphism rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-electric-blue transition-all duration-300" data-mock="true">
+                        </div>
+                        <div>
+                            <input type="email" placeholder="Your Email" class="w-full p-4 glassmorphism rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-electric-blue transition-all duration-300" data-mock="true">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <input type="text" placeholder="Subject" class="w-full p-4 glassmorphism rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-electric-blue transition-all duration-300" data-mock="true">
+                    </div>
+                    
+                    <div>
+                        <textarea rows="6" placeholder="Your Message" class="w-full p-4 glassmorphism rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-electric-blue transition-all duration-300 resize-none" data-mock="true"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="w-full p-4 bg-gradient-to-r from-electric-blue to-purple-primary text-white font-semibold rounded-xl hover:scale-105 transition-all duration-300 animate-glow">
+                        Send Message
+                        <i class="fas fa-paper-plane ml-2"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-8 bg-dark-primary border-t border-gray-800">
+        <div class="container mx-auto px-6 text-center">
+            <p class="text-gray-400">&copy; 2024 Portfolio. Crafted with passion and modern technologies.</p>
+        </div>
+    </footer>
+
+    <script>
+        (function() {
+            // Mobile menu toggle
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            if (mobileMenuBtn && mobileMenu) {
+                mobileMenuBtn.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                    const icon = mobileMenuBtn.querySelector('i');
+                    if (icon) {
+                        icon.classList.toggle('fa-bars');
+                        icon.classList.toggle('fa-times');
+                    }
+                });
+            }
+
+            // Navbar scroll effect
+            const navbar = document.getElementById('navbar');
+            if (navbar) {
+                window.addEventListener('scroll', function() {
+                    if (window.scrollY > 100) {
+                        navbar.style.background = 'rgba(15, 15, 35, 0.95)';
+                        navbar.style.backdropFilter = 'blur(20px)';
+                    } else {
+                        navbar.style.background = 'rgba(255, 255, 255, 0.1)';
+                        navbar.style.backdropFilter = 'blur(10px)';
+                    }
+                });
+            }
+
+            // Smooth scrolling for navigation links
+            const navLinks = document.querySelectorAll('a[href^="#"]');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    const targetSection = document.querySelector(targetId);
+                    if (targetSection) {
+                        targetSection.scrollIntoView({ behavior: 'smooth' });
+                        // Close mobile menu if open
+                        if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+                            mobileMenu.classList.add('hidden');
+                            const icon = mobileMenuBtn?.querySelector('i');
+                            if (icon) {
+                                icon.classList.add('fa-bars');
+                                icon.classList.remove('fa-times');
+                            }
+                        }
+                    }
+                });
+            });
+
+            // Animate skill bars on scroll
+            const observerOptions = {
+                threshold: 0.5,
+                rootMargin: '0px'
+            };
+
+            const skillsObserver = new IntersectionObserver(function(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const skillBars = entry.target.querySelectorAll('.skill-item .bg-gradient-to-r');
+                        skillBars.forEach((bar, index) => {
+                            setTimeout(() => {
+                                bar.style.transform = 'scaleX(1)';
+                                bar.style.transformOrigin = 'left';
+                                bar.style.transition = 'transform 1s ease-out';
+                            }, index * 200);
+                        });
+                    }
+                });
+            }, observerOptions);
+
+            const skillsSection = document.getElementById('skills');
+            if (skillsSection) {
+                // Reset skill bars
+                const skillBars = skillsSection.querySelectorAll('.skill-item .bg-gradient-to-r');
+                skillBars.forEach(bar => {
+                    bar.style.transform = 'scaleX(0)';
+                });
+                skillsObserver.observe(skillsSection);
+            }
+
+            // Form submission handler
+            const contactForm = document.querySelector('#contact form');
+            if (contactForm) {
+                contactForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    // TODO: Implement form submission logic
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        const originalText = submitBtn.innerHTML;
+                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Sending...';
+                        submitBtn.disabled = true;
+                        
+                        // Simulate form submission
+                        setTimeout(() => {
+                            submitBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Message Sent!';
+                            setTimeout(() => {
+                                submitBtn.innerHTML = originalText;
+                                submitBtn.disabled = false;
+                                contactForm.reset();
+                            }, 2000);
+                        }, 2000);
+                    }
+                });
+            }
+
+            // Parallax effect for hero background
+            window.addEventListener('scroll', function() {
+                const scrolled = window.pageYOffset;
+                const parallaxElements = document.querySelectorAll('.parallax-bg');
+                parallaxElements.forEach(element => {
+                    const speed = 0.5;
+                    element.style.transform = `translateY(${scrolled * speed}px)`;
+                });
+            });
+
+            // Add intersection observer for animations
+            const animationObserver = new IntersectionObserver(function(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.animationPlayState = 'running';
+                        entry.target.classList.add('animate-slide-up');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            // Observe elements for animation
+            const animateElements = document.querySelectorAll('.animate-slide-up');
+            animateElements.forEach(el => {
+                el.style.animationPlayState = 'paused';
+                animationObserver.observe(el);
+            });
+        })();
+    </script>
+</body>
+</html>
