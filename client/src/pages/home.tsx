@@ -22,8 +22,70 @@ export default function Home() {
         <ContactSection />
       </main>
       
-      <footer className="py-8 text-center text-muted-foreground bg-muted/5">
-        <p className="font-mono">© 2025 Chirayu Nilesh Chaudhari. Crafted with passion and code.</p>
+      <footer className="py-12 text-center text-muted-foreground bg-muted/5">
+        <div className="container mx-auto px-8">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-8">
+            <div className="flex flex-wrap justify-center gap-4">
+              <a 
+                href="https://amrita.town" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="glass-effect px-4 py-2 rounded-full text-sm hover:text-primary transition-colors"
+              >
+                amrita.town
+              </a>
+              <a 
+                href="https://amrita.town/prev" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="glass-effect px-4 py-2 rounded-full text-sm hover:text-primary transition-colors"
+              >
+                ← prev
+              </a>
+              <a 
+                href="https://amrita.town/random" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="glass-effect px-4 py-2 rounded-full text-sm hover:text-primary transition-colors"
+              >
+                ⚄ random
+              </a>
+              <a 
+                href="https://amrita.town/next" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="glass-effect px-4 py-2 rounded-full text-sm hover:text-primary transition-colors"
+              >
+                next →
+              </a>
+            </div>
+            
+            <div className="flex flex-wrap justify-center gap-4">
+              <a 
+                href="https://github.com/chirayunilesh" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-primary transition-colors"
+              >
+                GitHub
+              </a>
+              <a 
+                href="mailto:me.chirayu.6@gmail.com" 
+                className="hover:text-primary transition-colors"
+              >
+                Email
+              </a>
+              <a 
+                href="tel:+918928833477" 
+                className="hover:text-primary transition-colors"
+              >
+                Phone
+              </a>
+            </div>
+          </div>
+          
+          <p className="font-mono">© 2025 Chirayu Nilesh Chaudhari. Crafted with passion and code.</p>
+        </div>
       </footer>
     </div>
   );
