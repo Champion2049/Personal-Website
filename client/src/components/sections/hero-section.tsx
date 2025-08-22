@@ -8,8 +8,8 @@ export function HeroSection() {
 
   const handleExploreClick = () => {
     lenis.scrollTo('#projects', {
-      duration: 1.0,
-      easing: (t: number) => t * t * (3 - 2 * t),
+      duration: 0.8,
+      easing: (t: number) => t * t,
       offset: -80
     });
   };
