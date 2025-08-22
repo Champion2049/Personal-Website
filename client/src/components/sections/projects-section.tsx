@@ -3,32 +3,40 @@ import { ArrowRight } from 'lucide-react';
 
 const projectsData = [
   {
-    title: 'Architectural Showcase Platform',
-    description: 'A stunning portfolio platform for architectural firms featuring smooth scroll animations, 3D model integration, and responsive design that adapts to any device.',
-    image: 'https://images.unsplash.com/photo-1487958449943-2429e8be8625?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500',
-    alt: 'Minimalist architecture photography',
-    tags: ['React', 'GSAP']
+    title: 'SigNoz Model Context Protocol Server',
+    description: 'Architected and developed an MCP server from scratch using Node.js and TypeScript for SigNoz internship. Integrated official APIs to fetch real-time trace and log data, enabling comprehensive observability for GPT-based clients.',
+    tags: ['Node.js', 'TypeScript', 'APIs'],
+    period: 'May 2025 – Jul 2025'
   },
   {
-    title: 'Productivity Dashboard',
-    description: 'An interactive dashboard for remote teams featuring real-time collaboration tools, data visualization, and intelligent workflow automation.',
-    image: 'https://images.unsplash.com/photo-1517180102446-f3ece451e9d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500',
-    alt: 'Modern workspace with clean aesthetics',
-    tags: ['Vue.js', 'Three.js']
+    title: 'LLM Optimized Gold Nanoparticle Synthesis',
+    description: 'Engineered a system using Gemini API and Keras deep learning to optimize AuNP synthesis for cancer treatment. The system predicts nanoparticle properties and provides intelligent suggestions for process improvement.',
+    tags: ['Python', 'Keras', 'Gemini API'],
+    period: 'Jan 2025 – Jul 2025'
   },
   {
-    title: 'Generative Art Platform',
-    description: 'A creative platform for artists to showcase generative art pieces with interactive controls, real-time rendering, and NFT marketplace integration.',
-    image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500',
-    alt: 'Abstract geometric compositions',
-    tags: ['WebGL', 'Canvas']
+    title: 'Energy Conservation with Custom LWT',
+    description: 'Implemented a custom Lifting Wavelet Transform from scratch for data preprocessing and energy consumption analysis. Developed a UI for users to apply LWT to their own N-D datasets.',
+    tags: ['Python', 'Neural Networks', 'UI'],
+    period: 'Jan 2025 – Jul 2025'
   },
   {
-    title: 'Creative Agency Website',
-    description: 'A bold, interactive website for a creative agency featuring parallax scrolling, custom animations, and a content management system for easy updates.',
-    image: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500',
-    alt: 'Professional creative studio environment',
-    tags: ['Next.js', 'Framer']
+    title: 'Gesture-Based Hill Climb Racing',
+    description: 'Created a Python project using MediaPipe and OpenCV that allows users to play Hill Climb Racing using hand gestures. Open palm controls gas and fist controls brake.',
+    tags: ['Python', 'MediaPipe', 'OpenCV'],
+    period: 'Aug 2025'
+  },
+  {
+    title: 'Lightweight Vehicle Tracking System',
+    description: 'Developed and compared Contour and Hough Transform algorithms for autonomous RC car path following. Used Raspberry Pi for real-time video processing and motor control. Published findings in IEEE conference.',
+    tags: ['Python', 'OpenCV', 'Raspberry Pi'],
+    period: 'Oct 2024 – Feb 2025'
+  },
+  {
+    title: 'Psychoactive Substances ML Classification',
+    description: 'Multi-stage machine learning application with Flask frontend to predict substance use from personality traits and classify substances based on chemical properties.',
+    tags: ['Python', 'Flask', 'Machine Learning'],
+    period: 'Sep 2024 – Jun 2025'
   }
 ];
 
@@ -44,7 +52,7 @@ export function ProjectsSection() {
           transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
           data-testid="projects-title"
         >
-          Featured <span className="text-primary">Projects</span>
+          My <span className="text-primary">Projects</span>
         </motion.h2>
         
         <div className="grid lg:grid-cols-2 gap-12">
@@ -67,7 +75,7 @@ export function ProjectsSection() {
                      data-testid={`project-image-${index}`}>
                   <div className="text-white text-center">
                     <div className="text-4xl mb-2">🚀</div>
-                    <p className="font-mono text-sm opacity-80">{project.title}</p>
+                    <p className="font-mono text-sm opacity-80">{project.period}</p>
                   </div>
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />

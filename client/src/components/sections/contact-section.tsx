@@ -5,24 +5,23 @@ const contactInfo = [
   {
     icon: Mail,
     title: 'Email',
-    value: 'hello@creative-dev.com'
+    value: 'me.chirayu.6@gmail.com'
   },
   {
     icon: Phone,
     title: 'Phone',
-    value: '+1 (555) 123-4567'
+    value: '+91 8928833477'
   },
   {
     icon: MapPin,
     title: 'Location',
-    value: 'San Francisco, CA'
+    value: 'Bengaluru, India'
   }
 ];
 
 const socialLinks = [
-  { icon: Github, href: '#', label: 'GitHub' },
-  { icon: Linkedin, href: '#', label: 'LinkedIn' },
-  { icon: Twitter, href: '#', label: 'Twitter' },
+  { icon: Github, href: 'https://github.com/chirayunilesh', label: 'GitHub' },
+  { icon: Linkedin, href: 'https://www.linkedin.com/in/chirayu-chaudhari', label: 'LinkedIn' },
 ];
 
 export function ContactSection() {
@@ -40,7 +39,7 @@ export function ContactSection() {
             transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
             data-testid="contact-title"
           >
-            Let's Create Something <span className="text-accent">Amazing</span>
+            Let's Build Something <span className="text-accent">Innovative</span>
           </motion.h2>
           
           <motion.p 
@@ -51,8 +50,8 @@ export function ContactSection() {
             transition={{ duration: 0.8, delay: 0.2, ease: [0.23, 1, 0.32, 1] }}
             data-testid="contact-description"
           >
-            Ready to bring your vision to life? Let's discuss your project and create 
-            a digital experience that exceeds expectations.
+            Interested in collaborating on AI/ML projects or full-stack development? 
+            Let's connect and work together to solve real-world challenges.
           </motion.p>
           
           <motion.div 

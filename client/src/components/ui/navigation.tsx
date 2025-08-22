@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import { useLenis } from './lenis-scroll-provider';
+import { ThemeToggle } from './theme-toggle';
 
 const navItems = [
   { href: '#home', label: 'Home' },
   { href: '#about', label: 'About' },
   { href: '#skills', label: 'Skills' },
+  { href: '#experience', label: 'Experience' },
   { href: '#projects', label: 'Projects' },
   { href: '#contact', label: 'Contact' },
 ];
@@ -31,10 +33,10 @@ export function Navigation() {
       <div className="glass-effect rounded-2xl px-8 py-4">
         <div className="flex justify-between items-center">
           <div className="font-mono text-lg font-semibold" data-testid="logo">
-            DEV.PORTFOLIO
+            CHIRAYU.DEV
           </div>
           
-          <div className="hidden md:flex space-x-8">
+          <div className="hidden md:flex items-center space-x-8">
             {navItems.map((item) => (
               <button
                 key={item.href}
@@ -45,15 +47,18 @@ export function Navigation() {
                 {item.label}
               </button>
             ))}
+            <ThemeToggle />
           </div>
           
-          <button
-            className="md:hidden"
-            onClick={() => setIsOpen(!isOpen)}
-            data-testid="menu-toggle"
-          >
-            {isOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+          <div className="md:hidden flex items-center space-x-4">
+            <ThemeToggle />
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              data-testid="menu-toggle"
+            >
+              {isOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
         </div>
         
         {isOpen && (

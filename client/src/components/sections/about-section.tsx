@@ -2,10 +2,14 @@ import { motion } from 'framer-motion';
 import { animations } from '@/lib/animations';
 
 const skills = [
-  'Frontend Development',
-  'UI/UX Design',
-  'Performance Optimization',
-  'Creative Development'
+  'Python & AI/ML',
+  'Full-Stack Development',
+  'Data Science',
+  'Machine Learning',
+  'React & Node.js',
+  'Raspberry Pi',
+  'JavaScript & TypeScript',
+  'Research & Innovation'
 ];
 
 export function AboutSection() {
@@ -29,8 +33,8 @@ export function AboutSection() {
               >
                 <div className="w-full h-full bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl flex items-center justify-center">
                   <div className="text-center text-white">
-                    <div className="text-6xl mb-4">🔥</div>
-                    <p className="text-lg font-mono opacity-80">Creative Developer</p>
+                    <div className="text-6xl mb-4">🎓</div>
+                    <p className="text-lg font-mono opacity-80">AI & Data Science Student</p>
                   </div>
                 </div>
               </motion.div>
@@ -58,20 +62,21 @@ export function AboutSection() {
               transition={{ duration: 0.8, delay: 0.2, ease: [0.23, 1, 0.32, 1] }}
             >
               <p data-testid="about-paragraph-1">
-                I'm a creative developer passionate about pushing the boundaries of web technology. 
-                With expertise in modern frameworks and a keen eye for design, I create digital 
-                experiences that are both visually stunning and technically excellent.
+                I'm a driven second-year Artificial Intelligence & Data Science student at Amrita Vishwa Vidyapeetham, 
+                Bengaluru, with a strong foundation in full-stack development, machine learning, and hardware integration. 
+                I maintain a 9.33 CGPA and have proven experience leading technical projects.
               </p>
               
               <p data-testid="about-paragraph-2">
-                My work focuses on performance optimization, smooth animations, and creating 
-                intuitive user interfaces that tell compelling stories through code.
+                I recently completed an internship at SigNoz where I architected a Model Context Protocol (MCP) server 
+                from scratch using Node.js and TypeScript, integrating official APIs for real-time observability data 
+                and ensuring seamless accessibility across GPT-based clients.
               </p>
               
               <p data-testid="about-paragraph-3">
-                When I'm not coding, you'll find me exploring new design trends, experimenting 
-                with WebGL, or contributing to open-source projects that make the web a more 
-                beautiful place.
+                Beyond academics, I'm actively involved in IEEE societies, conduct GenAI sessions, 
+                participate in rover team projects, and enjoy playing guitar (Trinity Grade 5), badminton, 
+                and exploring culinary arts. I'm eager to contribute my diverse skills to solve complex, real-world challenges.
               </p>
             </motion.div>
             

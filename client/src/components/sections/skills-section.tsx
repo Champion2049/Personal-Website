@@ -5,33 +5,33 @@ import { animations } from '@/lib/animations';
 const skillsData = [
   {
     icon: Code2,
-    title: 'Frontend Mastery',
-    skills: ['React / Next.js', 'Vue / Nuxt.js', 'TypeScript', 'Tailwind CSS', 'GSAP / Framer Motion']
+    title: 'Programming Languages',
+    skills: ['Python', 'JavaScript', 'TypeScript', 'Java', 'C++']
   },
   {
     icon: Server,
-    title: 'Backend Systems',
-    skills: ['Node.js / Express', 'Python / Django', 'PostgreSQL / MongoDB', 'GraphQL / REST APIs', 'AWS / Docker']
+    title: 'Web Development',
+    skills: ['React', 'Node.js', 'Next.js', 'Express', 'REST APIs']
   },
   {
     icon: Palette,
-    title: 'Creative Tools',
-    skills: ['Figma / Adobe XD', 'Three.js / WebGL', 'Blender / Cinema 4D', 'After Effects', 'Photoshop / Illustrator']
+    title: 'AI & Machine Learning',
+    skills: ['TensorFlow / Keras', 'MediaPipe', 'OpenCV', 'Gemini API', 'Neural Networks']
   },
   {
     icon: Gauge,
-    title: 'Performance',
-    skills: ['Web Vitals Optimization', 'Bundle Analysis', 'Lighthouse Scoring', 'CDN Configuration', 'Progressive Enhancement']
+    title: 'Data Science',
+    skills: ['Data Structures & Algorithms', 'GROMACS', 'MDAnalysis', 'Data Analysis', 'Research']
   },
   {
     icon: Settings,
-    title: 'Development',
-    skills: ['Git / GitHub Actions', 'Webpack / Vite', 'Jest / Cypress', 'ESLint / Prettier', 'CI/CD Pipelines']
+    title: 'Hardware & Systems',
+    skills: ['Raspberry Pi', 'IoT Integration', 'Computer Vision', 'Robotics', 'Embedded Systems']
   },
   {
     icon: Rocket,
-    title: 'Emerging Tech',
-    skills: ['AI/ML Integration', 'Web3 / Blockchain', 'WebAssembly', 'PWAs / Service Workers', 'Edge Computing']
+    title: 'Tools & Frameworks',
+    skills: ['Flask', 'Discord.js', 'Git', 'Linux', 'Database Management']
   }
 ];
 
@@ -50,7 +50,7 @@ export function SkillsSection() {
           transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
           data-testid="skills-title"
         >
-          Technical <span className="text-accent">Arsenal</span>
+          Technical <span className="text-accent">Skills</span>
         </motion.h2>
         
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">

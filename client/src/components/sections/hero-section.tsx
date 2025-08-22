@@ -54,14 +54,14 @@ export function HeroSection() {
                 variants={animations.morphText}
                 data-testid="hero-title-line-1"
               >
-                CREATIVE
+                CHIRAYU
               </motion.span>
               <motion.span 
                 className="text-morphing block"
                 variants={animations.morphText}
                 data-testid="hero-title-line-2"
               >
-                DEVELOPER
+                CHAUDHARI
               </motion.span>
             </motion.h1>
           </div>
@@ -73,8 +73,9 @@ export function HeroSection() {
             animate="animate"
             data-testid="hero-description"
           >
-            Crafting digital experiences that blend cutting-edge technology with stunning visual design. 
-            Where code meets creativity, and performance meets beauty.
+            AI & Data Science Student | Full-Stack Developer | Machine Learning Enthusiast
+            <br />
+            <span className="text-lg opacity-80">Driven to solve complex real-world challenges through technology and innovation</span>
           </motion.p>
           
           <motion.div 
@@ -88,7 +89,7 @@ export function HeroSection() {
               className="glass-effect px-8 py-4 rounded-2xl text-lg font-semibold hover:bg-primary hover:text-primary-foreground transition-all duration-500 transform hover:scale-105 animate-pulse-glow"
               data-testid="button-explore-work"
             >
-              Explore My Work
+              View My Projects
             </button>
             <button 
               onClick={handleContactClick}

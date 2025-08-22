@@ -51,7 +51,6 @@ export function LenisScrollProvider({ children }: LenisScrollProviderProps) {
             return t < 0.5 ? 8 * t * t * t * t : 1 - Math.pow(-2 * t + 2, 4) / 2;
           },
           lerp: 0.08,
-          smooth: true,
           smoothTouch: false,
           wheelMultiplier: 0.8,
           touchMultiplier: 2,
