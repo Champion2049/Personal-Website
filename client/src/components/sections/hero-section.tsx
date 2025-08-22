@@ -1,27 +1,28 @@
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { animations } from '@/lib/animations';
-import { useLenis } from '@/components/ui/lenis-scroll-provider';
 
 export function HeroSection() {
-  const lenis = useLenis();
-
   const handleExploreClick = () => {
-    lenis.scrollTo('#projects', {
-      duration: 0.5,
-      easing: (t: number) => t,
-      offset: -80,
-      immediate: true
-    });
+    const element = document.querySelector('#projects');
+    if (element) {
+      const offsetTop = element.getBoundingClientRect().top + window.pageYOffset - 80;
+      window.scrollTo({
+        top: offsetTop,
+        behavior: 'smooth'
+      });
+    }
   };
 
   const handleContactClick = () => {
-    lenis.scrollTo('#contact', {
-      duration: 0.5,
-      easing: (t: number) => t,
-      offset: -80,
-      immediate: true
-    });
+    const element = document.querySelector('#contact');
+    if (element) {
+      const offsetTop = element.getBoundingClientRect().top + window.pageYOffset - 80;
+      window.scrollTo({
+        top: offsetTop,
+        behavior: 'smooth'
+      });
+    }
   };
 
   return (

@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
-import { useLenis } from './lenis-scroll-provider';
 import { ThemeToggle } from './theme-toggle';
 
 const navItems = [
@@ -14,15 +13,16 @@ const navItems = [
 
 export function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
-  const lenis = useLenis();
 
   const handleNavClick = (href: string) => {
-    lenis.scrollTo(href, {
-      duration: 0.5,
-      easing: (t: number) => t, // Linear, immediate
-      offset: -80,
-      immediate: true
-    });
+    const element = document.querySelector(href);
+    if (element) {
+      const offsetTop = element.getBoundingClientRect().top + window.pageYOffset - 80;
+      window.scrollTo({
+        top: offsetTop,
+        behavior: 'smooth'
+      });
+    }
     setIsOpen(false);
   };
 

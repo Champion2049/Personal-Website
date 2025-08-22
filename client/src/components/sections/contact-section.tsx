@@ -39,7 +39,7 @@ export function ContactSection() {
             transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
             data-testid="contact-title"
           >
-            Let's Build Something <span className="text-accent">Innovative</span>
+            Let's Build Something <span className="text-white">Innovative</span>
           </motion.h2>
           
           <motion.p 
@@ -93,8 +93,9 @@ export function ContactSection() {
             ))}
           </motion.div>
           
-          <motion.button 
-            className="bg-accent px-8 py-4 rounded-2xl text-lg font-semibold hover:bg-orange-400 transition-all duration-500 transform hover:scale-105 animate-pulse-glow"
+          <motion.a 
+            href="mailto:me.chirayu.6@gmail.com?subject=Project Collaboration&body=Hi Chirayu,%0D%0A%0D%0AI would like to discuss a project collaboration with you.%0D%0A%0D%0AProject details:%0D%0A%0D%0ABest regards"
+            className="bg-accent px-8 py-4 rounded-2xl text-lg font-semibold hover:bg-orange-400 transition-all duration-500 transform hover:scale-105 animate-pulse-glow inline-block"
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -102,7 +103,7 @@ export function ContactSection() {
             data-testid="button-start-project"
           >
             Start a Project
-          </motion.button>
+          </motion.a>
         </div>
       </div>
     </section>
