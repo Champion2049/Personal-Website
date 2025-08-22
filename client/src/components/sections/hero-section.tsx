@@ -8,14 +8,20 @@ export function HeroSection() {
 
   const handleExploreClick = () => {
     lenis.scrollTo('#projects', {
-      duration: 0.8,
-      easing: (t: number) => t * t,
-      offset: -80
+      duration: 0.5,
+      easing: (t: number) => t,
+      offset: -80,
+      immediate: true
     });
   };
 
   const handleContactClick = () => {
-    lenis.scrollTo('#contact');
+    lenis.scrollTo('#contact', {
+      duration: 0.5,
+      easing: (t: number) => t,
+      offset: -80,
+      immediate: true
+    });
   };
 
   return (
