@@ -44,7 +44,7 @@ export const handler: Handler = async (event) => {
   const baseHeaders: Record<string, string> = {
     "Content-Type": "application/json",
     "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+    "Access-Control-Allow-Methods": "GET,POST,DELETE,OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type",
   };
   // Basic method routing
@@ -83,6 +83,36 @@ export const handler: Handler = async (event) => {
       await writeEntries(entries);
 
       return { statusCode: 201, headers: baseHeaders, body: JSON.stringify(newEntry) };
+    }
+
+    if (event.httpMethod === "DELETE") {
+      const id = event.queryStringParameters?.id;
+      const secret = event.queryStringParameters?.secret;
+      const adminSecret = process.env.ADMIN_SECRET;
+
+      if (!adminSecret) {
+        // If the secret is not configured on the server, nobody can delete.
+        return { statusCode: 500, headers: baseHeaders, body: JSON.stringify({ error: "Deletion is not configured" }) };
+      }
+
+      if (secret !== adminSecret) {
+        return { statusCode: 401, headers: baseHeaders, body: JSON.stringify({ error: "Invalid secret, not authorized to delete" }) };
+      }
+
+      if (!id) {
+        return { statusCode: 400, headers: baseHeaders, body: JSON.stringify({ error: "Missing entry ID" }) };
+      }
+
+      const entries = await readEntries();
+      const newEntries = entries.filter(entry => entry.id !== id);
+
+      if (entries.length === newEntries.length) {
+        return { statusCode: 404, headers: baseHeaders, body: JSON.stringify({ error: "Entry not found" }) };
+      }
+
+      await writeEntries(newEntries);
+
+      return { statusCode: 200, headers: baseHeaders, body: JSON.stringify({ message: "Entry deleted" }) };
     }
 
     return { statusCode: 405, headers: baseHeaders, body: JSON.stringify({ error: "Method Not Allowed" }) };

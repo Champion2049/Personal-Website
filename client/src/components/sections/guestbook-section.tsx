@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { MessageSquare, User, Mail, Calendar } from 'lucide-react';
+import { MessageSquare, User, Mail, Calendar, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import type { Guestbook, InsertGuestbook } from '@shared/schema';
@@ -41,6 +41,29 @@ export function GuestbookSection() {
       toast({
         title: "Error",
         description: msg,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteEntryMutation = useMutation({
+    mutationFn: async ({ id, secret }: { id: string, secret: string | null }) => {
+      if (!secret) {
+        throw new Error("Secret key is required to delete an entry.");
+      }
+      await apiRequest('DELETE', `/api/guestbook?id=${id}&secret=${secret}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/guestbook'] });
+      toast({
+        title: "Deleted!",
+        description: "The message has been removed from the guestbook.",
+      });
+    },
+    onError: (err: any) => {
+      toast({
+        title: "Error",
+        description: err?.message || "Failed to delete the message.",
         variant: "destructive",
       });
     },
@@ -194,15 +217,31 @@ export function GuestbookSection() {
                   >
                     <Card className="glass-effect border-primary/10 hover:border-primary/30 transition-all duration-300">
                       <CardContent className="p-6">
-                        <div className="flex items-center space-x-4 mb-4">
-                          <div className="w-10 h-10 bg-gradient-to-r from-primary to-orange-400 rounded-full flex items-center justify-center">
+                        <div className="flex items-start space-x-4">
+                          <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-r from-primary to-orange-400 rounded-full flex items-center justify-center">
                             <User size={20} className="text-white" />
                           </div>
                           <div className="flex-1">
-                            <h4 className="font-semibold text-lg" data-testid={`guestbook-entry-name-${index}`}>
-                              {entry.name}
-                            </h4>
-                            <div className="flex items-center text-sm text-muted-foreground space-x-4">
+                            <div className="flex justify-between items-center mb-1">
+                              <h4 className="font-semibold text-lg" data-testid={`guestbook-entry-name-${index}`}>
+                                {entry.name}
+                              </h4>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-muted-foreground hover:text-destructive"
+                                onClick={() => {
+                                  const secret = prompt("Enter the admin secret to delete this message:");
+                                  // We don't check for null, so an empty prompt will be treated as a wrong secret.
+                                  deleteEntryMutation.mutate({ id: entry.id, secret });
+                                }}
+                                disabled={deleteEntryMutation.isPending}
+                                aria-label="Delete message"
+                              >
+                                <Trash2 size={16} />
+                              </Button>
+                            </div>
+                            <div className="flex items-center text-sm text-muted-foreground space-x-4 mb-4">
                               {entry.email && (
                                 <div className="flex items-center space-x-1">
                                   <Mail size={14} />
@@ -214,11 +253,11 @@ export function GuestbookSection() {
                                 <span>{formatDate(entry.createdAt)}</span>
                               </div>
                             </div>
+                            <p className="text-foreground leading-relaxed" data-testid={`guestbook-entry-message-${index}`}>
+                              {entry.message}
+                            </p>
                           </div>
                         </div>
-                        <p className="text-foreground leading-relaxed" data-testid={`guestbook-entry-message-${index}`}>
-                          {entry.message}
-                        </p>
                       </CardContent>
                     </Card>
                   </motion.div>
