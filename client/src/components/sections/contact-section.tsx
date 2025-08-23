@@ -50,7 +50,7 @@ export function ContactSection() {
             transition={{ duration: 0.8, delay: 0.2, ease: [0.23, 1, 0.32, 1] }}
             data-testid="contact-description"
           >
-            Interested in collaborating on AI/ML projects or full-stack development? 
+            Interested in collaborating on AI/ML projects or full-stack development or maybe just chat? 
             Let's connect and work together to solve real-world challenges.
           </motion.p>
           
