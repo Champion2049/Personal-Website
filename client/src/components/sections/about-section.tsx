@@ -64,7 +64,7 @@ export function AboutSection() {
               <p data-testid="about-paragraph-1">
                 I'm a driven second-year Artificial Intelligence & Data Science student at Amrita Vishwa Vidyapeetham, 
                 Bengaluru, with a strong foundation in full-stack development, machine learning, and hardware integration. 
-                I maintain a 9.33 CGPA and have proven experience leading technical projects.
+                I maintain a decent CGPA and have proven experience leading technical projects.
               </p>
               
               <p data-testid="about-paragraph-2">
@@ -74,9 +74,10 @@ export function AboutSection() {
               </p>
               
               <p data-testid="about-paragraph-3">
-                Beyond academics, I'm actively involved in IEEE societies, conduct GenAI sessions, 
-                participate in rover team projects, and enjoy playing guitar (Trinity Grade 5), badminton, 
-                and exploring culinary arts. I'm eager to contribute my diverse skills to solve complex, real-world challenges.
+                Beyond academics, I'm actively involved in IEEE societies, conducting sessions/events, 
+                participating in rover team projects, and enjoy playing guitar (Trinity Grade 5), badminton, 
+                and exploring culinary arts. I'm also quite the fitness enthusiast, and try to regularly hit the gym.
+                I'm eager to contribute my diverse skills to solve complex, real-world challenges.
               </p>
             </motion.div>
             

@@ -6,7 +6,7 @@ const skillsData = [
   {
     icon: Code2,
     title: 'Programming Languages',
-    skills: ['Python', 'JavaScript', 'TypeScript', 'Java', 'C++']
+    skills: ['Python', 'JavaScript', 'TypeScript', 'Java', 'C']
   },
   {
     icon: Server,
@@ -16,17 +16,17 @@ const skillsData = [
   {
     icon: Palette,
     title: 'AI & Machine Learning',
-    skills: ['TensorFlow / Keras', 'MediaPipe', 'OpenCV', 'Gemini API', 'Neural Networks']
+    skills: ['TensorFlow / Keras', 'MediaPipe', 'OpenCV', 'Reinforcement Learning', 'DL/NN']
   },
   {
     icon: Gauge,
     title: 'Data Science',
-    skills: ['Data Structures & Algorithms', 'GROMACS', 'MDAnalysis', 'Data Analysis', 'Research']
+    skills: ['Data Structures & Algorithms', 'GROMACS', 'MDAnalysis', 'Data Analysis', 'Numpy/ Pandas']
   },
   {
     icon: Settings,
     title: 'Hardware & Systems',
-    skills: ['Raspberry Pi', 'IoT Integration', 'Computer Vision', 'Robotics', 'Embedded Systems']
+    skills: ['Raspberry Pi', 'IoT Integration', 'Gazebo', 'Robotics', 'Embedded Systems']
   },
   {
     icon: Rocket,
