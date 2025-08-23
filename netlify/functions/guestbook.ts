@@ -1,7 +1,7 @@
 import type { Handler } from "@netlify/functions";
 import { getStore } from "@netlify/blobs";
-import { insertGuestbookSchema } from "../../shared/schema";
 import { randomUUID } from "crypto";
+import { z } from "zod";
 
 type Entry = {
   id: string;
@@ -10,6 +10,12 @@ type Entry = {
   message: string;
   createdAt: string;
 };
+
+const insertGuestbookSchema = z.object({
+  name: z.string().min(1),
+  email: z.string().optional().nullable(),
+  message: z.string().min(1),
+});
 
 const STORE_NAME = "guestbook"; // logical bucket
 const STORE_KEY = "entries.json"; // single JSON array

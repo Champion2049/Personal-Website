@@ -36,10 +36,11 @@ export function GuestbookSection() {
         description: "Your message has been added to the guestbook.",
       });
     },
-    onError: () => {
+    onError: async (err: any) => {
+      const msg = err?.message || "Failed to add your message";
       toast({
         title: "Error",
-        description: "Failed to add your message. Please try again.",
+        description: msg,
         variant: "destructive",
       });
     },
