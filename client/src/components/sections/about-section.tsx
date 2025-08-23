@@ -62,7 +62,7 @@ export function AboutSection() {
               transition={{ duration: 0.8, delay: 0.2, ease: [0.23, 1, 0.32, 1] }}
             >
               <p data-testid="about-paragraph-1">
-                I'm a driven second-year Artificial Intelligence & Data Science student at Amrita Vishwa Vidyapeetham, 
+                Hey there, I'm a second-year Artificial Intelligence & Data Science student at Amrita Vishwa Vidyapeetham, 
                 Bengaluru, with a strong foundation in full-stack development, machine learning, and hardware integration. 
                 I maintain a decent CGPA and have proven experience leading technical projects.
               </p>
@@ -77,7 +77,7 @@ export function AboutSection() {
                 Beyond academics, I'm actively involved in IEEE societies, conducting sessions/events, 
                 participating in rover team projects, and enjoy playing guitar (Trinity Grade 5), badminton, 
                 and exploring culinary arts. I'm also quite the fitness enthusiast, and try to regularly hit the gym.
-                I'm eager to contribute my diverse skills to solve complex, real-world challenges.
+                If I seem like someone you would like to interact with either Technically or Non-Technically, feel free to reach out!
               </p>
             </motion.div>
             

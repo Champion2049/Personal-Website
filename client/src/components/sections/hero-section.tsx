@@ -86,7 +86,7 @@ export function HeroSection() {
           >
             AI & Data Science Student | Full-Stack Developer | Machine Learning Enthusiast
             <br />
-            <span className="text-lg opacity-80">Driven to solve complex real-world challenges through technology and innovation</span>
+            <span className="text-lg opacity-80">Kinda bored usually, but try to do stuff</span>
           </motion.p>
           
           <motion.div 
