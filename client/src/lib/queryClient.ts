@@ -12,11 +12,15 @@ export async function apiRequest(
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
-  const res = await fetch(url, {
+  const base = (import.meta as any)?.env?.VITE_API_BASE_URL?.replace(/\/$/, "") || "";
+  const fullUrl = /^https?:/i.test(url)
+    ? url
+    : `${base}${url}`;
+  const res = await fetch(fullUrl, {
     method,
     headers: data ? { "Content-Type": "application/json" } : {},
     body: data ? JSON.stringify(data) : undefined,
-    credentials: "include",
+    credentials: base ? "omit" : "include",
   });
 
   await throwIfResNotOk(res);
@@ -29,9 +33,10 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const res = await fetch(queryKey.join("/") as string, {
-      credentials: "include",
-    });
+  const base = (import.meta as any)?.env?.VITE_API_BASE_URL?.replace(/\/$/, "") || "";
+  const path = queryKey.join("/") as string; // e.g. "/api/guestbook"
+  const fullUrl = /^https?:/i.test(path) ? path : `${base}${path}`;
+  const res = await fetch(fullUrl, { credentials: base ? "omit" : "include" });
 
     if (unauthorizedBehavior === "returnNull" && res.status === 401) {
       return null;

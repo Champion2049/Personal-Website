@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MessageSquare, User, Mail, Calendar } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { apiRequest } from '@/lib/queryClient';
 import type { Guestbook, InsertGuestbook } from '@shared/schema';
 
 export function GuestbookSection() {
@@ -22,19 +23,8 @@ export function GuestbookSection() {
 
   const addEntryMutation = useMutation({
     mutationFn: async (entry: InsertGuestbook) => {
-      const response = await fetch('/api/guestbook', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(entry),
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to add guestbook entry');
-      }
-      
-      return response.json();
+  const response = await apiRequest('POST', '/api/guestbook', entry);
+  return await response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/guestbook'] });
