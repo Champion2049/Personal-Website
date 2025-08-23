@@ -37,7 +37,7 @@ async function readEntries(): Promise<Entry[]> {
 
 async function writeEntries(entries: Entry[]): Promise<void> {
   const store = getConfiguredStore();
-  await store.set(STORE_KEY, JSON.stringify(entries));
+  await store.setJSON(STORE_KEY, entries);
 }
 
 export const handler: Handler = async (event) => {
