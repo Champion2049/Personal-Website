@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
+import { useState } from 'react';
 import ElectricBorder from '@/components/ui/ElectricBorder';
 
 const projectsData = [
@@ -70,6 +71,8 @@ const projectsData = [
 ];
 
 export function ProjectsSection() {
+	const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
 	return (
 		<section id="projects" className="min-h-screen py-20 bg-background">
 			<div className="container mx-auto px-8">
@@ -85,57 +88,63 @@ export function ProjectsSection() {
 				</motion.h2>
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-8">
 					{projectsData.map((project, index) => (
-						<ElectricBorder
+						<div
 							key={index}
-							color="hsl(130 70% 50%)"
-							speed={1}
-							chaos={0.5}
-							thickness={2}
-							style={{ borderRadius: 16 }}
+							onMouseEnter={() => setHoveredIndex(index)}
+							onMouseLeave={() => setHoveredIndex(null)}
+							className="h-full"
 						>
-						<motion.div
-							
-							className="bg-card p-6 rounded-lg shadow-lg hover:shadow-primary/20 transition-shadow duration-300 flex flex-col h-full"
-							initial={{ opacity: 0, y: 50 }}
-							whileInView={{ opacity: 1, y: 0 }}
-							viewport={{ once: true }}
-							transition={{
-								duration: 0.5,
-								delay: index * 0.1,
-								ease: [0.23, 1, 0.32, 1],
-							}}
-						>
-							<h3 className="text-2xl font-bold mb-2 text-primary">
-								{project.title}
-							</h3>
-							<p className="text-muted-foreground mb-4 flex-grow">
-								{project.description}
-							</p>
-							<div className="flex flex-wrap gap-2 mb-4">
-								{project.tags.map((tag, i) => (
-									<span
-										key={i}
-										className="bg-primary/10 text-primary px-2 py-1 rounded-full text-sm"
-									>
-										{tag}
-									</span>
-								))}
-							</div>
-							<div className="flex justify-between items-center mt-auto">
-								<span className="text-xs text-muted-foreground">
-									{project.period}
-								</span>
-								<a
-									href={project.github}
-									target="_blank"
-									rel="noopener noreferrer"
-									className="text-primary hover:underline flex items-center"
+							<ElectricBorder
+								enabled={hoveredIndex === index}
+								color="hsl(130 70% 50%)"
+								speed={1}
+								chaos={0.5}
+								thickness={2}
+								style={{ borderRadius: 16 }}
+							>
+								<motion.div
+									className="bg-card p-6 rounded-lg shadow-lg hover:shadow-primary/20 transition-shadow duration-300 flex flex-col h-full"
+									initial={{ opacity: 0, y: 50 }}
+									whileInView={{ opacity: 1, y: 0 }}
+									viewport={{ once: true }}
+									transition={{
+										duration: 0.5,
+										delay: index * 0.1,
+										ease: [0.23, 1, 0.32, 1],
+									}}
 								>
-									GitHub <ArrowRight className="ml-1 h-4 w-4" />
-								</a>
-							</div>
-						</motion.div>
-						</ElectricBorder>
+									<h3 className="text-2xl font-bold mb-2 text-primary">
+										{project.title}
+									</h3>
+									<p className="text-muted-foreground mb-4 flex-grow">
+										{project.description}
+									</p>
+									<div className="flex flex-wrap gap-2 mb-4">
+										{project.tags.map((tag, i) => (
+											<span
+												key={i}
+												className="bg-primary/10 text-primary px-2 py-1 rounded-full text-sm"
+											>
+												{tag}
+											</span>
+										))}
+									</div>
+									<div className="flex justify-between items-center mt-auto">
+										<span className="text-xs text-muted-foreground">
+											{project.period}
+										</span>
+										<a
+											href={project.github}
+											target="_blank"
+											rel="noopener noreferrer"
+											className="text-primary hover:underline flex items-center"
+										>
+											GitHub <ArrowRight className="ml-1 h-4 w-4" />
+										</a>
+									</div>
+								</motion.div>
+							</ElectricBorder>
+						</div>
 					))}
 				</div>
 			</div>

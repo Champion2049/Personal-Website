@@ -9,18 +9,21 @@ import React, {
 
 import "./ElectricBorder.css";
 
-type ElectricBorderProps = PropsWithChildren<{
+interface ElectricBorderProps {
+  children: React.ReactNode;
+  enabled?: boolean;
   color?: string;
   speed?: number;
   chaos?: number;
   thickness?: number;
   className?: string;
   style?: CSSProperties;
-}>;
+}
 
 const ElectricBorder: React.FC<ElectricBorderProps> = ({
   children,
-  color = "#5227FF",
+  enabled = false,
+  color = "hsl(130 70% 50%)",
   speed = 1,
   chaos = 1,
   thickness = 2,
@@ -100,16 +103,24 @@ const ElectricBorder: React.FC<ElectricBorderProps> = ({
   };
 
   useEffect(() => {
-    updateAnim();
-  }, [speed, chaos]);
+    if (enabled) {
+      updateAnim();
+    }
+  }, [speed, chaos, enabled]);
 
   useLayoutEffect(() => {
     if (!rootRef.current) return;
-    const ro = new ResizeObserver(() => updateAnim());
+    const ro = new ResizeObserver(() => {
+      if (enabled) {
+        updateAnim();
+      }
+    });
     ro.observe(rootRef.current);
-    updateAnim();
+    if (enabled) {
+      updateAnim();
+    }
     return () => ro.disconnect();
-  }, []);
+  }, [enabled]);
 
   const vars: CSSProperties = {
     ["--electric-border-color" as any]: color,
@@ -122,109 +133,121 @@ const ElectricBorder: React.FC<ElectricBorderProps> = ({
       className={`electric-border ${className ?? ""}`}
       style={{ ...vars, ...style }}
     >
-      <svg ref={svgRef} className="eb-svg" aria-hidden focusable="false">
-        <defs>
-          <filter
-            id={filterId}
-            colorInterpolationFilters="sRGB"
-            x="-20%"
-            y="-20%"
-            width="140%"
-            height="140%"
-          >
-            <feTurbulence
-              type="turbulence"
-              baseFrequency="0.02"
-              numOctaves="10"
-              result="noise1"
-              seed="1"
-            />
-            <feOffset in="noise1" dx="0" dy="0" result="offsetNoise1">
-              <animate
-                attributeName="dy"
-                values="700; 0"
-                dur="6s"
-                repeatCount="indefinite"
-                calcMode="linear"
-              />
-            </feOffset>
+      {enabled && (
+        <>
+          <svg ref={svgRef} className="eb-svg" aria-hidden focusable="false">
+            <defs>
+              <filter
+                id={filterId}
+                colorInterpolationFilters="sRGB"
+                x="-20%"
+                y="-20%"
+                width="140%"
+                height="140%"
+              >
+                <feTurbulence
+                  type="turbulence"
+                  baseFrequency="0.02"
+                  numOctaves="10"
+                  result="noise1"
+                  seed="1"
+                />
+                <feOffset in="noise1" dx="0" dy="0" result="offsetNoise1">
+                  <animate
+                    attributeName="dy"
+                    values="700; 0"
+                    dur="6s"
+                    repeatCount="indefinite"
+                    calcMode="linear"
+                  />
+                </feOffset>
 
-            <feTurbulence
-              type="turbulence"
-              baseFrequency="0.02"
-              numOctaves="10"
-              result="noise2"
-              seed="1"
-            />
-            <feOffset in="noise2" dx="0" dy="0" result="offsetNoise2">
-              <animate
-                attributeName="dy"
-                values="0; -700"
-                dur="6s"
-                repeatCount="indefinite"
-                calcMode="linear"
-              />
-            </feOffset>
+                <feTurbulence
+                  type="turbulence"
+                  baseFrequency="0.02"
+                  numOctaves="10"
+                  result="noise2"
+                  seed="1"
+                />
+                <feOffset in="noise2" dx="0" dy="0" result="offsetNoise2">
+                  <animate
+                    attributeName="dy"
+                    values="0; -700"
+                    dur="6s"
+                    repeatCount="indefinite"
+                    calcMode="linear"
+                  />
+                </feOffset>
 
-            <feTurbulence
-              type="turbulence"
-              baseFrequency="0.02"
-              numOctaves="10"
-              result="noise1"
-              seed="2"
-            />
-            <feOffset in="noise1" dx="0" dy="0" result="offsetNoise3">
-              <animate
-                attributeName="dx"
-                values="490; 0"
-                dur="6s"
-                repeatCount="indefinite"
-                calcMode="linear"
-              />
-            </feOffset>
+                <feTurbulence
+                  type="turbulence"
+                  baseFrequency="0.02"
+                  numOctaves="10"
+                  result="noise1"
+                  seed="2"
+                />
+                <feOffset in="noise1" dx="0" dy="0" result="offsetNoise3">
+                  <animate
+                    attributeName="dx"
+                    values="490; 0"
+                    dur="6s"
+                    repeatCount="indefinite"
+                    calcMode="linear"
+                  />
+                </feOffset>
 
-            <feTurbulence
-              type="turbulence"
-              baseFrequency="0.02"
-              numOctaves="10"
-              result="noise2"
-              seed="2"
-            />
-            <feOffset in="noise2" dx="0" dy="0" result="offsetNoise4">
-              <animate
-                attributeName="dx"
-                values="0; -490"
-                dur="6s"
-                repeatCount="indefinite"
-                calcMode="linear"
-              />
-            </feOffset>
+                <feTurbulence
+                  type="turbulence"
+                  baseFrequency="0.02"
+                  numOctaves="10"
+                  result="noise2"
+                  seed="2"
+                />
+                <feOffset in="noise2" dx="0" dy="0" result="offsetNoise4">
+                  <animate
+                    attributeName="dx"
+                    values="0; -490"
+                    dur="6s"
+                    repeatCount="indefinite"
+                    calcMode="linear"
+                  />
+                </feOffset>
 
-            <feComposite in="offsetNoise1" in2="offsetNoise2" result="part1" />
-            <feComposite in="offsetNoise3" in2="offsetNoise4" result="part2" />
-            <feBlend
-              in="part1"
-              in2="part2"
-              mode="color-dodge"
-              result="combinedNoise"
-            />
-            <feDisplacementMap
-              in="SourceGraphic"
-              in2="combinedNoise"
-              scale="30"
-              xChannelSelector="R"
-              yChannelSelector="B"
-            />
-          </filter>
-        </defs>
-      </svg>
+                <feComposite
+                  in="offsetNoise1"
+                  in2="offsetNoise2"
+                  result="part1"
+                />
+                <feComposite
+                  in="offsetNoise3"
+                  in2="offsetNoise4"
+                  result="part2"
+                />
+                <feBlend
+                  in="part1"
+                  in2="part2"
+                  mode="color-dodge"
+                  result="combinedNoise"
+                />
+                <feDisplacementMap
+                  in="SourceGraphic"
+                  in2="combinedNoise"
+                  scale="30"
+                  xChannelSelector="R"
+                  yChannelSelector="B"
+                />
+              </filter>
+            </defs>
+          </svg>
 
-      <div className="eb-layers">
-        <div ref={strokeRef} className="eb-stroke" />
-        <div className="eb-glow-1" />
-        <div className="eb-glow-2" />
-        <div className="eb-background-glow" />
-      </div>
+          <div className="eb-layers">
+            <div ref={strokeRef} className="eb-stroke" />
+            <div className="eb-glow-1" />
+            <div className="eb-glow-2" />
+            <div className="eb-background-glow" />
+          </div>
+        </>
+      )}
 
       <div className="eb-content">{children}</div>
     </div>
