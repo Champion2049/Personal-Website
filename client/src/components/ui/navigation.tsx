@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
-import { ThemeToggle } from './theme-toggle';
 
 const navItems = [
   { href: '#home', label: 'Home' },
@@ -46,11 +45,9 @@ export function Navigation() {
                 {item.label}
               </button>
             ))}
-            <ThemeToggle />
           </div>
           
           <div className="md:hidden flex items-center space-x-4">
-            <ThemeToggle />
             <button
               onClick={() => setIsOpen(!isOpen)}
               data-testid="menu-toggle"

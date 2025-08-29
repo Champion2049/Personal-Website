@@ -4,7 +4,6 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { LenisScrollProvider } from "@/components/ui/lenis-scroll-provider";
 import { CustomCursor } from "@/components/ui/custom-cursor";
 import Home from "@/pages/home";
 import NotFound from "@/pages/not-found";
@@ -21,20 +20,12 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="dark"
-        enableSystem
-        disableTransitionOnChange={false}
-      >
+      <div className="dark">
         <TooltipProvider>
-          <LenisScrollProvider>
-            <CustomCursor />
-            <Toaster />
-            <Router />
-          </LenisScrollProvider>
+          <Toaster />
+          <Router />
         </TooltipProvider>
-      </ThemeProvider>
+      </div>
     </QueryClientProvider>
   );
 }

@@ -218,7 +218,7 @@ export function GuestbookSection() {
                     <Card className="glass-effect border-primary/10 hover:border-primary/30 transition-all duration-300">
                       <CardContent className="p-6">
                         <div className="flex items-start space-x-4">
-                          <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-r from-primary to-orange-400 rounded-full flex items-center justify-center">
+                          <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-r from-primary to-green-400 rounded-full flex items-center justify-center">
                             <User size={20} className="text-white" />
                           </div>
                           <div className="flex-1">

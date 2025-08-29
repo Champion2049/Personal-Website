@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { animations } from '@/lib/animations';
+import LetterGlitch from '@/components/ui/letter-glitch';
 
 export function HeroSection() {
   const handleExploreClick = () => {
@@ -26,26 +26,20 @@ export function HeroSection() {
   };
 
   return (
-    <section id="home" className="min-h-screen relative overflow-hidden neural-grid">
-      <div className="absolute inset-0 z-0 holographic-bg" />
-      
-      {/* Floating geometric particles */}
-      <div className="absolute inset-0 z-0">
-        {Array.from({ length: 12 }).map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-2 h-2 bg-gradient-to-r from-orange-400 to-red-500 rounded-full animate-float"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 6}s`,
-              animationDuration: `${6 + Math.random() * 4}s`
-            }}
-          />
-        ))}
+    <section id="home" className="min-h-screen relative overflow-hidden bg-background">
+      {/* Letter Glitch Canvas Background (React Bits style) */}
+      <div className="absolute inset-0 z-10 pointer-events-none">
+        <LetterGlitch
+          glitchSpeed={50}
+          centerVignette={true}
+          outerVignette={false}
+          smooth={true}
+          glitchColors={["#00ff41", "#00ff85", "#39ff14"]}
+          className="w-full h-full"
+        />
       </div>
-      
-      <div className="relative z-10 flex items-center justify-center min-h-screen px-8">
+
+      <div className="relative z-20 flex items-center justify-center min-h-screen px-8">
         <div className="text-center max-w-6xl mx-auto">
           <div className="hero-text-container">
             <motion.h1 
@@ -114,42 +108,7 @@ export function HeroSection() {
       </div>
       
       {/* Enhanced floating geometric shapes with warm colors */}
-      <motion.div 
-        className="absolute top-20 left-20 w-20 h-20 border-2 border-orange-400 rounded-full opacity-50"
-        variants={animations.floatingCard}
-        animate="animate"
-        style={{ 
-          background: 'linear-gradient(45deg, rgba(255, 140, 80, 0.15), rgba(255, 100, 50, 0.15))',
-          boxShadow: '0 0 40px rgba(255, 140, 80, 0.4)'
-        }}
-      />
-      <motion.div 
-        className="absolute bottom-20 right-20 w-16 h-16 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg opacity-70 animate-morph"
-        variants={animations.floatingCard}
-        animate="animate"
-        style={{ 
-          animationDelay: '1s',
-          boxShadow: '0 0 30px rgba(255, 100, 50, 0.5)'
-        }}
-      />
-      <motion.div 
-        className="absolute top-1/2 right-10 w-12 h-12 border-2 border-yellow-400 transform rotate-45 opacity-60"
-        variants={animations.floatingCard}
-        animate="animate"
-        style={{ 
-          animationDelay: '2s',
-          boxShadow: '0 0 20px rgba(255, 180, 100, 0.4)'
-        }}
-      />
-      <motion.div 
-        className="absolute top-32 right-32 w-8 h-8 bg-gradient-to-r from-amber-400 to-orange-500 rounded-full opacity-50"
-        variants={animations.floatingCard}
-        animate="animate"
-        style={{ 
-          animationDelay: '3s',
-          boxShadow: '0 0 25px rgba(255, 150, 80, 0.4)'
-        }}
-      />
+  {/* Removed heavy floating shapes to improve performance */}
     </section>
   );
 }

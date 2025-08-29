@@ -1,12 +1,14 @@
+import React, { Suspense } from 'react';
 import { Navigation } from '@/components/ui/navigation';
 import { ScrollProgress } from '@/components/ui/scroll-progress';
-import { HeroSection } from '@/components/sections/hero-section';
-import { AboutSection } from '@/components/sections/about-section';
-import { SkillsSection } from '@/components/sections/skills-section';
-import { ExperienceSection } from '@/components/sections/experience-section';
-import { ProjectsSection } from '@/components/sections/projects-section';
-import { GuestbookSection } from '@/components/sections/guestbook-section';
-import { ContactSection } from '@/components/sections/contact-section';
+
+const LazyHeroSection = React.lazy(() => import('@/components/sections/hero-section').then(module => ({ default: module.HeroSection })));
+const LazyAboutSection = React.lazy(() => import('@/components/sections/about-section').then(module => ({ default: module.AboutSection })));
+const LazySkillsSection = React.lazy(() => import('@/components/sections/skills-section').then(module => ({ default: module.SkillsSection })));
+const LazyExperienceSection = React.lazy(() => import('@/components/sections/experience-section').then(module => ({ default: module.ExperienceSection })));
+const LazyProjectsSection = React.lazy(() => import('@/components/sections/projects-section').then(module => ({ default: module.ProjectsSection })));
+const LazyGuestbookSection = React.lazy(() => import('@/components/sections/guestbook-section').then(module => ({ default: module.GuestbookSection })));
+const LazyContactSection = React.lazy(() => import('@/components/sections/contact-section').then(module => ({ default: module.ContactSection })));
 
 export default function Home() {
   return (
@@ -15,13 +17,15 @@ export default function Home() {
       <Navigation />
       
       <main>
-        <HeroSection />
-        <AboutSection />
-        <SkillsSection />
-        <ExperienceSection />
-        <ProjectsSection />
-        <GuestbookSection />
-        <ContactSection />
+        <Suspense fallback={<div>Loading...</div>}>
+          <LazyHeroSection />
+          <LazyAboutSection />
+          <LazySkillsSection />
+          <LazyExperienceSection />
+          <LazyProjectsSection />
+          <LazyGuestbookSection />
+          <LazyContactSection />
+        </Suspense>
       </main>
       
       <footer className="py-12 text-center text-muted-foreground bg-muted/5">

@@ -14,7 +14,7 @@ const skills = [
 
 export function AboutSection() {
   return (
-    <section id="about" className="min-h-screen relative py-20 bg-gradient-to-br from-slate-900 via-orange-900/20 to-slate-900">
+    <section id="about" className="min-h-screen relative py-20 bg-background">
       <div className="container mx-auto px-8">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           <motion.div 
@@ -26,19 +26,19 @@ export function AboutSection() {
           >
             <div className="relative">
               <motion.div 
-                className="w-full h-96 rounded-3xl shadow-2xl bg-gradient-to-br from-orange-500 via-red-500 to-amber-500 p-1"
+                className="w-full h-96 rounded-3xl shadow-2xl bg-gradient-to-br from-primary via-green-500 to-emerald-500 p-1"
                 variants={animations.liquidMorph}
                 animate="animate"
                 data-testid="about-image"
               >
-                <div className="w-full h-full bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl flex items-center justify-center">
-                  <div className="text-center text-white">
+                <div className="w-full h-full bg-gradient-to-br from-card to-background rounded-3xl flex items-center justify-center">
+                  <div className="text-center text-foreground">
                     <div className="text-6xl mb-4">🎓</div>
                     <p className="text-lg font-mono opacity-80">AI & Data Science Student</p>
                   </div>
                 </div>
               </motion.div>
-              <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-red-500/20 rounded-3xl" />
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-green-500/20 rounded-3xl" />
             </div>
           </motion.div>
           
@@ -91,7 +91,7 @@ export function AboutSection() {
               {skills.map((skill, index) => (
                 <span 
                   key={skill}
-                  className="glass-effect px-4 py-2 rounded-full text-sm font-mono"
+                  className="glass-effect px-4 py-2 rounded-full text-sm font-mono text-foreground"
                   data-testid={`skill-tag-${index}`}
                 >
                   {skill}
