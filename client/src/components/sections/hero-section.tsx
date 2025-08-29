@@ -23,82 +23,82 @@ import { FaJava } from 'react-icons/fa';
 
 const skills = [
 	{
-		node: <SiPython />,
+		node: <SiPython className="text-white" />,
 		title: 'Python',
 		href: 'https://www.python.org',
 	},
 	{
-		node: <SiJavascript />,
+		node: <SiJavascript className="text-white" />,
 		title: 'JavaScript',
 		href: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript',
 	},
 	{
-		node: <SiTypescript />,
+		node: <SiTypescript className="text-white" />,
 		title: 'TypeScript',
 		href: 'https://www.typescriptlang.org/',
 	},
 	{
-		node: <SiReact />,
+		node: <SiReact className="text-white" />,
 		title: 'React',
 		href: 'https://react.dev/',
 	},
 	{
-		node: <SiNodedotjs />,
+		node: <SiNodedotjs className="text-white" />,
 		title: 'Node.js',
 		href: 'https://nodejs.org/',
 	},
 	{
-		node: <SiNextdotjs />,
+		node: <SiNextdotjs className="text-white" />,
 		title: 'Next.js',
 		href: 'https://nextjs.org/',
 	},
 	{
-		node: <SiTensorflow />,
+		node: <SiTensorflow className="text-white" />,
 		title: 'TensorFlow',
 		href: 'https://www.tensorflow.org/',
 	},
 	{
-		node: <SiKeras />,
+		node: <SiKeras className="text-white" />,
 		title: 'Keras',
 		href: 'https://keras.io/',
 	},
 	{
-		node: <SiOpencv />,
+		node: <SiOpencv className="text-white" />,
 		title: 'OpenCV',
 		href: 'https://opencv.org/',
 	},
 	{
-		node: <SiGit />,
+		node: <SiGit className="text-white" />,
 		title: 'Git',
 		href: 'https://git-scm.com/',
 	},
 	{
-		node: <SiLinux />,
+		node: <SiLinux className="text-white" />,
 		title: 'Linux',
 		href: 'https://www.linux.org/',
 	},
 	{
-		node: <SiRaspberrypi />,
+		node: <SiRaspberrypi className="text-white" />,
 		title: 'Raspberry Pi',
 		href: 'https://www.raspberrypi.org/',
 	},
 	{
-		node: <SiFlask />,
+		node: <SiFlask className="text-white" />,
 		title: 'Flask',
 		href: 'https://flask.palletsprojects.com/',
 	},
 	{
-		node: <SiDiscord />,
+		node: <SiDiscord className="text-white" />,
 		title: 'Discord.js',
 		href: 'https://discord.js.org/',
 	},
 	{
-		node: <FaJava />,
+		node: <FaJava className="text-white" />,
 		title: 'Java',
 		href: 'https://www.java.com/',
 	},
 	{
-		node: <SiC />,
+		node: <SiC className="text-white" />,
 		title: 'C',
 		href: 'https://en.wikipedia.org/wiki/C_(programming_language)',
 	},
@@ -142,11 +142,11 @@ export function HeroSection() {
         />
       </div>
 
-      <div className="relative z-20 flex items-center justify-center min-h-screen px-8">
+      <div className="relative z-20 flex items-center justify-center min-h-screen px-4 sm:px-8">
         <div className="text-center max-w-6xl mx-auto">
           <div className="hero-text-container">
             <motion.h1 
-              className="font-space text-6xl md:text-8xl lg:text-9xl font-bold mb-8"
+              className="font-space text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-bold mb-6 md:mb-8"
               initial="initial"
               animate="animate"
               variants={{
@@ -175,46 +175,51 @@ export function HeroSection() {
           </div>
           
           <motion.p 
-            className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-full mx-auto"
+            className="text-lg sm:text-xl md:text-2xl text-muted-foreground mb-10 md:mb-12 max-w-3xl mx-auto"
             variants={animations.fadeInUp}
             initial="initial"
             animate="animate"
             data-testid="hero-description"
           >
             AI & Data Science Student | Full-Stack Developer | Machine Learning Enthusiast
-            <br />
-            <div style={{ height: '200px', position: 'relative', overflow: 'hidden'}}>
-                <LogoLoop
-                    logos={skills}
-                    speed={120}
-                    direction="left"
-                    logoHeight={48}
-                    gap={40}
-                    pauseOnHover
-                    scaleOnHover
-                    fadeOut
-                    fadeOutColor="hsl(var(--background))"
-                    ariaLabel="Technology partners"
-                />
-                </div>
           </motion.p>
+
+          <motion.div 
+            className="h-24 sm:h-32 md:h-40 relative overflow-hidden mb-10 md:mb-12"
+            variants={animations.fadeInUp}
+            initial="initial"
+            animate="animate"
+          >
+            <LogoLoop
+                logos={skills}
+                speed={120}
+                direction="left"
+                logoHeight={window.innerWidth < 768 ? 32 : 48}
+                gap={40}
+                pauseOnHover
+                scaleOnHover
+                fadeOut
+                fadeOutColor="hsl(var(--background))"
+                ariaLabel="Technology partners"
+            />
+          </motion.div>
           
           <motion.div 
-            className="flex flex-col md:flex-row gap-6 justify-center items-center"
+            className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center"
             variants={animations.fadeInUp}
             initial="initial"
             animate="animate"
           >
             <button 
               onClick={handleExploreClick}
-              className="glass-effect px-8 py-4 rounded-2xl text-lg font-semibold text-white hover:bg-primary hover:text-primary-foreground transition-all duration-500 transform hover:scale-105"
+              className="glass-effect w-full sm:w-auto px-8 py-4 rounded-2xl text-base sm:text-lg font-semibold text-white hover:bg-primary hover:text-primary-foreground transition-all duration-500 transform hover:scale-105"
               data-testid="button-explore-work"
             >
               View My Projects
             </button>
             <button 
               onClick={handleContactClick}
-              className="glass-effect px-8 py-4 rounded-2xl text-lg font-semibold text-white hover:bg-primary hover:text-primary-foreground transition-all duration-500 transform hover:scale-105"
+              className="glass-effect w-full sm:w-auto px-8 py-4 rounded-2xl text-base sm:text-lg font-semibold text-white hover:bg-primary hover:text-primary-foreground transition-all duration-500 transform hover:scale-105"
               data-testid="button-get-in-touch"
             >
               Get In Touch

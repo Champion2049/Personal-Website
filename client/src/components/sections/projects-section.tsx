@@ -88,11 +88,19 @@ export function ProjectsSection() {
 				</motion.h2>
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-8">
 					{projectsData.map((project, index) => (
-						<div
+						<motion.div
 							key={index}
 							onMouseEnter={() => setHoveredIndex(index)}
 							onMouseLeave={() => setHoveredIndex(null)}
 							className="h-full"
+							initial={{ opacity: 0, y: 50 }}
+							whileInView={{ opacity: 1, y: 0 }}
+							viewport={{ once: true }}
+							transition={{
+								duration: 0.5,
+								delay: index * 0.1,
+								ease: [0.23, 1, 0.32, 1],
+							}}
 						>
 							<ElectricBorder
 								enabled={hoveredIndex === index}
@@ -102,16 +110,8 @@ export function ProjectsSection() {
 								thickness={2}
 								style={{ borderRadius: 16 }}
 							>
-								<motion.div
+								<div
 									className="bg-card p-6 rounded-lg shadow-lg hover:shadow-primary/20 transition-shadow duration-300 flex flex-col h-full"
-									initial={{ opacity: 0, y: 50 }}
-									whileInView={{ opacity: 1, y: 0 }}
-									viewport={{ once: true }}
-									transition={{
-										duration: 0.5,
-										delay: index * 0.1,
-										ease: [0.23, 1, 0.32, 1],
-									}}
 								>
 									<h3 className="text-2xl font-bold mb-2 text-primary">
 										{project.title}
@@ -142,9 +142,9 @@ export function ProjectsSection() {
 											GitHub <ArrowRight className="ml-1 h-4 w-4" />
 										</a>
 									</div>
-								</motion.div>
+								</div>
 							</ElectricBorder>
-						</div>
+						</motion.div>
 					))}
 				</div>
 			</div>
