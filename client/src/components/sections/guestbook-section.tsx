@@ -188,7 +188,7 @@ export function GuestbookSection() {
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.4 }}
           >
-            <h3 className="text-3xl font-bold text-center mb-8">Recent Messages</h3>
+            <h3 className="text-3xl font-bold text-center mb-8 text-white">Recent Messages</h3>
             
             {isLoading ? (
               <div className="space-y-6">

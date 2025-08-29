@@ -28,7 +28,7 @@ export default function Home() {
         </Suspense>
       </main>
       
-      <footer className="py-12 text-center text-muted-foreground bg-muted/5">
+      <footer className="py-12 text-center text-muted-foreground bg-black">
         <div className="container mx-auto px-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-8">
             <div className="flex flex-wrap justify-center gap-4">
@@ -89,8 +89,8 @@ export default function Home() {
               </a>
             </div>
           </div>
-          
-          <p className="font-mono">© 2025 Chirayu Nilesh Chaudhari. Crafted with passion and code.</p>
+
+          <p className="font-mono text-center">© 2025 Chirayu Nilesh Chaudhari. Crafted with passion and code.</p>
         </div>
       </footer>
     </div>

@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
+import ElectricBorder from '@/components/ui/ElectricBorder';
 
 const projectsData = [
 	{
@@ -80,13 +81,21 @@ export function ProjectsSection() {
 					transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
 					data-testid="projects-title"
 				>
-					My <span className="text-primary">Projects</span>
+					<span className="text-white">My</span> <span className="text-primary">Projects</span>
 				</motion.h2>
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+				<div className="grid grid-cols-1 md:grid-cols-2 gap-8">
 					{projectsData.map((project, index) => (
-						<motion.div
+						<ElectricBorder
 							key={index}
-							className="bg-card p-6 rounded-lg shadow-lg hover:shadow-primary/20 transition-shadow duration-300 flex flex-col"
+							color="hsl(130 70% 50%)"
+							speed={1}
+							chaos={0.5}
+							thickness={2}
+							style={{ borderRadius: 16 }}
+						>
+						<motion.div
+							
+							className="bg-card p-6 rounded-lg shadow-lg hover:shadow-primary/20 transition-shadow duration-300 flex flex-col h-full"
 							initial={{ opacity: 0, y: 50 }}
 							whileInView={{ opacity: 1, y: 0 }}
 							viewport={{ once: true }}
@@ -126,6 +135,7 @@ export function ProjectsSection() {
 								</a>
 							</div>
 						</motion.div>
+						</ElectricBorder>
 					))}
 				</div>
 			</div>

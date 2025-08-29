@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { animations } from '@/lib/animations';
+import DecryptedText from '@/components/ui/decrypted-text';
 
 const skills = [
   'Python & AI/ML',
@@ -44,7 +45,7 @@ export function AboutSection() {
           
           <div className="space-y-8">
             <motion.h2 
-              className="font-space text-5xl md:text-6xl font-bold"
+              className="font-space text-5xl md:text-6xl font-bold text-white"
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -55,29 +56,34 @@ export function AboutSection() {
             </motion.h2>
             
             <motion.div 
-              className="space-y-6 text-lg text-muted-foreground"
+              className="space-y-6 text-lg text-white"
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.2, ease: [0.23, 1, 0.32, 1] }}
             >
               <p data-testid="about-paragraph-1">
-                Hey there, I'm a second-year Artificial Intelligence & Data Science student at Amrita Vishwa Vidyapeetham, 
-                Bengaluru, with a strong foundation in full-stack development, machine learning, and hardware integration. 
-                I maintain a decent CGPA and have proven experience leading technical projects.
+                <DecryptedText
+                  text="Hey there, I'm a second-year Artificial Intelligence & Data Science student at Amrita Vishwa Vidyapeetham, Bengaluru, with a strong foundation in full-stack development, machine learning, and hardware integration. I maintain a decent CGPA and have proven experience leading technical projects."
+                  animateOn="view"
+                  revealDirection="center"
+                />
               </p>
               
               <p data-testid="about-paragraph-2">
-                I recently completed an internship at SigNoz where I architected a Model Context Protocol (MCP) server 
-                from scratch using Node.js and TypeScript, integrating official APIs for real-time observability data 
-                and ensuring seamless accessibility across GPT-based clients.
+                <DecryptedText
+                  text="I recently completed an internship at SigNoz where I architected a Model Context Protocol (MCP) server from scratch using Node.js and TypeScript, integrating official APIs for real-time observability data and ensuring seamless accessibility across GPT-based clients."
+                  animateOn="view"
+                  revealDirection="center"
+                />
               </p>
               
               <p data-testid="about-paragraph-3">
-                Beyond academics, I'm actively involved in IEEE societies, conducting sessions/events, 
-                participating in rover team projects, and enjoy playing guitar (Trinity Grade 5), badminton, 
-                and exploring culinary arts. I'm also quite the fitness enthusiast, and try to regularly hit the gym.
-                If I seem like someone you would like to interact with either Technically or Non-Technically, feel free to reach out!
+                <DecryptedText
+                  text="Beyond academics, I'm actively involved in IEEE societies, conducting sessions/events, participating in rover team projects, and enjoy playing guitar (Trinity Grade 5), badminton, and exploring culinary arts. I'm also quite the fitness enthusiast, and try to regularly hit the gym. If I seem like someone you would like to interact with either Technically or Non-Technically, feel free to reach out!"
+                  animateOn="view"
+                  revealDirection="center"
+                />
               </p>
             </motion.div>
             
@@ -91,7 +97,7 @@ export function AboutSection() {
               {skills.map((skill, index) => (
                 <span 
                   key={skill}
-                  className="glass-effect px-4 py-2 rounded-full text-sm font-mono text-foreground"
+                  className="glass-effect px-4 py-2 rounded-full text-sm font-mono text-white"
                   data-testid={`skill-tag-${index}`}
                 >
                   {skill}

@@ -36,7 +36,7 @@ export function ExperienceSection() {
 		<section id="experience" className="min-h-screen py-20 bg-background">
 			<div className="container mx-auto px-8">
 				<motion.h2
-					className="font-space text-5xl md:text-6xl font-bold text-center mb-16"
+					className="font-space text-5xl md:text-6xl font-bold text-center mb-16 text-white"
 					initial={{ opacity: 0, y: 50 }}
 					whileInView={{ opacity: 1, y: 0 }}
 					viewport={{ once: true }}
@@ -50,7 +50,7 @@ export function ExperienceSection() {
 					{/* Experience */}
 					<div className="space-y-8">
 						<motion.h3
-							className="font-space text-3xl font-bold mb-8"
+							className="font-space text-3xl font-bold mb-8 text-white"
 							initial={{ opacity: 0, x: -50 }}
 							whileInView={{ opacity: 1, x: 0 }}
 							viewport={{ once: true }}
@@ -62,7 +62,7 @@ export function ExperienceSection() {
 						{experienceData.map((exp, index) => (
 							<motion.div
 								key={exp.company}
-								className="glass-effect p-8 rounded-3xl"
+								className="glass-effect p-8 rounded-3xl text-white"
 								initial={{ opacity: 0, y: 50 }}
 								whileInView={{ opacity: 1, y: 0 }}
 								viewport={{ once: true }}
@@ -73,14 +73,14 @@ export function ExperienceSection() {
 										<h4 className="font-space text-2xl font-bold text-primary">
 											{exp.company}
 										</h4>
-										<p className="text-xl font-semibold">
+										<p className="text-xl font-semibold text-white">
 											{exp.position}
 										</p>
 									</div>
 									<Building2 className="text-primary" size={32} />
 								</div>
 
-								<div className="flex items-center gap-4 mb-6 text-sm text-muted-foreground">
+								<div className="flex items-center gap-4 mb-6 text-sm text-white">
 									<div className="flex items-center gap-1">
 										<Calendar size={16} />
 										<span>{exp.period}</span>
@@ -95,7 +95,7 @@ export function ExperienceSection() {
 									{exp.description.map((desc, descIndex) => (
 										<li
 											key={descIndex}
-											className="text-muted-foreground"
+											className="text-white"
 										>
 											• {desc}
 										</li>
@@ -108,7 +108,7 @@ export function ExperienceSection() {
 					{/* Education */}
 					<div className="space-y-8">
 						<motion.h3
-							className="font-space text-3xl font-bold mb-8"
+							className="font-space text-3xl font-bold mb-8 text-white"
 							initial={{ opacity: 0, x: 50 }}
 							whileInView={{ opacity: 1, x: 0 }}
 							viewport={{ once: true }}
@@ -118,7 +118,7 @@ export function ExperienceSection() {
 						</motion.h3>
 
 						<motion.div
-							className="glass-effect p-8 rounded-3xl"
+							className="glass-effect p-8 rounded-3xl text-white"
 							initial={{ opacity: 0, y: 50 }}
 							whileInView={{ opacity: 1, y: 0 }}
 							viewport={{ once: true }}
@@ -128,10 +128,10 @@ export function ExperienceSection() {
 								<h4 className="font-space text-xl font-bold text-primary mb-2">
 									{educationData.degree}
 								</h4>
-								<p className="text-lg font-semibold">
+								<p className="text-lg font-semibold text-white">
 									{educationData.institution}
 								</p>
-								<div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
+								<div className="flex items-center gap-4 mt-2 text-sm text-white">
 									<div className="flex items-center gap-1">
 										<Calendar size={16} />
 										<span>{educationData.period}</span>
@@ -149,7 +149,7 @@ export function ExperienceSection() {
 							</div>
 
 							<div>
-								<h5 className="font-semibold mb-3">
+								<h5 className="font-semibold mb-3 text-white">
 									Clubs & Activities:
 								</h5>
 								<ul className="space-y-2">
@@ -157,7 +157,7 @@ export function ExperienceSection() {
 										(achievement, achIndex) => (
 											<li
 												key={achIndex}
-												className="text-muted-foreground text-sm"
+												className="text-white text-sm"
 											>
 												• {achievement}
 											</li>

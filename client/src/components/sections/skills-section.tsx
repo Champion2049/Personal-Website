@@ -59,8 +59,7 @@ export function SkillsSection() {
 			id="skills"
 			className="min-h-screen py-20 bg-background text-foreground relative overflow-hidden"
 		>
-			<div className="absolute inset-0 neural-grid opacity-30" />
-			<div className="absolute inset-0 holographic-bg opacity-20" />
+			
 
 			<div className="container mx-auto px-8 relative z-10">
 				<motion.h2

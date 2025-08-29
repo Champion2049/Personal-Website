@@ -28,7 +28,7 @@ export function Navigation() {
 
   return (
     <nav className="fixed top-0 w-full z-40 py-6 px-8">
-      <div className="glass-effect rounded-2xl px-8 py-4">
+      <div className="glass-effect rounded-2xl px-8 py-4 text-white">
         <div className="flex justify-between items-center">
           <div className="font-mono text-lg font-semibold" data-testid="logo">
             CHIRAYU.DEV

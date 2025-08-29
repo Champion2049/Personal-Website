@@ -33,16 +33,12 @@ export function CustomCursor() {
     const handleMouseEnter = () => {
       if (outlineRef.current) {
         outlineRef.current.style.transform = 'scale(2.5)';
-        outlineRef.current.style.borderColor = 'hsl(var(--primary))';
-        outlineRef.current.style.boxShadow = '0 0 40px hsl(var(--primary) / 0.7)';
       }
     };
 
     const handleMouseLeave = () => {
       if (outlineRef.current) {
         outlineRef.current.style.transform = 'scale(1)';
-        outlineRef.current.style.borderColor = 'hsl(var(--primary) / 0.5)';
-        outlineRef.current.style.boxShadow = '0 0 30px hsl(var(--primary) / 0.4)';
       }
     };
 

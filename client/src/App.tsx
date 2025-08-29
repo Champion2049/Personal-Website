@@ -23,6 +23,7 @@ function App() {
       <div className="dark">
         <TooltipProvider>
           <Toaster />
+          <CustomCursor />
           <Router />
         </TooltipProvider>
       </div>
