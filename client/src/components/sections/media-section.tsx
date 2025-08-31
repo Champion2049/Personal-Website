@@ -249,7 +249,7 @@ export function MediaSection() {
           viewport={{ once: true }}
           transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
         >
-          <span className="text-white">My</span> <span className="text-primary">Animes</span>
+          <span className="text-white">Animes &</span> <span className="text-primary">Mangas</span>
         </motion.h2>
         
         {isLoading && (
