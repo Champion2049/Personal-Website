@@ -117,7 +117,7 @@ const DialogMediaGrid = ({ items, type }: { items: Media[], type: 'Anime' | 'Man
         href={item.url}
         target="_blank"
         rel="noopener noreferrer"
-        className="block bg-background rounded-lg shadow-lg hover:shadow-primary/20 transition-all duration-300 flex flex-col overflow-hidden group"
+        className="block bg-card rounded-lg shadow-lg hover:shadow-primary/20 transition-all duration-300 flex flex-col overflow-hidden group"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, delay: index * 0.05 }}
@@ -298,9 +298,9 @@ export function MediaSection() {
                     </DialogDescription>
                   </DialogHeader>
                   <Tabs defaultValue="anime" className="flex-grow flex flex-col overflow-hidden">
-                    <TabsList className="mx-auto grid w-full grid-cols-2 max-w-sm bg-neutral-900 border border-neutral-700">
-                      <TabsTrigger value="anime" className="data-[state=active]:bg-primary data-[state=active]:text-black">Anime</TabsTrigger>
-                      <TabsTrigger value="manga" className="data-[state=active]:bg-primary data-[state=active]:text-black">Manga</TabsTrigger>
+                    <TabsList className="mx-auto grid w-full grid-cols-2 max-w-sm bg-card/50">
+                      <TabsTrigger value="anime">Anime</TabsTrigger>
+                      <TabsTrigger value="manga">Manga</TabsTrigger>
                     </TabsList>
                     <TabsContent value="anime" className="overflow-y-auto flex-grow mt-4 pr-2">
                       <DialogMediaGrid items={animeFavorites} type="Anime" />

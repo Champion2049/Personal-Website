@@ -1,6 +1,9 @@
 import { motion } from 'framer-motion';
-import { Mail, Phone, MapPin, Github, Linkedin, Twitter } from 'lucide-react';
+import { Mail, Phone, MapPin, Github, Linkedin } from 'lucide-react';
+import { SiInstagram, SiDiscord } from 'react-icons/si';
 import DecryptedText from '@/components/ui/decrypted-text';
+import { useToast } from '@/hooks/use-toast';
+import { Button } from '../ui/button';
 
 const contactInfo = [
 	{
@@ -23,9 +26,21 @@ const contactInfo = [
 const socialLinks = [
 	{ icon: Github, href: 'https://github.com/Champion2049', label: 'GitHub' },
 	{ icon: Linkedin, href: 'https://www.linkedin.com/in/chirayu-chaudhari-086aa3314', label: 'LinkedIn' },
+    { icon: SiInstagram, href: 'https://www.instagram.com/me.chirayu6/#', label: 'Instagram' },
+    { icon: SiDiscord, username: '_boredguy_', label: 'Discord' },
 ];
 
 export function ContactSection() {
+    const { toast } = useToast();
+
+    const handleDiscordCopy = () => {
+        navigator.clipboard.writeText('_boredguy_');
+        toast({
+          title: 'Discord Username Copied!',
+          description: 'My username (_boredguy_) is in your clipboard.',
+        });
+    };
+
 	return (
 		<section id="contact" className="min-h-screen py-20 bg-black text-foreground relative overflow-hidden">
 			<div className="liquid-bg absolute inset-0 opacity-10" />
@@ -85,16 +100,34 @@ export function ContactSection() {
 						viewport={{ once: true }}
 						transition={{ duration: 0.8, delay: 0.6, ease: [0.23, 1, 0.32, 1] }}
 					>
-						{socialLinks.map((social, index) => (
-							<a
-								key={social.label}
-								href={social.href}
-								className="text-2xl hover:text-accent transition-colors duration-300"
-								data-testid={`social-link-${social.label.toLowerCase()}`}
-							>
-								<social.icon size={32} />
-							</a>
-						))}
+						{socialLinks.map((social) => {
+                            if ('href' in social) {
+                                return (
+                                    <a
+                                        key={social.label}
+                                        href={social.href}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-2xl hover:text-accent transition-colors duration-300"
+                                        data-testid={`social-link-${social.label.toLowerCase()}`}
+                                    >
+                                        <social.icon size={32} />
+                                    </a>
+                                )
+                            }
+                            return (
+                                <Button
+                                    key={social.label}
+                                    onClick={handleDiscordCopy}
+                                    variant="ghost"
+                                    size="icon"
+                                    className="text-2xl hover:text-accent transition-colors duration-300"
+                                    data-testid={`social-link-${social.label.toLowerCase()}`}
+                                >
+                                    <social.icon size={32} />
+                                </Button>
+                            )
+                        })}
 					</motion.div>
 
 					<motion.a

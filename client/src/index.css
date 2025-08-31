@@ -343,3 +343,21 @@ body {
 html {
   cursor: none;
 }
+
+/* Hide selection cursor */
+::selection {
+  background: transparent;
+}
+::-moz-selection {
+  background: transparent;
+}
+body {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+* {
+    cursor: none !important;
+}
