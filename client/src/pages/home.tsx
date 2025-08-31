@@ -7,6 +7,8 @@ const LazyAboutSection = React.lazy(() => import('@/components/sections/about-se
 const LazySkillsSection = React.lazy(() => import('@/components/sections/skills-section').then(module => ({ default: module.SkillsSection })));
 const LazyExperienceSection = React.lazy(() => import('@/components/sections/experience-section').then(module => ({ default: module.ExperienceSection })));
 const LazyProjectsSection = React.lazy(() => import('@/components/sections/projects-section').then(module => ({ default: module.ProjectsSection })));
+const LazyMediaSection = React.lazy(() => import('@/components/sections/media-section').then(module => ({ default: module.MediaSection })));
+const LazySpotifySection = React.lazy(() => import('@/components/sections/spotify-section').then(module => ({ default: module.SpotifySection })));
 const LazyGuestbookSection = React.lazy(() => import('@/components/sections/guestbook-section').then(module => ({ default: module.GuestbookSection })));
 const LazyContactSection = React.lazy(() => import('@/components/sections/contact-section').then(module => ({ default: module.ContactSection })));
 
@@ -23,6 +25,8 @@ export default function Home() {
           <LazySkillsSection />
           <LazyExperienceSection />
           <LazyProjectsSection />
+          <LazyMediaSection />
+          <LazySpotifySection />
           <LazyGuestbookSection />
           <LazyContactSection />
         </Suspense>
