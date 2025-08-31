@@ -182,7 +182,7 @@ const useAnimationLoop = (
 export const LogoLoop = React.memo<LogoLoopProps>(
   ({
     logos,
-    speed = 120,
+    speed = 80,
     direction = "left",
     width = "100%",
     logoHeight = 28,
@@ -277,10 +277,7 @@ export const LogoLoop = React.memo<LogoLoopProps>(
       const isNodeItem = "node" in item;
 
       const content = isNodeItem ? (
-        <span
-          className="logoloop__node"
-          aria-hidden={!!item.href && !item.ariaLabel}
-        >
+        <span className="logoloop__node">
           {item.node}
         </span>
       ) : (
@@ -330,7 +327,7 @@ export const LogoLoop = React.memo<LogoLoopProps>(
             className="logoloop__list"
             key={`copy-${copyIndex}`}
             role="list"
-            aria-hidden={copyIndex > 0}
+            {...(copyIndex > 0 ? { 'aria-hidden': 'true' } : {})}
             ref={copyIndex === 0 ? seqRef : undefined}
           >
             {logos.map((item, itemIndex) =>

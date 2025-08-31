@@ -181,7 +181,8 @@ export function HeroSection() {
             animate="animate"
             data-testid="hero-description"
           >
-            AI & Data Science Student | Full-Stack Developer | Machine Learning Enthusiast
+            <span className="block">AI & Data Science Student | Full-Stack Developer | ML Enthusiast</span>
+            <span className="block">Probably building something stupid cause I can.</span>
           </motion.p>
 
           <motion.div 
