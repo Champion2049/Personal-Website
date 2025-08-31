@@ -25,3 +25,8 @@
   from = "/api/mal-stats"
   to = "/.netlify/functions/mal-stats"
   status = 200
+
+[[redirects]]
+  from = "/api/spotify"
+  to = "/.netlify/functions/spotify"
+  status = 200
