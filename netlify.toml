@@ -17,7 +17,6 @@
   status = 200
 
 [[redirects]]
-<<<<<<< HEAD
   from = "/api/spotify"
   to = "/.netlify/functions/spotify"
   status = 200
@@ -28,8 +27,6 @@
   status = 200
 
 [[redirects]]
-=======
->>>>>>> b5c2ed88b2a4342b7821514017ab764a8d20bb50
   from = "/api/mal-favorites"
   to = "/.netlify/functions/mal-favorites"
   status = 200
@@ -39,19 +36,8 @@
   to = "/.netlify/functions/mal-stats"
   status = 200
 
-<<<<<<< HEAD
 ## SPA fallback
 [[redirects]]
   from = "/*"
   to = "/index.html"
-=======
-[[redirects]]
-  from = "/api/spotify"
-  to = "/.netlify/functions/spotify"
-  status = 200
-
-[[redirects]]
-  from = "/api/spotify-stats"
-  to = "/.netlify/functions/spotify-stats"
->>>>>>> b5c2ed88b2a4342b7821514017ab764a8d20bb50
   status = 200

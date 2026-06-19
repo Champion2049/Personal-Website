@@ -15,20 +15,9 @@ export function ScrollProgress() {
   }, []);
 
   return (
-<<<<<<< HEAD
     <div
       className="fixed top-0 left-0 z-50 h-0.5 bg-gradient-to-r from-primary to-blue-500 transition-[width] duration-150 ease-out"
       style={{ width: `${progress}%` }}
-=======
-    <motion.div 
-      className="fixed top-0 left-0 bg-primary z-50 transition-all duration-300"
-      style={{ width: `${progress}%` }}
-      animate={{ 
-        height: isScrolling ? 4 : 2,
-        opacity: isScrolling ? 1 : 0.8
-      }}
-      transition={{ duration: 0.2, ease: "easeOut" }}
->>>>>>> b5c2ed88b2a4342b7821514017ab764a8d20bb50
     />
   );
 }

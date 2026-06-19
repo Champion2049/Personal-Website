@@ -4,9 +4,6 @@ dist
 server/public
 vite.config.ts.*
 *.tar.gz
-<<<<<<< HEAD
 *.env
-=======
 # Local Netlify folder
 .netlify
->>>>>>> b5c2ed88b2a4342b7821514017ab764a8d20bb50

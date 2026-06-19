@@ -3,7 +3,6 @@
 @tailwind components;
 @tailwind utilities;
 
-<<<<<<< HEAD
 :root {
   --background: hsl(205 40% 97%);
   --foreground: hsl(215 40% 8%);
@@ -123,140 +122,12 @@
     box-shadow: 0 8px 30px hsl(215 40% 8% / 0.06);
   }
   .panel {
-=======
-@layer base {
-  :root {
-    --background: hsl(120 20% 98%);
-    --foreground: hsl(120 10% 10%);
-    --card: hsl(120 20% 100%);
-    --card-foreground: hsl(0, 0%, 0%);
-    --popover: hsl(120 20% 100%);
-    --popover-foreground: hsl(120 10% 10%);
-    --primary: hsl(130 60% 40%);
-    --primary-foreground: hsl(120 20% 98%);
-    --secondary: hsl(120 10% 90%);
-    --secondary-foreground: hsl(130 60% 40%);
-    --muted: hsl(120 10% 95%);
-    --muted-foreground: hsl(120 10% 40%);
-    --accent: hsl(130 60% 40%);
-    --accent-foreground: hsl(120 20% 98%);
-    --destructive: hsl(0 70% 50%);
-    --destructive-foreground: hsl(120 20% 98%);
-    --border: hsl(120 10% 85%);
-    --input: hsl(120 10% 90%);
-    --ring: hsl(130 60% 40%);
-    --chart-1: hsl(130 60% 40%);
-    --chart-2: hsl(140 60% 40%);
-    --chart-3: hsl(150 60% 40%);
-    --chart-4: hsl(160 60% 40%);
-    --chart-5: hsl(170 60% 40%);
-    --sidebar: hsl(120 20% 100%);
-    --sidebar-foreground: hsl(120 10% 10%);
-    --sidebar-primary: hsl(130 60% 40%);
-    --sidebar-primary-foreground: hsl(120 20% 98%);
-    --sidebar-accent: hsl(120 10% 90%);
-    --sidebar-accent-foreground: hsl(130 60% 40%);
-    --sidebar-border: hsl(120 10% 85%);
-    --sidebar-ring: hsl(130 60% 40%);
-    --font-sans: Inter, sans-serif;
-    --font-serif: Georgia, serif;
-    --font-mono: JetBrains Mono, monospace;
-    --font-space: Space Grotesk, sans-serif;
-    --radius: 1.3rem;
-    --shadow-2xs: 0px 2px 0px 0px hsla(130, 70%, 50%, 0);
-    --shadow-xs: 0px 2px 0px 0px hsla(130, 70%, 50%, 0);
-    --shadow-sm: 0px 2px 0px 0px hsla(130, 70%, 50%, 0), 0px 1px 2px -1px hsla(130, 70%, 50%, 0);
-    --shadow: 0px 2px 0px 0px hsla(130, 70%, 50%, 0), 0px 1px 2px -1px hsla(130, 70%, 50%, 0);
-    --shadow-md: 0px 2px 0px 0px hsla(130, 70%, 50%, 0), 0px 2px 4px -1px hsla(130, 70%, 50%, 0);
-    --shadow-lg: 0px 2px 0px 0px hsla(130, 70%, 50%, 0), 0px 4px 6px -1px hsla(130, 70%, 50%, 0);
-    --shadow-xl: 0px 2px 0px 0px hsla(130, 70%, 50%, 0), 0px 8px 10px -1px hsla(130, 70%, 50%, 0);
-    --shadow-2xl: 0px 2px 0px 0px hsla(130, 70%, 50%, 0);
-    --tracking-normal: 0em;
-    --spacing: 0.25rem;
-  }
-
-  .dark {
-    --background: hsl(120 10% 4%);
-    --foreground: hsl(120 30% 99%);
-    --card: hsl(120 10% 8%);
-    --card-foreground: hsl(120 20% 98%);
-    --popover: hsl(120 10% 4%);
-    --popover-foreground: hsl(120 20% 98%);
-    --primary: hsl(130 70% 50%);
-    --primary-foreground: hsl(120 10% 4%);
-    --secondary: hsl(120 5% 85%);
-    --secondary-foreground: hsl(130 70% 50%);
-    --muted: hsl(120 10% 8%);
-    --muted-foreground: hsl(120 15% 88%);
-    --accent: hsl(130 70% 50%);
-    --accent-foreground: hsl(120 10% 4%);
-    --destructive: hsl(0 63% 31%);
-    --destructive-foreground: hsl(120 5% 85%);
-    --border: hsl(120 10% 20%);
-    --input: hsl(120 10% 12%);
-    --ring: hsl(130 70% 50%);
-    --chart-1: hsl(130 70% 50%);
-    --chart-2: hsl(140 70% 50%);
-    --chart-3: hsl(150 70% 50%);
-    --chart-4: hsl(160 70% 50%);
-    --chart-5: hsl(170 70% 50%);
-    --sidebar: hsl(120 10% 8%);
-    --sidebar-foreground: hsl(120 5% 95%);
-    --sidebar-primary: hsl(130 70% 50%);
-    --sidebar-primary-foreground: hsl(120 10% 4%);
-    --sidebar-accent: hsl(120 10% 12%);
-    --sidebar-accent-foreground: hsl(130 70% 50%);
-    --sidebar-border: hsl(120 10% 20%);
-    --sidebar-ring: hsl(130 70% 50%);
-  }
-
-  * {
-    @apply border-border;
-  }
-
-  body {
-    @apply font-sans antialiased bg-background text-foreground;
-    position: relative;
-  }
-
-  html.lenis, 
-  html.lenis body {
-    height: auto;
-  }
-
-  .dark .glass-effect {
-    background: hsla(120, 10%, 12%, 0);
-    backdrop-filter: blur(8px) saturate(150%);
-    -webkit-backdrop-filter: blur(8px) saturate(150%);
-    border: 1px solid hsla(120, 100%, 50%, 0.1);
-    box-shadow: 
-      0 2px 15px rgba(0, 0, 0, 0);
-  }
-
-  .liquid-bg {
-    background: linear-gradient(45deg, 
-      hsl(130, 70%, 50%), 
-      hsl(140, 70%, 55%), 
-      hsl(150, 70%, 60%),
-      hsl(120, 70%, 45%),
-      hsl(110, 70%, 40%)
-    );
-    background-size: 400% 400%;
-    animation: liquid-flow 12s ease infinite;
-  }
-
-  .neural-grid {
-    background-image: 
-      radial-gradient(circle at 1px 1px, hsla(130, 70%, 50%, 0.2) 1px, transparent 0);
-    background-size: 40px 40px;
->>>>>>> b5c2ed88b2a4342b7821514017ab764a8d20bb50
     position: relative;
     background: linear-gradient(180deg, hsl(210 45% 10% / 0.55), hsl(214 50% 6% / 0.55));
     border: 1px solid hsl(192 100% 70% / 0.1);
     border-radius: var(--radius);
     transition: border-color .35s ease, transform .35s ease, box-shadow .35s ease;
   }
-<<<<<<< HEAD
   :root:not(.dark) .panel {
     background: hsl(0 0% 100% / 0.8);
     border: 1px solid hsl(215 40% 0% / 0.08);
@@ -292,70 +163,13 @@
   .accent-text {
     background: linear-gradient(120deg, hsl(186 100% 62%), hsl(212 100% 64%));
     -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
-=======
-
-  .neural-grid::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(90deg, transparent 0%, hsla(130, 70%, 50%, 0.15) 50%, transparent 100%);
-    animation: neural-scan 8s ease-in-out infinite;
-  }
-
-  .holographic-bg {
-    background: linear-gradient(135deg, 
-      hsla(130, 70%, 50%, 0.1) 0%,
-      hsla(140, 70%, 50%, 0.1) 25%,
-      hsla(150, 70%, 50%, 0.1) 50%,
-      hsla(120, 70%, 50%, 0.1) 75%,
-      hsla(110, 70%, 50%, 0.1) 100%
-    );
-    background-size: 400% 400%;
-    animation: holographic-shift 15s ease infinite;
-  }
-
-  .grid-pattern {
-    background-image: 
-      linear-gradient(hsla(130, 70%, 50%, 0.15) 1px, transparent 1px),
-      linear-gradient(90deg, hsla(130, 70%, 50%, 0.15) 1px, transparent 1px),
-      radial-gradient(circle at 50% 50%, hsla(130, 70%, 50%, 0.1) 2px, transparent 2px);
-    background-size: 60px 60px, 60px 60px, 120px 120px;
-    position: relative;
-  }
-
-  .grid-pattern::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(45deg, 
-      transparent 0%, 
-      hsla(140, 70%, 50%, 0.08) 50%, 
-      transparent 100%
-    );
-    animation: grid-pulse 10s ease-in-out infinite;
->>>>>>> b5c2ed88b2a4342b7821514017ab764a8d20bb50
   }
   .text-morphing {
-<<<<<<< HEAD
     background: linear-gradient(120deg, hsl(186 100% 64%), hsl(214 100% 66%), hsl(186 100% 64%));
     background-size: 200% auto;
     -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
     animation: text-flow 6s linear infinite;
     filter: drop-shadow(0 0 18px hsl(192 100% 55% / 0.35));
-=======
-    background: linear-gradient(45deg, 
-      hsl(130, 70%, 50%), 
-      hsl(140, 70%, 55%), 
-      hsl(120, 70%, 45%),
-      hsl(130, 70%, 50%)
-    );
-    background-size: 300% 300%;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    animation: text-flow 6s ease-in-out infinite;
-    filter: drop-shadow(0 0 20px hsla(130, 70%, 50%, 0.4));
->>>>>>> b5c2ed88b2a4342b7821514017ab764a8d20bb50
   }
   .neon-text { text-shadow: 0 0 8px hsl(192 100% 60% / 0.6), 0 0 20px hsl(192 100% 55% / 0.35); }
   .kicker {
@@ -370,63 +184,20 @@
   }
   :root:not(.dark) .tag-chip { background: hsl(205 20% 94%); border-color: hsl(215 40% 0% / 0.08); }
   .cursor-dot {
-<<<<<<< HEAD
     position: fixed; width: 6px; height: 6px; background: hsl(192 100% 60%); border-radius: 50%;
     pointer-events: none; z-index: 9999; transform: translate(-50%, -50%);
     transition: width .2s, height .2s, background .5s ease, box-shadow .5s ease; box-shadow: 0 0 14px hsl(192 100% 60% / 0.9);
-=======
-    position: fixed;
-    width: 6px;
-    height: 6px;
-    background: linear-gradient(45deg, hsl(130, 70%, 50%), hsl(140, 70%, 55%));
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 9999;
-    transition: transform 0.1s ease;
-    box-shadow: 0 0 20px hsla(130, 70%, 50%, 0.7);
->>>>>>> b5c2ed88b2a4342b7821514017ab764a8d20bb50
   }
   .cursor-outline {
-<<<<<<< HEAD
     position: fixed; width: 26px; height: 26px; border: 1px solid hsl(192 100% 60% / 0.5);
     border-radius: 50%; pointer-events: none; z-index: 9998;
     transition: transform .18s ease, border-color .5s ease;
-=======
-    position: fixed;
-    width: 30px;
-    height: 30px;
-    border: 2px solid hsl(var(--primary));
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 9998;
-    transition: all 0.15s ease;
-    box-shadow: 0 0 30px hsla(130, 70%, 50%, 0.4);
-  }
-
-  .reveal-text {
-    opacity: 0;
-    transform: translateY(50px);
-  }
-
-  .skill-card {
-    transform: translateZ(0);
-    transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-  }
-
-  .skill-card:hover {
-    transform: translateZ(50px) rotateX(10deg) rotateY(10deg);
-  }
-
-  .section-transition {
-    background: linear-gradient(135deg, transparent 0%, hsla(130, 70%, 50%, 0.05) 50%, transparent 100%);
->>>>>>> b5c2ed88b2a4342b7821514017ab764a8d20bb50
   }
   /* Hide the OS cursor while the custom cursor is active (fine pointers only) */
   .custom-cursor-active, .custom-cursor-active * { cursor: none !important; }
   .font-display { font-family: var(--font-display); }
 }
 
-<<<<<<< HEAD
 @layer utilities {
   .font-space { font-family: var(--font-space); }
   .font-mono { font-family: var(--font-mono); }
@@ -441,72 +212,6 @@
   33% { transform: translate(40px, -30px) scale(1.1); }
   66% { transform: translate(-30px, 20px) scale(0.95); }
 }
-=======
-@layer components {
-  .hacker-glass-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 20, 0, 0.1);
-    backdrop-filter: blur(2px) saturate(120%);
-    -webkit-backdrop-filter: blur(2px) saturate(120%);
-    pointer-events: none;
-    z-index: 1;
-  }
-}
-
-@keyframes liquid-flow {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-@keyframes neural-scan {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-}
-
-@keyframes holographic-shift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-@keyframes grid-pulse {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 1; }
-}
-
-@keyframes text-flow {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-/* Organic movement for Aurora blobs */
-@keyframes aurora-move {
-  0% { transform: translate3d(0, 0, 0) scale(1); }
-  25% { transform: translate3d(6%, -4%, 0) scale(1.05); }
-  50% { transform: translate3d(-4%, 5%, 0) scale(0.98); }
-  75% { transform: translate3d(3%, 3%, 0) scale(1.03); }
-  100% { transform: translate3d(-5%, -2%, 0) scale(1); }
-}
-
-@keyframes grid-pulse {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 0.8; }
-}
-
-@keyframes text-flow {
-  0%, 100% { background-position: 0% 50%; }
-  25% { background-position: 100% 25%; }
-  50% { background-position: 200% 50%; }
-  75% { background-position: 100% 75%; }
-}
-
->>>>>>> b5c2ed88b2a4342b7821514017ab764a8d20bb50
 @keyframes pulse-glow {
   0% { box-shadow: 0 0 0 0 hsl(192 100% 55% / 0.4); }
   100% { box-shadow: 0 0 0 14px hsl(192 100% 55% / 0); }
@@ -622,55 +327,4 @@ html.cyber-scroll body {
 @media (prefers-reduced-motion: reduce) {
   .magnetic { transition: none !important; transform: none !important; }
   html { scroll-behavior: auto !important; }
-}
-
-/* Letter glitch and scanline animations */
-@keyframes glitch-shift {
-  0% { transform: translate3d(0,0,0); }
-  2% { transform: translate3d(2px,-1px,0); }
-  4% { transform: translate3d(-1px,1px,0); }
-  6% { transform: translate3d(1px,0,0); }
-  8% { transform: translate3d(0,-1px,0); }
-  10% { transform: translate3d(-2px,1px,0); }
-  12%, 100% { transform: translate3d(0,0,0); }
-}
-
-@keyframes scanline {
-  0% { transform: translateY(-100%); }
-  100% { transform: translateY(100%); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .letter-layer, .scanline-layer { animation: none !important; }
-}
-
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  scroll-behavior: smooth;
-  cursor: none;
-}
-
-html {
-  cursor: none;
-}
-
-/* Hide selection cursor */
-::selection {
-  background: transparent;
-}
-::-moz-selection {
-  background: transparent;
-}
-body {
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-}
-
-* {
-    cursor: none !important;
 }

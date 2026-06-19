@@ -188,7 +188,7 @@ export function GuestbookSection() {
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.4 }}
           >
-            <h3 className="text-3xl font-bold text-center mb-8 text-white">Recent Messages</h3>
+            <h3 className="text-3xl font-bold text-center mb-8">Recent Messages</h3>
             
             {isLoading ? (
               <div className="space-y-6">
@@ -218,11 +218,7 @@ export function GuestbookSection() {
                     <Card className="glass-effect border-primary/10 hover:border-primary/30 transition-all duration-300">
                       <CardContent className="p-6">
                         <div className="flex items-start space-x-4">
-<<<<<<< HEAD
                           <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-r from-primary to-blue-500 rounded-full flex items-center justify-center">
-=======
-                          <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-r from-primary to-green-400 rounded-full flex items-center justify-center">
->>>>>>> b5c2ed88b2a4342b7821514017ab764a8d20bb50
                             <User size={20} className="text-white" />
                           </div>
                           <div className="flex-1">
