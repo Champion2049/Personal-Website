@@ -62,6 +62,7 @@ export function CustomCursor() {
         outlineRef.current.style.left = outlinePos.current.x - 13 + 'px';
         outlineRef.current.style.top = outlinePos.current.y - 13 + 'px';
       }
+<<<<<<< HEAD
       // Re-evaluate hover from what's ACTUALLY under the pointer, every few frames.
       // Using elementFromPoint (not the last mousemove target) means the ring
       // shrinks back even when the DOM changes under a stationary cursor —
@@ -69,6 +70,21 @@ export function CustomCursor() {
       if ((frame++ & 7) === 0) {
         const el = document.elementFromPoint(mousePos.current.x, mousePos.current.y);
         setHover(!!(el && el.closest && el.closest(INTERACTIVE)));
+=======
+      
+      requestAnimationFrame(animateOutline);
+    };
+
+    const handleMouseEnter = () => {
+      if (outlineRef.current) {
+        outlineRef.current.style.transform = 'scale(2.5)';
+      }
+    };
+
+    const handleMouseLeave = () => {
+      if (outlineRef.current) {
+        outlineRef.current.style.transform = 'scale(1)';
+>>>>>>> b5c2ed88b2a4342b7821514017ab764a8d20bb50
       }
       raf = requestAnimationFrame(animate);
     };

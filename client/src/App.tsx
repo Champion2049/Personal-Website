@@ -4,7 +4,6 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { LenisScrollProvider } from "@/components/ui/lenis-scroll-provider";
 import { CustomCursor } from "@/components/ui/custom-cursor";
 import { TerminalModal } from "@/components/ui/terminal-modal";
 import { GridTransition } from "@/components/ui/grid-transition";
@@ -29,6 +28,7 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
+<<<<<<< HEAD
       <ThemeProvider
         attribute="class"
         defaultTheme="dark"
@@ -44,8 +44,15 @@ function App() {
             <Toaster />
             <Router />
           </LenisScrollProvider>
+=======
+      <div className="dark">
+        <TooltipProvider>
+          <Toaster />
+          <CustomCursor />
+          <Router />
+>>>>>>> b5c2ed88b2a4342b7821514017ab764a8d20bb50
         </TooltipProvider>
-      </ThemeProvider>
+      </div>
     </QueryClientProvider>
   );
 }
