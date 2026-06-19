@@ -1,4 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
+
+// Load .env (Spotify creds etc.) in dev without an extra dependency.
+try { (process as any).loadEnvFile?.(".env"); } catch { /* no .env present */ }
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 

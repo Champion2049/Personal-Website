@@ -6,12 +6,33 @@
   directory = "netlify/functions"
   node_bundler = "esbuild"
 
-## Route guestbook API to the Netlify Function
+## API routes (must come BEFORE the SPA catch-all)
 [[redirects]]
   from = "/api/guestbook"
   to = "/.netlify/functions/guestbook"
   status = 200
 
+[[redirects]]
+  from = "/api/spotify"
+  to = "/.netlify/functions/spotify"
+  status = 200
+
+[[redirects]]
+  from = "/api/spotify-stats"
+  to = "/.netlify/functions/spotify-stats"
+  status = 200
+
+[[redirects]]
+  from = "/api/mal-favorites"
+  to = "/.netlify/functions/mal-favorites"
+  status = 200
+
+[[redirects]]
+  from = "/api/mal-stats"
+  to = "/.netlify/functions/mal-stats"
+  status = 200
+
+## SPA fallback
 [[redirects]]
   from = "/*"
   to = "/index.html"

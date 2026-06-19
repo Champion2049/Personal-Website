@@ -45,15 +45,10 @@ export function LenisScrollProvider({ children }: LenisScrollProviderProps) {
         const { default: Lenis } = await import('lenis');
         
         const lenis = new Lenis({
-          duration: 1.8,
-          easing: (t: number) => {
-            // Custom easing function inspired by darkroom.engineering
-            return t < 0.5 ? 8 * t * t * t * t : 1 - Math.pow(-2 * t + 2, 4) / 2;
-          },
-          lerp: 0.08,
-          smoothTouch: false,
-          wheelMultiplier: 0.8,
+          lerp: 0.13,            // higher = snappier, less "delayed" feel
+          wheelMultiplier: 1,
           touchMultiplier: 2,
+          smoothWheel: true,
         }) as any;
 
         lenisRef.current = lenis;
