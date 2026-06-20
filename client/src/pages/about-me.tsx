@@ -104,7 +104,7 @@ export default function AboutMe() {
     '> initializing identity.sys ...',
     '> decrypting personality matrix ...',
     '> mounting /taste /games /films ...',
-    '> access granted. welcome to the grid.',
+    '> greetings programs! welcome to the grid.',
   ];
 
   useEffect(() => {
@@ -160,8 +160,14 @@ export default function AboutMe() {
             Get to know me
           </h1>
           <p className="mt-5 text-lg text-muted-foreground leading-relaxed">
-            The non-résumé version. What I'm into when I'm not training models or chasing
-            green builds — the games, films, music and shows that take up my brain space.
+            The non-résumé version of me. <br></br>
+            Hey there, I'm Chirayu, but you can also call me Chids. I assume you aren't here for the technical details, so let's skip the formalities. 
+            So I'm just a regular dude who likes to code, play games and occasionally watch an anime or a movie. I also like to read, but I don't do it as much as I'd like to. 
+            I do have a very vast taste in music, and I like to listen to a lot of different genres.<br></br>
+            PC gaming is a very big part of my life, and I like to play a lot of different games, as you will probably see below in the games section.
+            I am also very into Biking and Car stuff. So if you ever want to talk about bikes or cars, I'm your guy. I also like to go to the gym, but I don't end up going as regularly as I would like to. I also like to play badminton, but I don't get to play it as much as I would like to.
+            My other hobbies include Hiking/ Trekking or any kind of sports, as a matter of fact I also do enjoy eating a lot of different kinds of food, and I like to try out new restaurants and cafes.<br></br>
+            Anyways, that's a bit about me and I hope you like the website. If you want to know more, feel free to reach out to me on any of my socials, or just send me an email. I am always open to making new friends and connections.          
           </p>
 
           <div className="mt-7 panel p-4 font-mono text-sm max-w-md">
@@ -287,7 +293,7 @@ export default function AboutMe() {
         {/* Light cycle game */}
         <Section icon={Gamepad2} title="Enter the Grid">
           <p className="text-muted-foreground mb-6 max-w-2xl">
-            Since we're going full TRON — here's a playable light-cycle. Steer with the arrow keys,
+            Sticking with the Tron theme, here is a Tron themed light-cycle game. Steer with the arrow keys,
             grab the energy nodes, and don't cross your own trail.
           </p>
           <div className="panel p-6 max-w-2xl mx-auto">
