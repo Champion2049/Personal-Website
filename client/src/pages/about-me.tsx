@@ -156,11 +156,18 @@ export default function AboutMe() {
             <Pad size={16} className="text-primary" />
             <span className="kicker">Off the clock</span>
           </div>
+          <div className="mt-7 panel p-4 font-mono text-sm max-w-md">
+            {bootLines.slice(0, boot).map((l, i) => (
+              <div key={i} className={i === bootLines.length - 1 ? 'text-primary' : 'text-muted-foreground'}>{l}</div>
+            ))}
+            {boot < bootLines.length && <span className="inline-block w-2 h-4 translate-y-0.5 bg-primary animate-pulse" />}
+          </div>
+          <br></br>
           <h1 className="font-display text-4xl md:text-6xl font-bold tracking-tight neon-text">
             Get to know me
           </h1>
+          
           <p className="mt-5 text-lg text-muted-foreground leading-relaxed">
-            The non-résumé version of me. <br></br>
             Hey there, I'm Chirayu, but you can also call me Chids. I assume you aren't here for the technical details, so let's skip the formalities. 
             So I'm just a regular dude who likes to code, play games and occasionally watch an anime or a movie. I also like to read, but I don't do it as much as I'd like to. 
             I do have a very vast taste in music, and I like to listen to a lot of different genres.<br></br>
@@ -170,12 +177,7 @@ export default function AboutMe() {
             Anyways, that's a bit about me and I hope you like the website. If you want to know more, feel free to reach out to me on any of my socials, or just send me an email. I am always open to making new friends and connections.          
           </p>
 
-          <div className="mt-7 panel p-4 font-mono text-sm max-w-md">
-            {bootLines.slice(0, boot).map((l, i) => (
-              <div key={i} className={i === bootLines.length - 1 ? 'text-primary' : 'text-muted-foreground'}>{l}</div>
-            ))}
-            {boot < bootLines.length && <span className="inline-block w-2 h-4 translate-y-0.5 bg-primary animate-pulse" />}
-          </div>
+          
         </header>
 
         {/* Now */}
