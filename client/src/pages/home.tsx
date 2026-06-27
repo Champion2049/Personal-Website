@@ -70,10 +70,10 @@ export default function Home() {
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
             <p className="font-mono">© 2026 Chirayu Nilesh Chaudhari</p>
             <div className="flex flex-wrap justify-center gap-3 font-mono text-xs">
-              <a href="https://amrita.town" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">amrita.town</a>
+              {/* <a href="https://amrita.town" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">amrita.town</a>
               <a href="https://amrita.town/prev" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">← prev</a>
               <a href="https://amrita.town/random" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">⚄ random</a>
-              <a href="https://amrita.town/next" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">next →</a>
+              <a href="https://amrita.town/next" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">next →</a> */}
             </div>
             <p>Press <kbd className="font-mono rounded border border-border px-1.5 py-0.5 text-xs">Shift + S</kbd> to navigate</p>
           </div>
