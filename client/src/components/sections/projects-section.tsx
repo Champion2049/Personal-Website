@@ -47,7 +47,7 @@ const projectsData: Project[] = [
   },
   {
     title: 'Thermoelectric Energy Optimization with Deep RL',
-    description: 'A Gymnasium-compatible thermoelectric-generator environment with Optuna-tuned PPO, A2C, DDPG, SAC and DQN agents in Stable-Baselines3 — producing benchmark comparisons and reusable training utilities. Accepted in a Springer Nature journal.',
+    description: 'A Gymnasium-compatible thermoelectric-generator environment with Optuna-tuned PPO, A2C, DDPG, SAC and DQN agents in Stable-Baselines3 — producing benchmark comparisons and reusable training utilities. Published in a Springer Nature journal.',
     tags: ['RL', 'Stable-Baselines3', 'Optuna'],
     period: 'Aug 2025 – Sep 2025',
     github: 'https://github.com/ShreyaKunda/Thermoelectric-Energy-Optimization-with-Deep-Reinforcement-Learning',
@@ -145,44 +145,29 @@ function useGalleryMode() {
   return on;
 }
 
-function ProjectCard({ project, className = '' }: { project: Project; className?: string }) {
-  const n = projectsData.indexOf(project) + 1;
+function ProjectCard({ project }: { project: Project }) {
   return (
     <>
-      <div className="flex items-center justify-between gap-3 border-b border-[var(--line)] px-5 py-2.5">
-        <span className="hud-label">
-          P/{pad(n)} <span className="text-muted-foreground/60">//</span> {project.category}
-        </span>
-        <span className="whitespace-nowrap font-mono text-[0.65rem] text-muted-foreground">{project.period}</span>
-      </div>
-
-      <div className={`relative flex flex-1 flex-col p-5 ${className}`}>
-        <span
-          aria-hidden
-          className="pointer-events-none absolute bottom-2 right-4 select-none font-display text-[6.5rem] font-extrabold leading-none text-transparent opacity-70 [-webkit-text-stroke:1px_var(--line)] transition-[-webkit-text-stroke-color] duration-300 group-hover:[-webkit-text-stroke-color:hsl(186_100%_50%/0.35)]"
-        >
-          {pad(n)}
-        </span>
-        {project.featured && <span className="signal-tag mb-3 self-start">Featured</span>}
-        <h3 className="relative font-display text-xl font-bold uppercase leading-snug tracking-wide transition-colors group-hover:text-primary">
+      <div className="flex flex-1 flex-col p-6">
+        <p className="text-sm text-muted-foreground">
+          {project.category} · {project.period}
+          {project.featured && <span className="text-primary"> · Featured</span>}
+        </p>
+        <h3 className="mt-3 font-display text-xl font-bold uppercase leading-snug tracking-wide transition-colors group-hover:text-primary">
           {project.title}
         </h3>
-        <p className="relative mt-3 flex-1 text-sm leading-relaxed text-muted-foreground">{project.description}</p>
-        <div className="relative mt-4 flex flex-wrap gap-1.5">
-          {project.tags.map((t) => (
-            <span key={t} className="tag-chip text-foreground/75">{t}</span>
-          ))}
-        </div>
+        <p className="mt-3 flex-1 leading-relaxed text-muted-foreground">{project.description}</p>
+        <p className="mt-5 text-sm text-foreground/70">{project.tags.join('  ·  ')}</p>
       </div>
 
       <a
         href={project.github}
         target="_blank"
         rel="noopener noreferrer"
-        className="group/link flex items-center justify-between border-t border-[var(--line)] px-5 py-3 font-mono text-xs uppercase tracking-[0.12em] text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
+        className="group/link flex items-center justify-between border-t border-[var(--line)] px-6 py-3.5 text-sm font-medium text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
       >
-        <span className="inline-flex items-center gap-2"><Github size={14} /> Source</span>
-        <ArrowUpRight size={15} className="transition-transform duration-200 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5" />
+        <span className="inline-flex items-center gap-2"><Github size={15} /> Source</span>
+        <ArrowUpRight size={16} className="transition-transform duration-200 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5" />
       </a>
     </>
   );
@@ -276,7 +261,6 @@ function Gallery({ items, active, filtersBar }: { items: Project[]; active: stri
             </article>
           ))}
           <div data-card className="flex w-[clamp(16rem,20vw,20rem)] flex-col justify-center gap-4 border-l border-[var(--line)] pl-8">
-            <span className="hud-label">End of reel</span>
             <p className="font-display text-3xl font-bold uppercase leading-tight">
               More on <span className="accent-text">GitHub</span>
             </p>
@@ -294,7 +278,7 @@ function Gallery({ items, active, filtersBar }: { items: Project[]; active: stri
         <div className="relative h-px flex-1 bg-[var(--line)]">
           <span data-progress className="absolute inset-0 origin-left bg-primary shadow-[0_0_8px_hsl(186_100%_50%/0.8)]" />
         </div>
-        <span data-pan-hint className="hud-label">Scroll ↓ to pan</span>
+        <span data-pan-hint className="text-sm text-muted-foreground">Scroll to pan</span>
       </div>
     </div>
   );
@@ -328,13 +312,13 @@ export function ProjectsSection() {
             key={f}
             onClick={() => choose(f)}
             aria-pressed={active === f}
-            className={`press border px-3.5 py-2 font-mono text-[0.7rem] uppercase tracking-[0.1em] ${
+            className={`press border px-4 py-2 text-sm ${
               active === f
                 ? 'border-primary bg-primary text-primary-foreground'
                 : 'border-[var(--line-strong)] text-muted-foreground hover:border-primary hover:text-foreground'
             }`}
           >
-            {f} <span className="opacity-60">[{pad(count)}]</span>
+            {f} <span className="ml-1 opacity-50">{count}</span>
           </button>
         );
       })}

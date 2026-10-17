@@ -1,20 +1,10 @@
-import { Music2, Dumbbell, Cpu } from 'lucide-react';
 import { SectionHeading } from '@/components/ui/section-heading';
-import { Barcode } from '@/components/hud/barcode';
 
 const facts = [
-  { label: 'Name', value: 'Chirayu N. Chaudhari' },
   { label: 'Based in', value: 'Bengaluru, India' },
-  { label: 'Studying', value: 'AI & Data Science' },
-  { label: 'Focus', value: 'Deep Learning · RF & DSP' },
-  { label: 'Last role', value: 'AI Eng Intern @ ApplyBeeAI' },
-  { label: 'Coords', value: '12.9716°N 77.5946°E' },
-];
-
-const interests = [
-  { icon: Music2, label: 'Guitar — Trinity Grade 5' },
-  { icon: Dumbbell, label: 'Gym & Badminton' },
-  { icon: Cpu, label: 'IEEE societies & Rover team' },
+  { label: 'Studying', value: 'AI & Data Science, Amrita' },
+  { label: 'Focus', value: 'Deep learning, RF & DSP' },
+  { label: 'Last role', value: 'AI Engineering Intern, ApplyBeeAI' },
 ];
 
 export function AboutSection() {
@@ -45,38 +35,16 @@ export function AboutSection() {
               Beyond the keyboard, I'm active in IEEE societies, and also am a part of the rover team on campus, and recharge with guitar,
               badminton, and the gym. If any of this resonates with you technically or otherwise, I'd love to have you connect with me.
             </p>
-            <div className="flex flex-wrap gap-2 pt-2">
-              {interests.map(({ icon: Icon, label }) => (
-                <span key={label} className="tag-chip inline-flex items-center gap-2 py-1.5 text-foreground/80">
-                  <Icon size={12} className="text-primary" /> {label}
-                </span>
-              ))}
-            </div>
           </div>
 
-          {/* Ident card */}
-          <aside data-reveal className="panel lg:col-span-5" aria-label="Quick facts">
-            <div className="flex items-center justify-between border-b border-[var(--line)] px-5 py-3">
-              <span className="hud-label text-foreground/80">Ident <span className="text-muted-foreground">//</span> Card CC-26</span>
-              <span className="signal-tag">Active</span>
-            </div>
-            <dl className="divide-y divide-[var(--line)] px-5">
-              {facts.map((f) => (
-                <div key={f.label} className="grid grid-cols-[7.5rem_1fr] items-baseline gap-4 py-3">
-                  <dt className="hud-label">{f.label}</dt>
-                  <dd className="text-right font-mono text-sm text-foreground">{f.value}</dd>
-                </div>
-              ))}
-            </dl>
-            <div className="flex items-center gap-4 border-t border-[var(--line)] px-5 py-4">
-              <Barcode value="CHIRAYU.DEV/IDENT" className="h-10 flex-1 text-foreground/85" />
-              <div className="text-right">
-                <div className="hud-label">Issued</div>
-                <div className="font-mono text-xs text-foreground">GRID/BLR</div>
+          <dl data-reveal className="space-y-6 border-l border-[var(--line-strong)] pl-6 lg:col-span-4 lg:col-start-9 lg:mt-2">
+            {facts.map((f) => (
+              <div key={f.label}>
+                <dt className="text-sm text-muted-foreground">{f.label}</dt>
+                <dd className="mt-1 font-display text-lg font-semibold leading-snug text-foreground">{f.value}</dd>
               </div>
-            </div>
-            <div aria-hidden className="hatch h-3 border-t border-[var(--line)]" />
-          </aside>
+            ))}
+          </dl>
         </div>
       </div>
     </section>

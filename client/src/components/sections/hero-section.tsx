@@ -1,7 +1,6 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ArrowDownRight, Download } from 'lucide-react';
 import { TronGrid } from '@/components/ui/tron-grid';
-import { Barcode } from '@/components/hud/barcode';
 import { gsap, useGSAP, DECODE_CHARS, prefersReducedMotion } from '@/lib/gsap';
 import { useIntroReady } from '@/lib/intro-gate';
 import { useLenis } from '@/components/ui/lenis-scroll-provider';
@@ -138,6 +137,7 @@ export function HeroSection() {
   const role = useRef<HTMLSpanElement>(null);
   const ready = useIntroReady();
   const lenis = useLenis();
+  const [reduceMotion] = useState(prefersReducedMotion);
   useRoleDecode(role, ready);
 
   // Entrance: plays when the intro overlay lifts (or right away on later visits).
@@ -230,27 +230,22 @@ export function HeroSection() {
         ))}
       </div>
 
-      {/* Light-cycle lane, placed on the seam between the name lines (desktop scroll scene) */}
-      <div data-lane aria-hidden className="pointer-events-none absolute inset-x-0 top-0 z-20 hidden md:block">
-        <div data-bike className="absolute left-0 top-0 w-[clamp(140px,13vw,200px)]">
-          {/* light wall: ends at the rear-wheel hub, spans the rear wheel's height */}
-          <span data-ribbon className="light-ribbon absolute right-[86.6%] top-[35.4%] h-[58.5%] w-[150vw]" />
-          <span className="tron-bike block aspect-[202/82] w-full" />
+      {/* Light-cycle lane, placed on the seam between the name lines (desktop scroll scene; skipped with reduced motion) */}
+      {!reduceMotion && (
+        <div data-lane aria-hidden className="pointer-events-none absolute inset-x-0 top-0 z-20 hidden md:block">
+          <div data-bike className="absolute left-0 top-0 w-[clamp(140px,13vw,200px)]">
+            {/* light wall: ends at the rear-wheel hub, spans the rear wheel's height */}
+            <span data-ribbon className="light-ribbon absolute right-[86.6%] top-[35.4%] h-[58.5%] w-[150vw]" />
+            <span className="tron-bike block aspect-[202/82] w-full" />
+          </div>
+          <div data-wall className="invisible absolute inset-x-0 -top-px h-[3px] bg-[hsl(186_100%_80%)] shadow-[0_0_14px_hsl(186_100%_50%),0_0_40px_hsl(186_100%_50%/0.6)]" />
+          <span data-wall-core className="invisible absolute left-1/2 top-0 -ml-1.5 -mt-1.5 h-3 w-3 rounded-full bg-white shadow-[0_0_18px_6px_hsl(186_100%_60%)]" />
         </div>
-        <div data-wall className="invisible absolute inset-x-0 -top-px h-[3px] bg-[hsl(186_100%_80%)] shadow-[0_0_14px_hsl(186_100%_50%),0_0_40px_hsl(186_100%_50%/0.6)]" />
-        <span data-wall-core className="invisible absolute left-1/2 top-0 -ml-1.5 -mt-1.5 h-3 w-3 rounded-full bg-white shadow-[0_0_18px_6px_hsl(186_100%_60%)]" />
-      </div>
+      )}
 
       <div data-scroll="content" className="container relative z-10 mx-auto flex flex-1 flex-col px-6 pb-24 pt-24 md:px-10 md:pt-28">
-        {/* Top meta row */}
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div data-enter="fade" className="space-y-1">
-            <div className="hud-label">File 001 / Portfolio_2026</div>
-            <div className="hud-label text-foreground/80">AI &amp; Data Science · Bengaluru</div>
-          </div>
-          <div data-enter="fade" className="signal-tag">
-            Open to internships &amp; research
-          </div>
+        <div data-enter="fade" className="signal-tag self-start">
+          Open to internships &amp; research
         </div>
 
         {/* Name in a crop-selection box */}
@@ -297,26 +292,15 @@ export function HeroSection() {
           </a>
         </div>
 
-        {/* Spec strip (after the metadata footer in the IP.AXIS reference); gap-px draws the hairlines */}
-        <div className="grid grid-cols-2 gap-px border border-[var(--line)] bg-[var(--line)] md:grid-cols-4 xl:grid-cols-[auto_repeat(4,minmax(0,1fr))_minmax(0,1.6fr)]">
-          <div data-enter="cell" className="col-span-2 flex items-center gap-3 bg-background p-3 md:col-span-4 xl:col-span-1">
-            <Barcode value="CHIRAYU-CHAUDHARI" className="h-9 w-32 text-foreground" />
-            <span className="hud-label leading-tight">Trade&shy;mark<br />CC/26</span>
-          </div>
+        {/* Four numbers, nothing else */}
+        <dl className="grid grid-cols-2 gap-x-6 gap-y-6 border-t border-[var(--line)] pt-6 md:grid-cols-4">
           {specs.map((s) => (
-            <div key={s.label} data-enter="cell" className="bg-background p-3">
-              <div className="flex items-center gap-2">
-                <span className="hud-label">{s.label}</span>
-                <span aria-hidden className="hatch h-2 flex-1" />
-              </div>
-              <div className="mt-1.5 font-display text-xl font-bold uppercase leading-tight xl:text-[clamp(1rem,1.3vw,1.5rem)]">{s.value}</div>
+            <div key={s.label} data-enter="cell" className="flex flex-col-reverse">
+              <dt className="mt-2 text-sm text-muted-foreground">{s.label}</dt>
+              <dd className="font-display text-2xl font-bold uppercase leading-none md:text-3xl">{s.value}</dd>
             </div>
           ))}
-          <p data-enter="cell" className="col-span-2 hidden bg-background p-3 text-xs leading-relaxed text-muted-foreground md:col-span-4 md:block xl:col-span-1">
-            Third-year AI &amp; Data Science student with three peer-reviewed publications. My work spans deep-learning research,
-            RF &amp; signal processing, and production ML deployment.
-          </p>
-        </div>
+        </dl>
       </div>
     </section>
   );

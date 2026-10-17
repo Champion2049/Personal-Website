@@ -2,7 +2,6 @@ import { useEffect, useRef } from 'react';
 import { Github, Mail, Phone, Linkedin } from 'lucide-react';
 import { IntroSequence } from '@/components/hud/intro-sequence';
 import { HudFrame } from '@/components/hud/hud-frame';
-import { Barcode } from '@/components/hud/barcode';
 import { HeroSection } from '@/components/sections/hero-section';
 import { AboutSection } from '@/components/sections/about-section';
 import { SkillsSection } from '@/components/sections/skills-section';
@@ -75,50 +74,25 @@ export default function Home() {
       </main>
 
       {/* Footer: the metadata strip from the spec-sheet references */}
-      <footer className="pb-20 md:pb-24">
-        <div className="container mx-auto px-6 md:px-10">
-          <div className="grid border border-[var(--line)] sm:grid-cols-2 lg:grid-cols-[auto_1fr_1fr_1fr_1.6fr]">
-            <div className="flex items-center gap-3 border-b border-[var(--line)] p-4 sm:col-span-2 lg:col-span-1 lg:border-b-0 lg:border-r">
-              <span aria-hidden className="grid h-10 w-10 place-items-center border border-primary font-display text-sm font-bold text-primary">C</span>
-              <Barcode value="CHIRAYU.DEV" className="h-10 w-28 text-foreground/80" />
-            </div>
-            {[
-              { k: 'Owner', v: 'Chirayu N. Chaudhari' },
-              { k: 'Base', v: 'Bengaluru, IN' },
-              { k: 'Build', v: 'React · GSAP · 2026' },
-            ].map((c) => (
-              <div key={c.k} className="border-b border-[var(--line)] p-4 sm:border-r lg:border-b-0">
-                <div className="flex items-center gap-2">
-                  <span className="hud-label">{c.k}</span>
-                  <span aria-hidden className="hatch h-2 flex-1" />
-                </div>
-                <div className="mt-2 font-mono text-sm text-foreground">{c.v}</div>
-              </div>
+      <footer className="pb-16 md:pb-20">
+        <div className="container mx-auto flex flex-wrap items-center justify-between gap-6 border-t border-[var(--line)] px-6 pt-8 md:px-10">
+          <p className="text-sm text-muted-foreground">
+            © {new Date().getFullYear()} Chirayu Nilesh Chaudhari. Press{' '}
+            <kbd className="border border-[var(--line-strong)] px-1.5 font-mono text-xs text-foreground">Shift S</kbd> for the shell.
+          </p>
+          <div className="flex gap-2">
+            {links.map((s) => (
+              <a
+                key={s.label}
+                href={s.href}
+                target={s.href.startsWith('http') ? '_blank' : undefined}
+                rel="noopener noreferrer"
+                aria-label={s.label}
+                className="grid h-10 w-10 place-items-center border border-[var(--line-strong)] text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+              >
+                <s.icon size={16} />
+              </a>
             ))}
-            <div className="p-4 sm:col-span-2 lg:col-span-1">
-              <div className="flex items-center gap-2">
-                <span className="hud-label">Note</span>
-                <span aria-hidden className="hatch h-2 flex-1" />
-              </div>
-              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                © {new Date().getFullYear()} Chirayu Nilesh Chaudhari. Built on the Grid, with a door to Night City. Press{' '}
-                <kbd className="border border-[var(--line-strong)] px-1 font-mono text-[0.65rem] text-foreground">Shift S</kbd> for the shell.
-              </p>
-              <div className="mt-3 flex gap-2">
-                {links.map((s) => (
-                  <a
-                    key={s.label}
-                    href={s.href}
-                    target={s.href.startsWith('http') ? '_blank' : undefined}
-                    rel="noopener noreferrer"
-                    aria-label={s.label}
-                    className="grid h-9 w-9 place-items-center border border-[var(--line-strong)] text-muted-foreground transition-colors hover:border-primary hover:text-primary"
-                  >
-                    <s.icon size={15} />
-                  </a>
-                ))}
-              </div>
-            </div>
           </div>
         </div>
       </footer>

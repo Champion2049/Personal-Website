@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Mail, Phone, MapPin, Github, Linkedin, ArrowUpRight, Copy, Check } from 'lucide-react';
-import { Barcode } from '@/components/hud/barcode';
 
 const EMAIL = 'me.chirayu.6@gmail.com';
 
@@ -47,17 +46,12 @@ export function ContactSection() {
           </div>
 
           <div data-reveal className="panel lg:col-span-7">
-            <div className="flex items-center justify-between border-b border-[var(--line)] px-5 py-2.5">
-              <span className="hud-label">Channels</span>
-              <span className="hud-label">Status <span className="text-primary">Open</span></span>
-            </div>
             <ul className="divide-y divide-[var(--line)]">
               {channels.map((c) => {
                 const row = (
                   <>
-                    <c.icon size={15} className="shrink-0 text-primary" />
-                    <span className="hud-label w-20 shrink-0">{c.label}</span>
-                    <span className="min-w-0 flex-1 truncate font-mono text-sm text-foreground">{c.value}</span>
+                    <span className="w-24 shrink-0 text-sm text-muted-foreground">{c.label}</span>
+                    <span className="min-w-0 flex-1 truncate text-foreground">{c.value}</span>
                     {c.href && <ArrowUpRight size={14} className="shrink-0 text-muted-foreground transition-colors group-hover:text-primary" />}
                   </>
                 );
@@ -68,21 +62,17 @@ export function ContactSection() {
                         href={c.href}
                         target={c.href.startsWith('http') ? '_blank' : undefined}
                         rel="noopener noreferrer"
-                        className="group flex items-center gap-4 px-5 py-3.5 transition-colors hover:bg-primary/5"
+                        className="group flex items-center gap-4 px-6 py-4 transition-colors hover:bg-primary/5"
                       >
                         {row}
                       </a>
                     ) : (
-                      <div className="flex items-center gap-4 px-5 py-3.5">{row}</div>
+                      <div className="flex items-center gap-4 px-6 py-4">{row}</div>
                     )}
                   </li>
                 );
               })}
             </ul>
-            <div className="flex items-center gap-4 border-t border-[var(--line)] px-5 py-3">
-              <Barcode value={EMAIL} className="h-7 flex-1 text-foreground/50" />
-              <span className="hud-label">BLR/IN</span>
-            </div>
           </div>
         </div>
       </div>

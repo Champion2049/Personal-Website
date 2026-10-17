@@ -196,16 +196,6 @@
   }
   .cursor-frame > span { position: absolute; width: 6px; height: 6px; border: 0 solid currentColor; transition: width .3s var(--ease-out), height .3s var(--ease-out); }
   .cursor-frame[data-locked] > span { width: 12px; height: 12px; }
-  /* Light segment orbiting a hovered card's border (see skills-section.tsx) */
-  .light-trace rect {
-    fill: none; stroke: var(--primary); stroke-width: 1.5; stroke-dasharray: 9 91;
-    filter: drop-shadow(0 0 4px hsl(186 100% 50%));
-    opacity: 0; transition: opacity .3s ease;
-  }
-  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-    .group:hover > .light-trace rect { opacity: 1; animation: light-trace 2.2s linear infinite; }
-  }
-  @keyframes light-trace { to { stroke-dashoffset: -100; } }
   .cursor-frame > span:nth-child(1) { top: 0; left: 0; border-top-width: 1.5px; border-left-width: 1.5px; }
   .cursor-frame > span:nth-child(2) { top: 0; right: 0; border-top-width: 1.5px; border-right-width: 1.5px; }
   .cursor-frame > span:nth-child(3) { bottom: 0; left: 0; border-bottom-width: 1.5px; border-left-width: 1.5px; }
