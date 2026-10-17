@@ -6,10 +6,10 @@ import { gsap, useGSAP, DECODE_CHARS, prefersReducedMotion } from '@/lib/gsap';
 import { useIntroReady } from '@/lib/intro-gate';
 import { useLenis } from '@/components/ui/lenis-scroll-provider';
 
-const roles = ['AI Engineering Intern', 'ML & Signal Processing', 'Full-Stack Developer', 'Published IEEE Author', 'ICPC Regionalist'];
+const roles = ['Deep Learning Research', 'RF & Signal Processing', 'Production ML Deployment', 'Published Researcher', 'ICPC Regionalist'];
 
 const specs = [
-  { label: 'CGPA', value: '9.33' },
+  { label: 'CGPA', value: '9.29' },
   { label: 'Publications', value: '03' },
   { label: 'Novo Nordisk', value: 'Top 6' },
   { label: 'ICPC', value: 'Regionalist' },
@@ -313,8 +313,8 @@ export function HeroSection() {
             </div>
           ))}
           <p data-enter="cell" className="col-span-2 hidden bg-background p-3 text-xs leading-relaxed text-muted-foreground md:col-span-4 md:block xl:col-span-1">
-            Third-year AI &amp; Data Science student building at the intersection of machine learning, full-stack systems and
-            hardware. Published author; into open source, game dev and all things sci-fi.
+            Third-year AI &amp; Data Science student with three peer-reviewed publications. My work spans deep-learning research,
+            RF &amp; signal processing, and production ML deployment.
           </p>
         </div>
       </div>

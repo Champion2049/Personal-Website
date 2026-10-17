@@ -25,7 +25,7 @@ const publications = [
     title: 'Thermoelectric Energy Optimization with Deep Reinforcement Learning',
     venue: 'Springer Nature Journal',
     year: '2025',
-    status: 'Published',
+    status: 'Accepted',
   },
 ];
 
