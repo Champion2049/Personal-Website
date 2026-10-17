@@ -11,8 +11,8 @@ import { useIntroReady } from '@/lib/intro-gate';
  * Frames arrive as compressed blobs (a few MB in total) and are decoded off the
  * main thread with createImageBitmap, but only a window around the current
  * frame is kept decoded (a whole sequence of decoded 720p frames would be
- * hundreds of MB and thrash the image cache). Neighbouring frames are blended
- * by the fractional position, so the scrub is smoother than the frame count.
+ * hundreds of MB and thrash the image cache). (No blending between frames:
+ * the camera moves too far per frame, so a blend reads as a double image.)
  * Portrait screens get their own re-framed sequence. Reduced motion: the
  * poster frame, no pin.
  */
@@ -107,32 +107,20 @@ export function NCArrival({ onCover }: { onCover?: (covering: boolean) => void }
   const [reduce] = useState(prefersReducedMotion);
   const [set] = useState(() => (typeof window !== 'undefined' && window.innerWidth / window.innerHeight < 0.9 ? SETS.mobile : SETS.desktop));
   const store = useRef<ReturnType<typeof createFrameStore> | null>(null);
-  const pos = useRef(0); // fractional frame position
-  const blend = useRef(true); // blend neighbouring frames (slow scrubs only)
+  const pos = useRef(0); // current frame
 
-  // Draw the frame at the fractional position, blending into the next one; cover-fitted.
+  // Draw the current frame (or the nearest decoded one), cover-fitted.
   const draw = () => {
     const c = canvas.current;
     const ctx = c?.getContext('2d');
     const st = store.current;
     if (!c || !ctx || !st) return;
-    const i = Math.floor(pos.current);
-    const a = st.get(i) ?? st.nearest(i);
-    if (!a) return;
-    const s = Math.max(c.width / a.width, c.height / a.height);
-    const w = a.width * s;
-    const h = a.height * s;
-    const x = (c.width - w) / 2;
-    const y = (c.height - h) / 2;
-    ctx.globalAlpha = 1;
-    ctx.drawImage(a, x, y, w, h);
-    const t = pos.current - i;
-    const b = blend.current && t > 0.05 ? st.get(i + 1) : undefined;
-    if (b && st.get(i)) {
-      ctx.globalAlpha = t;
-      ctx.drawImage(b, x, y, w, h);
-      ctx.globalAlpha = 1;
-    }
+    const img = st.nearest(pos.current);
+    if (!img) return;
+    const s = Math.max(c.width / img.width, c.height / img.height);
+    const w = img.width * s;
+    const h = img.height * s;
+    ctx.drawImage(img, (c.width - w) / 2, (c.height - h) / 2, w, h);
   };
 
   // Size the canvas to the viewport and stream the frames in, first frame first.
@@ -169,19 +157,11 @@ export function NCArrival({ onCover }: { onCover?: (covering: boolean) => void }
       // Redraw at most 30 times a second; it's a film sequence, and each draw is a full-screen blit.
       let want = 0;
       let lastDraw = 0;
-      let lastFrame = 0;
       const tick = (time: number) => {
         if (want === pos.current || time - lastDraw < 1 / 30) return;
         lastDraw = time;
-        const dir = Math.sign(want - pos.current);
-        // a fast scrub can't show the in-between anyway; skip the second draw
-        blend.current = Math.abs(want - pos.current) < 1.5;
+        store.current?.focus(want, Math.sign(want - pos.current));
         pos.current = want;
-        const i = Math.floor(want);
-        if (i !== lastFrame) {
-          lastFrame = i;
-          store.current?.focus(i, dir);
-        }
         draw();
       };
       gsap.ticker.add(tick);
@@ -204,7 +184,7 @@ export function NCArrival({ onCover }: { onCover?: (covering: boolean) => void }
           f: set.count - 1,
           duration: 1,
           onUpdate: () => {
-            want = proxy.f;
+            want = Math.round(proxy.f);
           },
         }, 0)
         .to(q('[data-hint]'), { autoAlpha: 0, duration: 0.05 }, 0.02)
