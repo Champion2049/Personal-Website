@@ -1,6 +1,6 @@
 /**
  * Background-music controller for the "Get to know me" (Night City) page.
- * Plays /audio/end-of-line.flac on entry, fades in, and fades out + stops when
+ * Plays /audio/end-of-line.mp3 on entry, fades in, and fades out + stops when
  * leaving for the professional site. Respects a user mute toggle.
  *
  * On a hard reload of the page there is no user gesture, so browsers block
@@ -8,10 +8,10 @@
  * track on the visitor's first interaction (pointer / key / touch).
  *
  * NOTE: drop your own legally-obtained "End of Line" (Daft Punk, TRON: Legacy)
- * file at client/public/audio/end-of-line.flac — it is not bundled for
+ * file at client/public/audio/ (the FLAC is the master; the site streams the ~4MB MP3) — it is not bundled for
  * copyright reasons. Any .flac at that path will play.
  */
-const SRC = '/audio/end-of-line.flac';
+const SRC = '/audio/end-of-line.mp3';
 const TARGET_VOL = 0.55;
 
 let audio: HTMLAudioElement | null = null;

@@ -32,7 +32,7 @@ export function Lightbox({ item, onClose }: { item: LightboxItem | null; onClose
               src={item.src}
               alt={item.title}
               className="max-h-[82vh] max-w-[88vw] rounded-xl object-contain border border-primary/30"
-              style={{ boxShadow: '0 0 60px hsl(350 100% 55% / 0.25)' }}
+              style={{ boxShadow: '0 0 60px hsl(2 100% 55% / 0.25)' }}
             />
             <div className="absolute inset-x-0 bottom-0 rounded-b-xl bg-gradient-to-t from-black/85 to-transparent p-4 pointer-events-none">
               <p className="font-display text-lg neon-text">{item.title}</p>

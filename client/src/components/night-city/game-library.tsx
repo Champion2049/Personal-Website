@@ -59,7 +59,7 @@ function CrownedFavourite({ onOpen }: { onOpen: Open }) {
       {g.cover && (
         <img aria-hidden src={g.cover} alt="" className="absolute inset-0 -z-10 h-full w-full scale-110 object-cover opacity-35 blur-2xl" />
       )}
-      <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[hsl(345_45%_4%)] via-[hsl(345_45%_4%/0.85)] to-transparent" />
+      <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[hsl(0_45%_4%)] via-[hsl(0_45%_4%/0.85)] to-transparent" />
       <div className="grid grid-cols-1 items-center gap-8 p-6 md:grid-cols-[minmax(0,1fr)_auto] md:p-10">
         <div>
           <span className="nc-chip nc-chip-gold inline-flex items-center gap-1.5">

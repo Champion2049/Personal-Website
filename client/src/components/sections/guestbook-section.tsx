@@ -1,10 +1,8 @@
-import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { SectionHeading } from '@/components/ui/section-heading';
 import { MessageSquare, User, Mail, Calendar, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
@@ -92,187 +90,141 @@ export function GuestbookSection() {
   };
 
   return (
-    <section id="guestbook" className="py-20 bg-background relative overflow-hidden">
-      <div className="container mx-auto px-8">
-        <motion.div
-          className="max-w-4xl mx-auto"
-          initial={{ opacity: 0, y: 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
-        >
-          <div className="text-center mb-12">
-            <h2 className="font-space text-5xl md:text-6xl font-bold mb-6 text-foreground" data-testid="guestbook-title">
-              <MessageSquare className="inline-block mr-4 text-primary" size={48} />
-              Guestbook
-            </h2>
-            <p className="text-xl text-muted-foreground mb-8" data-testid="guestbook-description">
-              Leave a message, share your thoughts, or just say hello! I'd love to hear from you.
-            </p>
-          </div>
+    <section id="guestbook" className="relative py-28 md:py-36">
+      <div className="container mx-auto px-6 md:px-10">
+        <SectionHeading
+          index="07"
+          kicker="Guestbook"
+          title={<>Leave a <span className="accent-text">signal</span></>}
+          description="Leave a message, share your thoughts, or just say hello! I'd love to hear from you."
+        />
 
+        <div className="grid items-start gap-8 lg:grid-cols-12">
           {/* Add Entry Form */}
-          <motion.div
-            className="mb-12"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            <Card className="glass-effect border-primary/20">
-              <CardHeader>
-                <CardTitle className="text-2xl text-center">Sign the Guestbook</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <label htmlFor="name" className="block text-sm font-medium mb-2">
-                        Name <span className="text-red-500">*</span>
-                      </label>
-                      <Input
-                        id="name"
-                        type="text"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        placeholder="Your name"
-                        required
-                        data-testid="input-guestbook-name"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="email" className="block text-sm font-medium mb-2">
-                        Email (optional)
-                      </label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="your@email.com"
-                        data-testid="input-guestbook-email"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label htmlFor="message" className="block text-sm font-medium mb-2">
-                      Message <span className="text-red-500">*</span>
-                    </label>
-                    <Textarea
-                      id="message"
-                      value={message}
-                      onChange={(e) => setMessage(e.target.value)}
-                      placeholder="Share your thoughts, feedback, or just say hello!"
-                      rows={4}
-                      required
-                      data-testid="textarea-guestbook-message"
-                    />
-                  </div>
-                  <Button
-                    type="submit"
-                    disabled={addEntryMutation.isPending || !name.trim() || !message.trim()}
-                    className="w-full bg-primary hover:bg-primary/90"
-                    data-testid="button-submit-guestbook"
-                  >
-                    {addEntryMutation.isPending ? 'Adding...' : 'Sign Guestbook'}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </motion.div>
+          <form data-reveal onSubmit={handleSubmit} className="panel space-y-5 p-6 lg:col-span-5" aria-labelledby="guestbook-form-title">
+            <div className="flex items-center justify-between border-b border-[var(--line)] pb-3">
+              <h3 id="guestbook-form-title" className="font-display text-lg font-bold uppercase tracking-wide" data-testid="guestbook-title">
+                Sign the guestbook
+              </h3>
+              <MessageSquare size={16} className="text-primary" />
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label htmlFor="name" className="hud-label mb-2 block">
+                  Name <span className="text-[var(--signal)]">*</span>
+                </label>
+                <Input
+                  id="name"
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Your name"
+                  required
+                  data-testid="input-guestbook-name"
+                />
+              </div>
+              <div>
+                <label htmlFor="email" className="hud-label mb-2 block">
+                  Email (optional)
+                </label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="your@email.com"
+                  data-testid="input-guestbook-email"
+                />
+              </div>
+            </div>
+            <div>
+              <label htmlFor="message" className="hud-label mb-2 block">
+                Message <span className="text-[var(--signal)]">*</span>
+              </label>
+              <Textarea
+                id="message"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder="Share your thoughts, feedback, or just say hello!"
+                rows={4}
+                required
+                data-testid="textarea-guestbook-message"
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={addEntryMutation.isPending || !name.trim() || !message.trim()}
+              className="btn-hud w-full disabled:cursor-not-allowed disabled:opacity-50"
+              data-testid="button-submit-guestbook"
+            >
+              {addEntryMutation.isPending ? 'Signing…' : 'Sign guestbook'}
+            </button>
+          </form>
 
           {/* Entries List */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-          >
-            <h3 className="text-3xl font-bold text-center mb-8">Recent Messages</h3>
-            
+          <div data-reveal className="lg:col-span-7">
+            <h3 className="hud-label mb-4 flex items-center gap-3" data-testid="guestbook-description">
+              Recent messages <span className="h-px flex-1 bg-[var(--line)]" /> {entries.length > 0 && <span>{String(entries.length).padStart(2, '0')}</span>}
+            </h3>
+
             {isLoading ? (
-              <div className="space-y-6">
+              <div className="space-y-3">
                 {[...Array(3)].map((_, i) => (
-                  <div key={i} className="glass-effect rounded-2xl p-6 animate-pulse">
-                    <div className="flex items-center space-x-4 mb-4">
-                      <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
-                      <div className="flex-1">
-                        <div className="w-32 h-4 bg-gray-300 rounded mb-2"></div>
-                        <div className="w-24 h-3 bg-gray-300 rounded"></div>
-                      </div>
-                    </div>
-                    <div className="w-full h-16 bg-gray-300 rounded"></div>
-                  </div>
+                  <div key={i} className="panel h-28 animate-pulse" />
                 ))}
               </div>
             ) : entries.length > 0 ? (
-              <div className="space-y-6">
+              <ul className="space-y-3">
                 {entries.map((entry, index) => (
-                  <motion.div
-                    key={entry.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.4, delay: index * 0.1 }}
-                  >
-                    <Card className="glass-effect border-primary/10 hover:border-primary/30 transition-all duration-300">
-                      <CardContent className="p-6">
-                        <div className="flex items-start space-x-4">
-                          <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-r from-primary to-blue-500 rounded-full flex items-center justify-center">
-                            <User size={20} className="text-white" />
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex justify-between items-center mb-1">
-                              <h4 className="font-semibold text-lg" data-testid={`guestbook-entry-name-${index}`}>
-                                {entry.name}
-                              </h4>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="text-muted-foreground hover:text-destructive"
-                                onClick={() => {
-                                  const secret = prompt("Enter the admin secret to delete this message:");
-                                  // We don't check for null, so an empty prompt will be treated as a wrong secret.
-                                  deleteEntryMutation.mutate({ id: entry.id, secret });
-                                }}
-                                disabled={deleteEntryMutation.isPending}
-                                aria-label="Delete message"
-                              >
-                                <Trash2 size={16} />
-                              </Button>
-                            </div>
-                            <div className="flex items-center text-sm text-muted-foreground space-x-4 mb-4">
-                              {entry.email && (
-                                <div className="flex items-center space-x-1">
-                                  <Mail size={14} />
-                                  <span>{entry.email}</span>
-                                </div>
-                              )}
-                              <div className="flex items-center space-x-1">
-                                <Calendar size={14} />
-                                <span>{formatDate(entry.createdAt)}</span>
-                              </div>
-                            </div>
-                            <p className="text-foreground leading-relaxed" data-testid={`guestbook-entry-message-${index}`}>
-                              {entry.message}
-                            </p>
-                          </div>
+                  <li key={entry.id} className="panel p-5">
+                    <div className="flex items-start gap-4">
+                      <div className="grid h-9 w-9 shrink-0 place-items-center border border-primary/50 text-primary">
+                        <User size={16} />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <h4 className="truncate font-display text-lg font-bold" data-testid={`guestbook-entry-name-${index}`}>
+                            {entry.name}
+                          </h4>
+                          <button
+                            className="p-1.5 text-muted-foreground transition-colors hover:text-destructive disabled:opacity-50"
+                            onClick={() => {
+                              const secret = prompt("Enter the admin secret to delete this message:");
+                              // We don't check for null, so an empty prompt will be treated as a wrong secret.
+                              deleteEntryMutation.mutate({ id: entry.id, secret });
+                            }}
+                            disabled={deleteEntryMutation.isPending}
+                            aria-label="Delete message"
+                          >
+                            <Trash2 size={15} />
+                          </button>
                         </div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
+                        <div className="mb-3 mt-0.5 flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-xs text-muted-foreground">
+                          {entry.email && (
+                            <span className="inline-flex items-center gap-1.5">
+                              <Mail size={12} /> {entry.email}
+                            </span>
+                          )}
+                          <span className="inline-flex items-center gap-1.5">
+                            <Calendar size={12} /> {formatDate(entry.createdAt)}
+                          </span>
+                        </div>
+                        <p className="leading-relaxed text-foreground/90" data-testid={`guestbook-entry-message-${index}`}>
+                          {entry.message}
+                        </p>
+                      </div>
+                    </div>
+                  </li>
                 ))}
-              </div>
+              </ul>
             ) : (
-              <div className="text-center py-12">
-                <MessageSquare size={64} className="mx-auto text-muted-foreground mb-4" />
-                <p className="text-xl text-muted-foreground">
-                  Be the first to sign the guestbook!
-                </p>
+              <div className="panel grid place-items-center gap-3 px-6 py-14 text-center">
+                <MessageSquare size={28} className="text-muted-foreground" />
+                <p className="text-muted-foreground">No messages yet. Be the first to sign the guestbook.</p>
               </div>
             )}
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       </div>
     </section>
   );
