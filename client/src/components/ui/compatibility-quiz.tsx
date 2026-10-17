@@ -48,7 +48,7 @@ export function CompatibilityQuiz(_: { onMouseMove?: any } = {}) {
         <div className="flex flex-col items-center text-center">
           <div className="relative h-36 w-36">
             <svg viewBox="0 0 128 128" className="h-full w-full -rotate-90">
-              <circle cx="64" cy="64" r={R} fill="none" stroke="hsl(345 28% 16%)" strokeWidth="8" />
+              <circle cx="64" cy="64" r={R} fill="none" stroke="hsl(0 28% 16%)" strokeWidth="8" />
               <motion.circle
                 cx="64" cy="64" r={R} fill="none" strokeWidth="8" strokeLinecap="round"
                 stroke="url(#compat)" strokeDasharray={C}
@@ -57,8 +57,8 @@ export function CompatibilityQuiz(_: { onMouseMove?: any } = {}) {
               />
               <defs>
                 <linearGradient id="compat" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stopColor="hsl(350 100% 62%)" />
-                  <stop offset="100%" stopColor="hsl(320 100% 62%)" />
+                  <stop offset="0%" stopColor="hsl(2 100% 62%)" />
+                  <stop offset="100%" stopColor="hsl(18 100% 62%)" />
                 </linearGradient>
               </defs>
             </svg>
@@ -93,7 +93,7 @@ export function CompatibilityQuiz(_: { onMouseMove?: any } = {}) {
                 <div className="h-2 -skew-x-12 bg-muted overflow-hidden">
                   <motion.div
                     className="h-full"
-                    style={{ background: 'linear-gradient(90deg, hsl(350 100% 62%), hsl(320 100% 62%))', boxShadow: '0 0 12px hsl(350 100% 60% / 0.6)' }}
+                    style={{ background: 'linear-gradient(90deg, hsl(2 100% 62%), hsl(18 100% 62%))', boxShadow: '0 0 12px hsl(2 100% 60% / 0.6)' }}
                     initial={{ width: 0 }} animate={{ width: `${item.value}%` }}
                     transition={{ duration: 0.9, delay: 0.3 + i * 0.08, ease: [0.22, 1, 0.36, 1] }}
                   />
@@ -175,7 +175,7 @@ export function CompatibilityQuiz(_: { onMouseMove?: any } = {}) {
               let cls = 'shard-hover';
               if (answered) {
                 if (opt.mine) cls = '[--shard-line:hsl(152_70%_55%/0.7)] bg-emerald-400/10';
-                else if (chosen) cls = '[--shard-line:hsl(350_100%_60%/0.7)] bg-primary/10';
+                else if (chosen) cls = '[--shard-line:hsl(2_100%_60%/0.7)] bg-primary/10';
                 else cls = 'opacity-45';
               }
               return (

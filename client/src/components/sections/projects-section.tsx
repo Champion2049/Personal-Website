@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowUpRight, Star, Github } from 'lucide-react';
+import { ArrowUpRight, Github } from 'lucide-react';
 import { SectionHeading } from '@/components/ui/section-heading';
-import { useSpotlight } from '@/lib/use-spotlight';
 
 type Category = 'AI / ML' | 'Signals & Hardware' | 'Web & Systems' | 'Research';
 
@@ -115,7 +114,6 @@ const filters: ('All' | Category)[] = ['All', 'AI / ML', 'Signals & Hardware', '
 
 export function ProjectsSection() {
   const [active, setActive] = useState<'All' | Category>('All');
-  const { onMouseMove } = useSpotlight();
 
   const visible = active === 'All' ? projectsData : projectsData.filter((p) => p.category === active);
 
@@ -136,63 +134,58 @@ export function ProjectsSection() {
               <button
                 key={f}
                 onClick={() => setActive(f)}
-                className={`press rounded-full px-4 py-2 font-mono text-xs border ${
+                aria-pressed={active === f}
+                className={`press border px-3.5 py-2 font-mono text-[0.7rem] uppercase tracking-[0.1em] ${
                   active === f
                     ? 'border-primary bg-primary text-primary-foreground'
-                    : 'border-border text-muted-foreground hover:border-primary/50 hover:text-foreground'
+                    : 'border-[var(--line-strong)] text-muted-foreground hover:border-primary hover:text-foreground'
                 }`}
               >
-                {f} <span className="opacity-60">({count})</span>
+                {f} <span className="opacity-60">[{String(count).padStart(2, '0')}]</span>
               </button>
             );
           })}
         </div>
 
-        <motion.div layout className="grid md:grid-cols-2 gap-6">
+        <motion.div layout className="grid gap-5 md:grid-cols-2">
           <AnimatePresence mode="popLayout">
             {visible.map((project) => (
               <motion.article
                 key={project.title}
                 layout
-                onMouseMove={onMouseMove}
-                initial={{ opacity: 0, scale: 0.95 }}
+                initial={{ opacity: 0, scale: 0.97 }}
                 animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                className="card-spotlight panel group flex flex-col p-6"
+                exit={{ opacity: 0, scale: 0.97, transition: { duration: 0.15 } }}
+                transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+                className="panel group flex flex-col"
               >
-                <div className="flex items-start justify-between gap-3 mb-3">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="tag-chip border-primary/30 text-primary">{project.category}</span>
-                    {project.featured && (
-                      <span className="tag-chip border-primary/50 text-primary inline-flex items-center gap-1">
-                        <Star size={11} /> Featured
-                      </span>
-                    )}
-                  </div>
-                  <span className="font-mono text-[0.7rem] text-muted-foreground whitespace-nowrap">{project.period}</span>
+                <div className="flex items-center justify-between gap-3 border-b border-[var(--line)] px-5 py-2.5">
+                  <span className="hud-label">
+                    P/{String(projectsData.indexOf(project) + 1).padStart(2, '0')} <span className="text-muted-foreground/60">//</span> {project.category}
+                  </span>
+                  <span className="whitespace-nowrap font-mono text-[0.65rem] text-muted-foreground">{project.period}</span>
                 </div>
 
-                <h3 className="font-space text-xl font-bold leading-snug group-hover:text-primary transition-colors">
-                  {project.title}
-                </h3>
-                <p className="mt-3 text-sm text-muted-foreground leading-relaxed flex-1">
-                  {project.description}
-                </p>
-
-                <div className="flex flex-wrap gap-2 mt-4">
-                  {project.tags.map((t) => (
-                    <span key={t} className="tag-chip text-muted-foreground">{t}</span>
-                  ))}
+                <div className="flex flex-1 flex-col p-5">
+                  {project.featured && <span className="signal-tag mb-3 self-start">Featured</span>}
+                  <h3 className="font-display text-xl font-bold uppercase leading-snug tracking-wide transition-colors group-hover:text-primary">
+                    {project.title}
+                  </h3>
+                  <p className="mt-3 flex-1 text-sm leading-relaxed text-muted-foreground">{project.description}</p>
+                  <div className="mt-4 flex flex-wrap gap-1.5">
+                    {project.tags.map((t) => (
+                      <span key={t} className="tag-chip text-foreground/75">{t}</span>
+                    ))}
+                  </div>
                 </div>
 
                 <a
                   href={project.github}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group/link mt-5 inline-flex items-center gap-2 font-mono text-sm text-primary"
+                  className="group/link flex items-center justify-between border-t border-[var(--line)] px-5 py-3 font-mono text-xs uppercase tracking-[0.12em] text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
                 >
-                  <Github size={16} /> View source
+                  <span className="inline-flex items-center gap-2"><Github size={14} /> Source</span>
                   <ArrowUpRight size={15} className="transition-transform duration-200 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5" />
                 </a>
               </motion.article>

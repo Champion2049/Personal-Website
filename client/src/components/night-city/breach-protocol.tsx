@@ -217,7 +217,7 @@ export function BreachProtocol() {
                     s.state === 'done'
                       ? 'border-[hsl(140_70%_50%/0.6)] bg-[hsl(140_70%_50%/0.08)]'
                       : s.state === 'failed'
-                        ? 'border-[hsl(350_100%_60%/0.5)] bg-[hsl(350_100%_60%/0.06)] opacity-70'
+                        ? 'border-[hsl(2_100%_60%/0.5)] bg-[hsl(2_100%_60%/0.06)] opacity-70'
                         : 'border-[hsl(64_40%_30%)]'
                   }`}
                 >

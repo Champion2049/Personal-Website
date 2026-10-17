@@ -1,7 +1,5 @@
-import { motion } from 'framer-motion';
 import { Code2, Server, Brain, LineChart, Cpu, Wrench } from 'lucide-react';
 import { SectionHeading } from '@/components/ui/section-heading';
-import { useSpotlight } from '@/lib/use-spotlight';
 
 const skillsData = [
   { icon: Code2, title: 'Languages', skills: ['Python', 'JavaScript', 'TypeScript', 'Java', 'C'] },
@@ -18,7 +16,6 @@ const marquee = [
 ];
 
 export function SkillsSection() {
-  const { onMouseMove } = useSpotlight();
 
   return (
     <section id="skills" className="relative py-28 md:py-36 overflow-hidden">
@@ -33,38 +30,37 @@ export function SkillsSection() {
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {skillsData.map((skill, index) => (
-            <motion.div
-              key={skill.title}
-              className="card-spotlight panel p-6 group"
-              onMouseMove={onMouseMove}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-60px' }}
-              transition={{ duration: 0.6, delay: index * 0.06, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <div className="flex items-center gap-3 mb-5">
-                <div className="grid place-items-center h-11 w-11 rounded-xl bg-primary/10 text-primary transition-transform group-hover:scale-110">
-                  <skill.icon size={22} />
+            <div data-reveal key={skill.title} className="panel group flex flex-col">
+              <div className="flex items-center justify-between border-b border-[var(--line)] px-5 py-2.5">
+                <span className="hud-label">Module {String(index + 1).padStart(2, '0')}</span>
+                <span className="font-mono text-[0.65rem] text-muted-foreground">{skill.skills.length} units</span>
+              </div>
+              <div className="flex-1 p-5">
+                <div className="mb-5 flex items-center gap-3">
+                  <div className="grid h-10 w-10 place-items-center border border-primary/50 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+                    <skill.icon size={18} />
+                  </div>
+                  <h3 className="font-display text-xl font-bold uppercase tracking-wide">{skill.title}</h3>
                 </div>
-                <h3 className="font-space text-xl font-semibold">{skill.title}</h3>
+                <div className="flex flex-wrap gap-1.5">
+                  {skill.skills.map((item) => (
+                    <span key={item} className="tag-chip text-foreground/75">
+                      {item}
+                    </span>
+                  ))}
+                </div>
               </div>
-              <div className="flex flex-wrap gap-2">
-                {skill.skills.map((item) => (
-                  <span key={item} className="tag-chip text-muted-foreground group-hover:border-primary/20">
-                    {item}
-                  </span>
-                ))}
-              </div>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>
 
-      <div className="relative mt-20 border-y border-border/60 py-5 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
-        <div className="flex w-max animate-marquee gap-10">
+      {/* Data ticker, like the protocol strip along the IP.AXIS frame */}
+      <div aria-hidden className="relative mt-20 overflow-hidden border-y border-[var(--line)] py-3 [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
+        <div className="flex w-max animate-marquee gap-8">
           {[...marquee, ...marquee].map((t, i) => (
-            <span key={i} className="font-mono text-sm text-muted-foreground/70 whitespace-nowrap">
-              {t} <span className="text-primary/50 ml-10">/</span>
+            <span key={i} className="whitespace-nowrap font-mono text-[0.7rem] uppercase tracking-[0.18em] text-muted-foreground">
+              {t} <span className="ml-8 text-primary/60">//</span>
             </span>
           ))}
         </div>

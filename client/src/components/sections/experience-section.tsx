@@ -1,7 +1,7 @@
-import { motion } from 'framer-motion';
+import { useRef } from 'react';
 import { GraduationCap, MapPin, Calendar } from 'lucide-react';
+import { gsap, useGSAP, prefersReducedMotion } from '@/lib/gsap';
 import { SectionHeading } from '@/components/ui/section-heading';
-import { useSpotlight } from '@/lib/use-spotlight';
 
 const experienceData = [
   {
@@ -47,7 +47,19 @@ const educationData = {
 };
 
 export function ExperienceSection() {
-  const { onMouseMove } = useSpotlight();
+  const rail = useRef<HTMLDivElement>(null);
+
+  // The timeline rail is a light-cycle trail: it draws down as you scroll, head first.
+  useGSAP(
+    () => {
+      if (prefersReducedMotion()) return;
+      const el = rail.current!;
+      const st = { trigger: el, start: 'top 70%', end: 'bottom 55%', scrub: 0.5, invalidateOnRefresh: true };
+      gsap.fromTo(el.querySelector('[data-trail]'), { scaleY: 0 }, { scaleY: 1, ease: 'none', scrollTrigger: st });
+      gsap.fromTo(el.querySelector('[data-head]'), { y: 0 }, { y: () => el.offsetHeight, ease: 'none', scrollTrigger: st });
+    },
+    { scope: rail },
+  );
 
   return (
     <section id="experience" className="relative py-28 md:py-36">
@@ -60,29 +72,28 @@ export function ExperienceSection() {
 
         <div className="grid lg:grid-cols-5 gap-10">
           <div className="lg:col-span-3">
-            <div className="relative pl-8 border-l border-border">
+            <div ref={rail} className="relative pl-8">
+              <span aria-hidden className="absolute inset-y-0 left-0 w-px bg-[var(--line)]" />
+              <span aria-hidden data-trail className="absolute inset-y-0 left-0 w-[2px] -translate-x-[0.5px] origin-top bg-primary shadow-[0_0_10px_hsl(186_100%_50%/0.9)]" />
+              <span aria-hidden className="pointer-events-none absolute left-0 top-0 h-full">
+                <span data-head className="absolute -left-[5px] -top-1.5 block h-3 w-3 bg-foreground shadow-[0_0_14px_4px_hsl(186_100%_50%/0.8)]" />
+              </span>
               {experienceData.map((exp, index) => (
-                <motion.div
+                <div data-reveal
                   key={exp.company}
                   className="relative mb-10 last:mb-0"
-                  onMouseMove={onMouseMove}
-                  initial={{ opacity: 0, x: 24 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true, margin: '-60px' }}
-                  transition={{ duration: 0.6, delay: index * 0.1 }}
                 >
-                  <span className={`absolute -left-[2.6rem] top-1.5 grid place-items-center h-5 w-5 rounded-full border-2 ${exp.current ? 'border-primary bg-primary/20' : 'border-border bg-background'}`}>
-                    <span className={`h-2 w-2 rounded-full ${exp.current ? 'bg-primary animate-pulse' : 'bg-muted-foreground'}`} />
+                  <span aria-hidden className={`absolute -left-[2.35rem] top-2 grid h-4 w-4 place-items-center border bg-background ${exp.current ? 'border-primary' : 'border-[var(--line-strong)]'}`}>
+                    <span className={`h-1.5 w-1.5 ${exp.current ? 'bg-primary' : 'bg-muted-foreground'}`} />
                   </span>
-                  <div className="card-spotlight panel p-6">
-                    <div className="flex flex-wrap items-start justify-between gap-2 mb-3">
+                  <div className="panel p-6">
+                    <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
                       <div>
-                        <h3 className="font-space text-2xl font-bold">{exp.company}</h3>
-                        <p className="text-primary font-medium">{exp.position}</p>
+                        <span className="hud-label">Log {String(index + 1).padStart(2, '0')}</span>
+                        <h3 className="mt-1 font-display text-2xl font-bold uppercase tracking-wide">{exp.company}</h3>
+                        <p className="font-medium text-primary">{exp.position}</p>
                       </div>
-                      {exp.current && (
-                        <span className="tag-chip border-primary/40 text-primary">Current</span>
-                      )}
+                      {exp.current && <span className="signal-tag">Current</span>}
                     </div>
                     <div className="flex items-center gap-4 mb-4 font-mono text-xs text-muted-foreground">
                       <span className="flex items-center gap-1.5"><Calendar size={13} /> {exp.period}</span>
@@ -91,7 +102,7 @@ export function ExperienceSection() {
                     <ul className="space-y-2.5 text-muted-foreground text-[0.95rem] leading-relaxed">
                       {exp.description.map((d, i) => (
                         <li key={i} className="flex gap-2.5">
-                          <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-primary" />
+                          <span className="mt-2.5 h-1 w-1 shrink-0 bg-primary" />
                           <span>{d}</span>
                         </li>
                       ))}
@@ -102,45 +113,40 @@ export function ExperienceSection() {
                       ))}
                     </div>
                   </div>
-                </motion.div>
+                </div>
               ))}
             </div>
           </div>
 
-          <motion.div
+          <div data-reveal
             className="lg:col-span-2"
-            onMouseMove={onMouseMove}
-            initial={{ opacity: 0, y: 28 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-60px' }}
-            transition={{ duration: 0.7, delay: 0.15 }}
           >
-            <div className="card-spotlight panel p-6 h-full">
+            <div className="panel p-6 h-full">
               <div className="flex items-center gap-3 mb-5">
-                <div className="grid place-items-center h-11 w-11 rounded-xl bg-primary/10 text-primary">
-                  <GraduationCap size={22} />
+                <div className="grid h-10 w-10 place-items-center border border-primary/50 text-primary">
+                  <GraduationCap size={18} />
                 </div>
-                <h3 className="font-space text-xl font-semibold">Education</h3>
+                <h3 className="font-display text-xl font-bold uppercase tracking-wide">Education</h3>
               </div>
               <h4 className="font-medium text-lg leading-snug">{educationData.degree}</h4>
               <p className="text-primary mt-1">{educationData.institution}</p>
               <div className="flex flex-wrap items-center gap-3 mt-3 font-mono text-xs text-muted-foreground">
                 <span className="flex items-center gap-1.5"><Calendar size={13} /> {educationData.period}</span>
-                <span className="rounded-full bg-primary/15 text-primary px-2.5 py-0.5">CGPA {educationData.cgpa}</span>
+                <span className="border border-primary/50 px-2 py-0.5 text-primary">CGPA {educationData.cgpa}</span>
               </div>
 
               <div className="hairline my-5" />
-              <p className="font-mono text-xs uppercase tracking-wider text-muted-foreground mb-3">Clubs & Activities</p>
+              <p className="hud-label mb-3">Clubs &amp; activities</p>
               <ul className="space-y-2.5 text-sm text-muted-foreground">
                 {educationData.achievements.map((a) => (
                   <li key={a} className="flex gap-2.5">
-                    <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-primary" />
+                    <span className="mt-2 h-1 w-1 shrink-0 bg-primary" />
                     <span>{a}</span>
                   </li>
                 ))}
               </ul>
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
     </section>

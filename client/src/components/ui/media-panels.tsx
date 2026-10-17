@@ -108,7 +108,7 @@ export function SpotifyPanel(_: { onMouseMove?: any } = {}) {
           <div
             className="relative mt-2 h-7 border-t border-primary/30"
             style={{
-              backgroundImage: 'repeating-linear-gradient(to right, hsl(350 100% 60% / 0.35) 0 1px, transparent 1px 2.5%)',
+              backgroundImage: 'repeating-linear-gradient(to right, hsl(2 100% 60% / 0.35) 0 1px, transparent 1px 2.5%)',
               backgroundSize: '100% 8px',
               backgroundRepeat: 'no-repeat',
             }}
@@ -271,7 +271,7 @@ export function AnimeMangaPanel(_: { onMouseMove?: any } = {}) {
         <motion.div key={tab} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
           <dl className="mt-6 grid grid-cols-2 gap-px bg-primary/10 sm:grid-cols-3 lg:grid-cols-5">
             {cfg.map((s) => (
-              <div key={s.k} className="bg-[hsl(345_45%_5%)] px-4 py-3">
+              <div key={s.k} className="bg-[hsl(0_45%_5%)] px-4 py-3">
                 <dt className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <s.icon size={12} className="text-primary" /> {s.label}
                 </dt>
