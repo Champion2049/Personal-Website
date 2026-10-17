@@ -14,6 +14,9 @@ import { BreachProtocol } from '@/components/night-city/breach-protocol';
 import { NCOutro } from '@/components/night-city/nc-outro';
 import { playGridTrack, stopGridTrack } from '@/lib/grid-audio';
 import { identity, quiz } from '@/lib/personal-data';
+import { loadFonts, NIGHT_CITY_FONTS } from '@/lib/fonts';
+
+loadFonts('night-city-fonts', NIGHT_CITY_FONTS);
 
 /**
  * "Get to know me" — the red side of the Grid. Styled after Cyberpunk 2077's
@@ -41,11 +44,11 @@ export default function AboutMe() {
   return (
     <div className="dark theme-cyber relative min-h-screen overflow-x-clip">
       {/* solid backdrop so the dark-blue body bg never shows (e.g. on overscroll / below content) */}
-      <div aria-hidden className="pointer-events-none fixed inset-0" style={{ background: 'hsl(345 45% 4%)', zIndex: -1 }} />
-      <div aria-hidden className="pointer-events-none fixed inset-0 opacity-70 [mask-image:radial-gradient(ellipse_at_top,black_5%,transparent_70%)]">
-        <TronGrid color="#ff2d63" />
+      <div aria-hidden className="pointer-events-none fixed inset-0" style={{ background: 'hsl(0 45% 4%)', zIndex: -1 }} />
+      <div aria-hidden className="pointer-events-none fixed inset-0 opacity-70">
+        <TronGrid color="#ff4034" fade="top" />
       </div>
-      <div aria-hidden className="glow-blob animate-blob" style={{ width: 520, height: 520, top: '-12%', right: '-10%', background: 'radial-gradient(circle, hsl(350 100% 60% / 0.22), transparent 70%)' }} />
+      <div aria-hidden className="glow-blob animate-blob" style={{ width: 520, height: 520, top: '-12%', right: '-10%', background: 'radial-gradient(circle, hsl(2 100% 60% / 0.22), transparent 70%)' }} />
       <div aria-hidden className="nc-scanlines" />
 
       <NCNav />

@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'wouter';
-import { AnimatePresence, motion } from 'framer-motion';
 import { HeroTerminal } from '@/components/ui/hero-terminal';
 
 /**
@@ -38,37 +37,26 @@ export function TerminalModal() {
     };
   }, [open]);
 
+  // Opened from the keyboard and used repeatedly: no open/close animation, it's just there.
+  if (!open) return null;
   return (
-    <AnimatePresence>
-      {open && (
-        <motion.div
-          className={`fixed inset-0 z-[100] flex items-start justify-center p-4 pt-[12vh] ${onCyber ? 'dark theme-cyber' : ''}`}
-          // theme-cyber paints an opaque --background; keep the overlay itself
-          // transparent so only the dimming backdrop child shows through.
-          style={{ background: 'transparent' }}
-          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-          transition={{ duration: 0.18 }}
-          onMouseDown={() => setOpen(false)}
-        >
-          {/* backdrop */}
-          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" aria-hidden />
-
-          <motion.div
-            className="relative w-full max-w-2xl"
-            initial={{ opacity: 0, y: 14, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 14, scale: 0.98 }}
-            transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            onMouseDown={(e) => e.stopPropagation()}
-          >
-            <div className="mb-2 flex items-center justify-between px-1 font-mono text-[0.7rem] uppercase tracking-[0.25em] text-muted-foreground">
-              <span><span className="text-primary">//</span> interactive shell — type a command</span>
-              <span className="hidden sm:inline">esc to close</span>
-            </div>
-            <HeroTerminal key={instance} onClose={() => setOpen(false)} />
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+    <div
+      className={`fixed inset-0 z-[100] flex items-start justify-center p-4 pt-[12vh] ${onCyber ? 'dark theme-cyber' : ''}`}
+      // theme-cyber paints an opaque --background; keep the overlay itself
+      // transparent so only the dimming backdrop child shows through.
+      style={{ background: 'transparent' }}
+      onMouseDown={() => setOpen(false)}
+    >
+      <div className="absolute inset-0 bg-black/80" aria-hidden />
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Interactive shell"
+        className="relative w-full max-w-2xl"
+        onMouseDown={(e) => e.stopPropagation()}
+      >
+        <HeroTerminal key={instance} onClose={() => setOpen(false)} />
+      </div>
+    </div>
   );
 }

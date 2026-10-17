@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Github, Star, GitFork, Users, BookMarked, ArrowUpRight, ChevronDown } from 'lucide-react';
 import { SectionHeading } from '@/components/ui/section-heading';
-import { useSpotlight } from '@/lib/use-spotlight';
 
 const USERNAME = 'Champion2049';
 
@@ -42,7 +41,7 @@ function RepoCard({ r }: { r: Repo }) {
       href={r.html_url}
       target="_blank"
       rel="noopener noreferrer"
-      className="group rounded-xl border border-border p-4 transition-colors hover:border-primary/40"
+      className="group border border-[var(--line)] p-4 transition-colors hover:border-primary/50"
     >
       <div className="flex items-center justify-between gap-2">
         <span className="font-mono text-sm font-medium truncate group-hover:text-primary transition-colors">{r.name}</span>
@@ -66,7 +65,6 @@ function RepoCard({ r }: { r: Repo }) {
 }
 
 export function GithubSection() {
-  const { onMouseMove } = useSpotlight();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [repos, setRepos] = useState<Repo[]>([]);
   const [error, setError] = useState(false);
@@ -125,7 +123,6 @@ export function GithubSection() {
 
   return (
     <section id="github" className="relative py-28 md:py-36 overflow-hidden">
-      <div className="absolute inset-0 dot-bg opacity-30 [mask-image:radial-gradient(ellipse_at_center,black_20%,transparent_70%)]" />
       <div className="container mx-auto px-6 md:px-10 relative z-10">
         <SectionHeading
           index="06"
@@ -137,40 +134,30 @@ export function GithubSection() {
         {/* Stat cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           {stats.map((s, i) => (
-            <motion.div
+            <div data-reveal
               key={s.label}
-              className="card-spotlight panel p-5"
-              onMouseMove={onMouseMove}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.06 }}
+              className="panel p-5"
             >
               <s.icon size={18} className="text-primary mb-3" />
               <div className="font-space text-3xl font-bold">
                 {loading ? <span className="inline-block h-8 w-12 rounded bg-muted animate-pulse" /> : (s.value ?? '—')}
               </div>
               <div className="font-mono text-[0.7rem] uppercase tracking-wider text-muted-foreground mt-1">{s.label}</div>
-            </motion.div>
+            </div>
           ))}
         </div>
 
         <div className="grid lg:grid-cols-5 gap-6">
           {/* Languages */}
-          <motion.div
-            className="lg:col-span-2 card-spotlight panel p-6"
-            onMouseMove={onMouseMove}
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
+          <div data-reveal
+            className="lg:col-span-2 panel p-6"
           >
             <h3 className="font-space text-lg font-semibold mb-1">Most-used languages</h3>
             <p className="font-mono text-xs text-muted-foreground mb-5">by repository count</p>
 
             {/* stacked bar */}
             {topLangs.length > 0 && (
-              <div className="flex h-2.5 w-full overflow-hidden rounded-full mb-5">
+              <div className="mb-5 flex h-2 w-full overflow-hidden">
                 {topLangs.map(([l, c]) => (
                   <div key={l} style={{ width: `${(c / langTotal) * 100}%`, background: langColor(l) }} />
                 ))}
@@ -186,7 +173,7 @@ export function GithubSection() {
                 topLangs.map(([l, c]) => (
                   <div key={l} className="flex items-center justify-between text-sm">
                     <span className="flex items-center gap-2">
-                      <span className="h-2.5 w-2.5 rounded-full" style={{ background: langColor(l) }} />
+                      <span className="h-2.5 w-2.5" style={{ background: langColor(l) }} />
                       {l}
                     </span>
                     <span className="font-mono text-xs text-muted-foreground">{Math.round((c / langTotal) * 100)}%</span>
@@ -196,16 +183,11 @@ export function GithubSection() {
                 <p className="text-sm text-muted-foreground">Language data unavailable right now.</p>
               )}
             </div>
-          </motion.div>
+          </div>
 
           {/* Top repos */}
-          <motion.div
-            className="lg:col-span-3 card-spotlight panel p-6"
-            onMouseMove={onMouseMove}
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.1 }}
+          <div data-reveal
+            className="lg:col-span-3 panel p-6"
           >
             <div className="flex items-center justify-between mb-5">
               <h3 className="font-space text-lg font-semibold">Recent &amp; top repositories</h3>
@@ -233,7 +215,7 @@ export function GithubSection() {
                 </p>
               )}
             </div>
-          </motion.div>
+          </div>
         </div>
 
         {/* All other repositories — expandable, pulled live */}
@@ -241,7 +223,7 @@ export function GithubSection() {
           <div className="mt-6">
             <button
               onClick={() => setShowAll((s) => !s)}
-              className="mx-auto flex items-center gap-2 rounded-full border border-border px-5 py-2.5 font-mono text-xs text-muted-foreground transition-colors hover:border-primary/50 hover:text-primary"
+              className="btn-hud btn-hud-ghost mx-auto flex py-2.5"
               aria-expanded={showAll}
             >
               {showAll ? 'Hide' : `View all ${moreRepos.length} more`} repositories

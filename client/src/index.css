@@ -2,45 +2,54 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: hsl(205 40% 97%);
-  --foreground: hsl(215 40% 8%);
-  --card: hsl(0 0% 100%);
-  --card-foreground: hsl(215 40% 8%);
-  --popover: hsl(0 0% 100%);
-  --popover-foreground: hsl(215 40% 8%);
-  --primary: hsl(199 95% 45%);
-  --primary-foreground: hsl(0 0% 100%);
-  --secondary: hsl(215 40% 12%);
-  --secondary-foreground: hsl(0 0% 100%);
-  --muted: hsl(205 20% 92%);
-  --muted-foreground: hsl(215 12% 40%);
-  --accent: hsl(199 95% 45%);
-  --accent-foreground: hsl(0 0% 100%);
-  --destructive: hsl(356 90% 54%);
+/* ============================================================
+   THE GRID × NIGHT CITY — portfolio design tokens
+   An engineering spec sheet for a program on the Grid: void black, bone
+   type, Tron cyan as the light, one cyberpunk signal orange used sparingly.
+   (The site is forced dark; :root and .dark carry the same palette.)
+   ============================================================ */
+:root, .dark {
+  --background: hsl(216 33% 3%);          /* void #05070a */
+  --foreground: hsl(200 22% 92%);         /* bone #e6edf0 */
+  --card: hsl(210 25% 6%);
+  --card-foreground: hsl(200 22% 92%);
+  --popover: hsl(210 25% 5%);
+  --popover-foreground: hsl(200 22% 92%);
+  --primary: hsl(186 100% 50%);           /* grid cyan #00e5ff */
+  --primary-foreground: hsl(216 33% 3%);
+  --secondary: hsl(200 22% 92%);
+  --secondary-foreground: hsl(216 33% 3%);
+  --muted: hsl(210 15% 10%);
+  --muted-foreground: hsl(205 10% 60%);   /* steel */
+  --accent: hsl(16 100% 56%);             /* signal orange #ff5a1f */
+  --accent-foreground: hsl(216 33% 3%);
+  --destructive: hsl(356 80% 58%);
   --destructive-foreground: hsl(0 0% 100%);
-  --border: hsl(205 25% 86%);
-  --input: hsl(205 25% 92%);
-  --ring: hsl(199 95% 45%);
-  --chart-1: hsl(199 95% 50%);
-  --chart-2: hsl(170 90% 45%);
-  --chart-3: hsl(220 90% 60%);
-  --chart-4: hsl(185 90% 50%);
-  --chart-5: hsl(265 80% 65%);
-  --sidebar: hsl(0 0% 100%);
-  --sidebar-foreground: hsl(215 40% 8%);
-  --sidebar-primary: hsl(199 95% 45%);
-  --sidebar-primary-foreground: hsl(0 0% 100%);
-  --sidebar-accent: hsl(205 20% 92%);
-  --sidebar-accent-foreground: hsl(199 95% 45%);
-  --sidebar-border: hsl(205 25% 86%);
-  --sidebar-ring: hsl(199 95% 45%);
-  --font-sans: Inter, sans-serif;
+  --border: hsl(200 15% 15%);
+  --input: hsl(200 15% 13%);
+  --ring: hsl(186 100% 50%);
+  --chart-1: hsl(186 100% 50%);
+  --chart-2: hsl(16 100% 56%);
+  --chart-3: hsl(200 22% 92%);
+  --chart-4: hsl(205 10% 60%);
+  --chart-5: hsl(186 60% 35%);
+  --sidebar: hsl(210 25% 5%);
+  --sidebar-foreground: hsl(200 22% 92%);
+  --sidebar-primary: hsl(186 100% 50%);
+  --sidebar-primary-foreground: hsl(216 33% 3%);
+  --sidebar-accent: hsl(210 15% 10%);
+  --sidebar-accent-foreground: hsl(186 100% 50%);
+  --sidebar-border: hsl(200 15% 15%);
+  --sidebar-ring: hsl(186 100% 50%);
+  --line: hsl(200 22% 92% / 0.12);        /* hairlines */
+  --line-strong: hsl(200 22% 92% / 0.28);
+  --signal: hsl(16 100% 56%);
+  --font-sans: 'IBM Plex Sans', system-ui, sans-serif;
   --font-serif: Georgia, serif;
-  --font-mono: 'JetBrains Mono', monospace;
-  --font-space: 'Space Grotesk', sans-serif;
-  --font-display: 'Orbitron', 'Space Grotesk', sans-serif;
-  --radius: 0.9rem;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --font-space: 'Tomorrow', 'IBM Plex Sans', sans-serif;
+  --font-display: 'Tomorrow', 'IBM Plex Sans', sans-serif;
+  --radius: 0.125rem;
   --tracking-normal: 0em;
   --spacing: 0.25rem;
   /* Motion vocabulary — reuse these instead of inventing per-component curves */
@@ -48,51 +57,9 @@
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
   /* Night City palette — global so hints of it can leak onto the Grid side */
-  --nc-red: hsl(350 100% 60%);
+  --nc-red: hsl(2 100% 60%);
   --nc-yellow: #f3e600;
   --nc-cyan: #00f0ff;
-}
-
-.dark {
-  /* TRON: deep blue-black with electric cyan-blue accent */
-  --background: hsl(216 54% 4%);
-  --foreground: hsl(195 30% 92%);
-  --card: hsl(212 45% 8%);
-  --card-foreground: hsl(195 25% 90%);
-  --popover: hsl(214 50% 6%);
-  --popover-foreground: hsl(195 30% 92%);
-  --primary: hsl(192 100% 55%);
-  --primary-foreground: hsl(216 54% 4%);
-  --secondary: hsl(195 30% 92%);
-  --secondary-foreground: hsl(216 54% 6%);
-  --muted: hsl(210 35% 12%);
-  --muted-foreground: hsl(200 18% 60%);
-  --accent: hsl(192 100% 55%);
-  --accent-foreground: hsl(216 54% 4%);
-  --destructive: hsl(356 80% 58%);
-  --destructive-foreground: hsl(0 0% 100%);
-  --border: hsl(202 50% 16%);
-  --input: hsl(202 45% 14%);
-  --ring: hsl(192 100% 55%);
-  --chart-1: hsl(192 100% 55%);
-  --chart-2: hsl(170 90% 50%);
-  --chart-3: hsl(214 100% 62%);
-  --chart-4: hsl(185 100% 55%);
-  --chart-5: hsl(265 85% 68%);
-  --sidebar: hsl(212 45% 7%);
-  --sidebar-foreground: hsl(195 25% 90%);
-  --sidebar-primary: hsl(192 100% 55%);
-  --sidebar-primary-foreground: hsl(216 54% 4%);
-  --sidebar-accent: hsl(210 35% 12%);
-  --sidebar-accent-foreground: hsl(192 100% 55%);
-  --sidebar-border: hsl(202 50% 16%);
-  --sidebar-ring: hsl(192 100% 55%);
-  --font-sans: Inter, sans-serif;
-  --font-serif: Georgia, serif;
-  --font-mono: 'JetBrains Mono', monospace;
-  --font-space: 'Space Grotesk', sans-serif;
-  --font-display: 'Orbitron', 'Space Grotesk', sans-serif;
-  --radius: 0.9rem;
 }
 
 @layer base {
@@ -100,16 +67,15 @@
   html { scroll-behavior: smooth; }
   body {
     @apply font-sans antialiased bg-background text-foreground;
-    font-feature-settings: "ss01", "cv01", "cv03";
   }
-  ::selection { background: hsl(192 100% 55% / 0.28); color: inherit; }
+  ::selection { background: hsl(186 100% 50% / 0.3); color: inherit; }
   ::-webkit-scrollbar { width: 10px; height: 10px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb {
-    background: hsl(202 50% 22%); border-radius: 999px;
+    background: hsl(200 15% 22%); border-radius: 0;
     border: 2px solid transparent; background-clip: content-box;
   }
-  ::-webkit-scrollbar-thumb:hover { background: hsl(192 100% 55% / 0.6); background-clip: content-box; }
+  ::-webkit-scrollbar-thumb:hover { background: hsl(186 100% 50% / 0.6); background-clip: content-box; }
   html.lenis, html.lenis body { height: auto; }
   .lenis.lenis-smooth { scroll-behavior: auto !important; }
   .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
@@ -118,89 +84,100 @@
 }
 
 @layer components {
+  /* Solid HUD bar. No backdrop-filter: re-blurring content as it scrolls underneath costs every frame. */
   .glass-effect {
-    background: hsl(212 45% 8% / 0.6);
-    backdrop-filter: blur(16px) saturate(150%);
-    border: 1px solid hsl(192 100% 70% / 0.1);
+    background: hsl(216 33% 3% / 0.94);
+    border: 1px solid var(--line);
   }
-  :root:not(.dark) .glass-effect {
-    background: hsl(0 0% 100% / 0.7);
-    border: 1px solid hsl(215 40% 0% / 0.06);
-    box-shadow: 0 8px 30px hsl(215 40% 8% / 0.06);
-  }
+  /* Spec card: hairline frame with crop-handle corners, after the industrial references. */
   .panel {
+    --handle: var(--line-strong);
     position: relative;
-    background: linear-gradient(180deg, hsl(210 45% 10% / 0.55), hsl(214 50% 6% / 0.55));
-    border: 1px solid hsl(192 100% 70% / 0.1);
+    background: hsl(210 25% 5% / 0.8);
+    border: 1px solid var(--line);
     border-radius: var(--radius);
-    transition: border-color .35s ease, transform .35s ease, box-shadow .35s ease;
+    transition: border-color .25s ease;
   }
-  :root:not(.dark) .panel {
-    background: hsl(0 0% 100% / 0.8);
-    border: 1px solid hsl(215 40% 0% / 0.08);
+  .panel::after {
+    content: ''; position: absolute; inset: -3px; pointer-events: none;
+    background:
+      linear-gradient(var(--handle), var(--handle)) 0 0 / 5px 5px no-repeat,
+      linear-gradient(var(--handle), var(--handle)) 100% 0 / 5px 5px no-repeat,
+      linear-gradient(var(--handle), var(--handle)) 0 100% / 5px 5px no-repeat,
+      linear-gradient(var(--handle), var(--handle)) 100% 100% / 5px 5px no-repeat;
   }
-  .panel:hover {
-    border-color: hsl(192 100% 55% / 0.5);
-    box-shadow: 0 0 0 1px hsl(192 100% 55% / 0.2), 0 12px 40px hsl(192 100% 50% / 0.12);
+  @media (hover: hover) and (pointer: fine) {
+    .panel:hover { border-color: hsl(186 100% 50% / 0.4); --handle: var(--primary); }
   }
-  .card-spotlight { position: relative; overflow: hidden; }
-  .card-spotlight::before {
-    content: ''; position: absolute; inset: 0; border-radius: inherit;
-    opacity: 0; transition: opacity .4s ease;
-    background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), hsl(192 100% 55% / 0.16), transparent 60%);
-    pointer-events: none;
-  }
-  .card-spotlight:hover::before { opacity: 1; }
+  /* The old cursor-following glow card is retired; the class stays harmless. */
+  .card-spotlight { position: relative; }
   .grid-bg {
     background-image:
-      linear-gradient(to right, hsl(192 100% 70% / 0.05) 1px, transparent 1px),
-      linear-gradient(to bottom, hsl(192 100% 70% / 0.05) 1px, transparent 1px);
+      linear-gradient(to right, hsl(200 22% 92% / 0.045) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(200 22% 92% / 0.045) 1px, transparent 1px);
     background-size: 56px 56px;
   }
-  :root:not(.dark) .grid-bg {
-    background-image:
-      linear-gradient(to right, hsl(215 40% 8% / 0.05) 1px, transparent 1px),
-      linear-gradient(to bottom, hsl(215 40% 8% / 0.05) 1px, transparent 1px);
-  }
   .dot-bg {
-    background-image: radial-gradient(hsl(192 100% 70% / 0.08) 1px, transparent 1px);
+    background-image: radial-gradient(hsl(200 22% 92% / 0.09) 1px, transparent 1px);
     background-size: 24px 24px;
   }
-  .glow-blob { position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.55; pointer-events: none; }
-  .accent-text {
-    background: linear-gradient(120deg, hsl(186 100% 62%), hsl(212 100% 64%));
-    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
-  }
-  .text-morphing {
-    background: linear-gradient(120deg, hsl(186 100% 64%), hsl(214 100% 66%), hsl(186 100% 64%));
-    background-size: 200% auto;
-    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
-    animation: text-flow 6s linear infinite;
-    filter: drop-shadow(0 0 18px hsl(192 100% 55% / 0.35));
-  }
-  .neon-text { text-shadow: 0 0 8px hsl(192 100% 60% / 0.6), 0 0 20px hsl(192 100% 55% / 0.35); }
+  .glow-blob { position: absolute; border-radius: 50%; opacity: 0.55; pointer-events: none; }
+  /* Solid + outline type, the way the poster references mix them (instead of a gradient accent word). */
+  .accent-text { color: transparent; -webkit-text-stroke: 1.5px var(--primary); }
+  .text-morphing { color: transparent; -webkit-text-stroke: 1.5px var(--primary); }
+  .outline-text { color: transparent; -webkit-text-stroke: 1.5px var(--foreground); }
+  .neon-text { text-shadow: 0 0 8px hsl(186 100% 50% / 0.6), 0 0 20px hsl(186 100% 50% / 0.3); }
   .kicker {
-    font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.2em;
-    text-transform: uppercase; color: var(--primary);
+    font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--muted-foreground);
   }
-  .hairline { height: 1px; background: linear-gradient(90deg, transparent, hsl(192 100% 60% / 0.25), transparent); }
+  .hud-label {
+    font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--muted-foreground);
+  }
+  .hairline { height: 1px; background: var(--line); }
   .tag-chip {
-    font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.02em;
-    border: 1px solid hsl(192 100% 70% / 0.14); background: hsl(210 45% 12% / 0.6);
-    border-radius: 999px; padding: 0.25rem 0.7rem;
+    font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase;
+    border: 1px solid var(--line); background: transparent;
+    border-radius: var(--radius); padding: 0.2rem 0.5rem;
     transition: border-color .2s ease, color .2s ease, background-color .2s ease;
   }
-  :root:not(.dark) .tag-chip { background: hsl(205 20% 94%); border-color: hsl(215 40% 0% / 0.08); }
+  /* Orange spec sticker (the one loud thing on a card, used sparingly) */
+  .signal-tag {
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    font-family: var(--font-mono); font-size: 0.66rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase;
+    background: var(--signal); color: hsl(216 33% 3%); padding: 0.2rem 0.5rem; border-radius: var(--radius);
+  }
+  .hatch { background: repeating-linear-gradient(-45deg, var(--line-strong) 0 1px, transparent 1px 6px); }
+  /* HUD buttons: square, mono, crop handles on the ghost variant */
+  .btn-hud {
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem;
+    font-family: var(--font-mono); font-size: 0.78rem; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase;
+    padding: 0.9rem 1.4rem; border-radius: var(--radius);
+    background: var(--primary); color: var(--primary-foreground); border: 1px solid var(--primary);
+    transition: background-color .2s ease, color .2s ease, border-color .2s ease, scale 160ms var(--ease-out);
+  }
+  .btn-hud-ghost { background: transparent; color: var(--foreground); border-color: var(--line-strong); }
+  @media (hover: hover) and (pointer: fine) {
+    .btn-hud:hover { background: var(--foreground); border-color: var(--foreground); color: var(--background); }
+    .btn-hud-ghost:hover { background: transparent; color: var(--primary); border-color: var(--primary); }
+  }
+  .btn-hud:active { scale: 0.97; }
+  .btn-hud:focus-visible, .tag-chip:focus-visible { outline: 2px solid var(--signal); outline-offset: 3px; }
+  /* HUD reticle cursor (see custom-cursor.tsx): positioned purely with transforms */
   .cursor-dot {
-    position: fixed; width: 6px; height: 6px; background: hsl(192 100% 60%); border-radius: 50%;
-    pointer-events: none; z-index: 9999; transform: translate(-50%, -50%);
-    transition: width .2s, height .2s, background .5s ease, box-shadow .5s ease; box-shadow: 0 0 14px hsl(192 100% 60% / 0.9);
+    position: fixed; left: 0; top: 0; width: 4px; height: 4px; border-radius: 50%;
+    pointer-events: none; z-index: 9999; will-change: transform; transition: background-color .5s ease;
   }
-  .cursor-outline {
-    position: fixed; width: 26px; height: 26px; border: 1px solid hsl(192 100% 60% / 0.5);
-    border-radius: 50%; pointer-events: none; z-index: 9998;
-    transition: transform .18s ease, border-color .5s ease;
+  .cursor-frame {
+    position: fixed; left: 0; top: 0; width: 22px; height: 22px;
+    pointer-events: none; z-index: 9998; will-change: transform; transition: color .5s ease;
   }
+  .cursor-frame > span { position: absolute; width: 6px; height: 6px; border: 0 solid currentColor; }
+  .cursor-frame > span:nth-child(1) { top: 0; left: 0; border-top-width: 1.5px; border-left-width: 1.5px; }
+  .cursor-frame > span:nth-child(2) { top: 0; right: 0; border-top-width: 1.5px; border-right-width: 1.5px; }
+  .cursor-frame > span:nth-child(3) { bottom: 0; left: 0; border-bottom-width: 1.5px; border-left-width: 1.5px; }
+  .cursor-frame > span:nth-child(4) { bottom: 0; right: 0; border-bottom-width: 1.5px; border-right-width: 1.5px; }
   /* Hide the OS cursor while the custom cursor is active (fine pointers only) */
   .custom-cursor-active, .custom-cursor-active * { cursor: none !important; }
   .font-display { font-family: var(--font-display); }
@@ -220,16 +197,21 @@
   33% { transform: translate(40px, -30px) scale(1.1); }
   66% { transform: translate(-30px, 20px) scale(0.95); }
 }
-@keyframes pulse-glow {
-  0% { box-shadow: 0 0 0 0 hsl(192 100% 55% / 0.4); }
-  100% { box-shadow: 0 0 0 14px hsl(192 100% 55% / 0); }
+@keyframes pulse-ring {
+  0% { transform: scale(1); opacity: 0.55; }
+  100% { transform: scale(1.18, 1.45); opacity: 0; }
 }
 @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
 @keyframes scan { 0% { transform: translateY(-100%); } 100% { transform: translateY(100vh); } }
 
 .animate-float { animation: float 7s ease-in-out infinite; }
 .animate-blob { animation: blob-drift 18s ease-in-out infinite; }
-.animate-pulse-glow { animation: pulse-glow 2.2s ease-out infinite; }
+.animate-pulse-glow { position: relative; }
+.animate-pulse-glow::before {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  box-shadow: 0 0 0 2px var(--primary); animation: pulse-ring 2.2s ease-out infinite;
+}
 .animate-marquee { animation: marquee 28s linear infinite; }
 
 @media (prefers-reduced-motion: reduce) {
@@ -245,60 +227,57 @@
    Wrap any subtree in <div class="theme-cyber"> to recolor it.
    ============================================================ */
 .theme-cyber {
-  --background: hsl(345 45% 4%);
+  --background: hsl(0 45% 4%);
   --foreground: hsl(40 30% 93%);
-  --card: hsl(348 40% 8%);
+  --card: hsl(0 40% 8%);
   --card-foreground: hsl(40 25% 90%);
-  --popover: hsl(345 45% 6%);
+  --popover: hsl(0 45% 6%);
   --popover-foreground: hsl(40 30% 93%);
-  --primary: hsl(350 100% 60%);
-  --primary-foreground: hsl(345 45% 5%);
-  --muted: hsl(345 28% 12%);
-  --muted-foreground: hsl(350 15% 62%);
+  --primary: hsl(2 100% 60%);
+  --primary-foreground: hsl(0 45% 5%);
+  --muted: hsl(0 28% 12%);
+  --muted-foreground: hsl(2 15% 62%);
   --accent: hsl(45 100% 56%);
-  --accent-foreground: hsl(345 45% 5%);
-  --border: hsl(348 55% 18%);
-  --input: hsl(348 50% 14%);
-  --ring: hsl(350 100% 60%);
+  --accent-foreground: hsl(0 45% 5%);
+  --border: hsl(0 55% 18%);
+  --input: hsl(0 50% 14%);
+  --ring: hsl(2 100% 60%);
   background: var(--background);
   color: var(--foreground);
 }
 .theme-cyber .accent-text {
-  background: linear-gradient(120deg, hsl(350 100% 64%), hsl(320 100% 62%), hsl(45 100% 58%));
+  background: linear-gradient(120deg, hsl(2 100% 64%), hsl(18 100% 62%), hsl(45 100% 58%));
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
 }
 .theme-cyber .text-morphing {
-  background: linear-gradient(120deg, hsl(350 100% 64%), hsl(330 100% 62%), hsl(45 100% 60%), hsl(350 100% 64%));
+  background: linear-gradient(120deg, hsl(2 100% 64%), hsl(12 100% 62%), hsl(45 100% 60%), hsl(2 100% 64%));
   background-size: 220% auto;
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
-  animation: text-flow 6s linear infinite;
-  filter: drop-shadow(0 0 18px hsl(350 100% 58% / 0.45));
+  filter: drop-shadow(0 0 18px hsl(2 100% 58% / 0.45));
 }
-.theme-cyber .neon-text { text-shadow: 0 0 8px hsl(350 100% 62% / 0.7), 0 0 22px hsl(350 100% 58% / 0.4); }
+.theme-cyber .neon-text { text-shadow: 0 0 8px hsl(2 100% 62% / 0.7), 0 0 22px hsl(2 100% 58% / 0.4); }
 .theme-cyber .grid-bg {
   background-image:
-    linear-gradient(to right, hsl(350 100% 70% / 0.06) 1px, transparent 1px),
-    linear-gradient(to bottom, hsl(350 100% 70% / 0.06) 1px, transparent 1px);
+    linear-gradient(to right, hsl(2 100% 70% / 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, hsl(2 100% 70% / 0.06) 1px, transparent 1px);
 }
-.theme-cyber .dot-bg { background-image: radial-gradient(hsl(350 100% 70% / 0.1) 1px, transparent 1px); }
-.theme-cyber .panel { border-color: hsl(350 100% 70% / 0.12); }
+.theme-cyber .dot-bg { background-image: radial-gradient(hsl(2 100% 70% / 0.1) 1px, transparent 1px); }
+.theme-cyber .panel { border-color: hsl(2 100% 70% / 0.12); }
+.theme-cyber .panel::after { display: none; }
 .theme-cyber .panel:hover {
-  border-color: hsl(350 100% 60% / 0.55);
-  box-shadow: 0 0 0 1px hsl(350 100% 60% / 0.22), 0 12px 40px hsl(350 100% 50% / 0.16);
+  border-color: hsl(2 100% 60% / 0.55);
+  box-shadow: 0 0 0 1px hsl(2 100% 60% / 0.22), 0 12px 40px hsl(2 100% 50% / 0.16);
 }
 .theme-cyber .card-spotlight::before {
-  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), hsl(350 100% 60% / 0.18), transparent 60%);
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), hsl(2 100% 60% / 0.18), transparent 60%);
 }
-.theme-cyber .tag-chip { background: hsl(348 40% 12% / 0.7); border-color: hsl(350 100% 70% / 0.16); }
-.theme-cyber .hairline { background: linear-gradient(90deg, transparent, hsl(350 100% 62% / 0.3), transparent); }
-.theme-cyber .glass-effect { background: hsl(348 40% 8% / 0.6); border: 1px solid hsl(350 100% 70% / 0.12); }
-.theme-cyber ::selection { background: hsl(350 100% 60% / 0.3); }
+.theme-cyber .tag-chip { background: hsl(0 40% 12% / 0.7); border-color: hsl(2 100% 70% / 0.16); }
+.theme-cyber .hairline { background: linear-gradient(90deg, transparent, hsl(2 100% 62% / 0.3), transparent); }
+.theme-cyber .glass-effect { background: hsl(0 40% 8% / 0.6); border: 1px solid hsl(2 100% 70% / 0.12); }
+.theme-cyber ::selection { background: hsl(2 100% 60% / 0.3); }
 
 /* Grid-rush + glitch used by the transition overlay */
-@keyframes grid-rush {
-  from { background-position: 0 0; }
-  to { background-position: 0 1400px; }
-}
+@keyframes grid-rush-t { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(0, 600px, 0); } }
 @keyframes glitch-x {
   0%, 100% { transform: translate(0); }
   20% { transform: translate(-2px, 1px); }
@@ -309,24 +288,24 @@
 .animate-glitch { animation: glitch-x 0.3s steps(2) infinite; }
 
 /* Red scrollbar while on the Night City page (class toggled by /about-me) */
-html.cyber-scroll { scrollbar-color: hsl(350 75% 42%) transparent; } /* Firefox */
+html.cyber-scroll { scrollbar-color: hsl(2 75% 42%) transparent; } /* Firefox */
 html.cyber-scroll::-webkit-scrollbar-thumb,
 html.cyber-scroll::-webkit-scrollbar-thumb:hover {
-  background: hsl(350 75% 42%) !important;
+  background: hsl(2 75% 42%) !important;
   background-clip: content-box;
 }
 /* While on the Night City page, force the document background to the cyber
    dark-red so the default dark-blue body bg never shows below the content. */
 html.cyber-scroll,
 html.cyber-scroll body {
-  background-color: hsl(345 45% 4%);
+  background-color: hsl(0 45% 4%);
 }
 
 /* ===== micro-interactions ===== */
 .magnetic { transition: transform .25s cubic-bezier(.2,.8,.2,1); will-change: transform; }
-@media (hover: hover) and (pointer: fine) {
-  .panel:hover { transform: translateY(-2px); }
-}
+/* Hero entrance pieces stay hidden until the intro overlay releases them (no one-frame flash). */
+[data-intro="pending"] [data-enter] { visibility: hidden; }
+
 /* Press feedback: the interface heard you. Uses the independent `scale`
    property so it composes with inline transforms (e.g. .magnetic). */
 .press { transition: scale 160ms var(--ease-out), color .2s ease, background-color .2s ease, border-color .2s ease; }
@@ -363,11 +342,11 @@ html.cyber-scroll body {
      hole, so the 1px border follows the cut corners instead of vanishing. */
   .shard, .nc-btn-ghost {
     --cut: 14px;
-    --shard-line: hsl(350 100% 70% / 0.16);
+    --shard-line: hsl(2 100% 70% / 0.16);
     position: relative;
     clip-path: polygon(0 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% 100%, var(--cut) 100%, 0 calc(100% - var(--cut)));
   }
-  .shard { background: linear-gradient(180deg, hsl(348 40% 9% / 0.8), hsl(345 45% 5% / 0.8)); }
+  .shard { background: linear-gradient(180deg, hsl(0 40% 9% / 0.8), hsl(0 45% 5% / 0.8)); }
   .shard::after, .nc-btn-ghost::after {
     content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none;
     background-color: var(--shard-line);
@@ -381,7 +360,7 @@ html.cyber-scroll body {
   .shard-lg { --cut: 24px; }
   .shard-gold { --shard-line: hsl(56 100% 48% / 0.45); }
   @media (hover: hover) and (pointer: fine) {
-    .shard-hover:hover { --shard-line: hsl(350 100% 62% / 0.6); }
+    .shard-hover:hover { --shard-line: hsl(2 100% 62% / 0.6); }
   }
   .shard-hover:focus-visible, .shard-hover:focus-within:has(:focus-visible) { outline: none; --shard-line: var(--nc-yellow); }
 
@@ -393,20 +372,20 @@ html.cyber-scroll body {
     font-family: var(--font-display); font-weight: 700; font-size: 0.95rem;
     letter-spacing: 0.08em; text-transform: uppercase;
     padding: 0.7rem 1.4rem;
-    background: var(--nc-red); color: hsl(345 45% 5%);
+    background: var(--nc-red); color: hsl(0 45% 5%);
     clip-path: polygon(0 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% 100%, var(--cut) 100%, 0 calc(100% - var(--cut)));
     transition: background-color .2s ease, color .2s ease, scale 160ms var(--ease-out);
   }
   .nc-btn-ghost {
-    --cut: 10px; --shard-line: hsl(350 100% 60% / 0.5);
-    background: hsl(350 100% 60% / 0.08); color: var(--nc-red);
+    --cut: 10px; --shard-line: hsl(2 100% 60% / 0.5);
+    background: hsl(2 100% 60% / 0.08); color: var(--nc-red);
   }
   @media (hover: hover) and (pointer: fine) {
-    .nc-btn:hover { background-color: hsl(350 100% 67%); }
-    .nc-btn-ghost:hover { background-color: hsl(350 100% 60% / 0.16); --shard-line: hsl(350 100% 60% / 0.9); }
+    .nc-btn:hover { background-color: hsl(2 100% 67%); }
+    .nc-btn-ghost:hover { background-color: hsl(2 100% 60% / 0.16); --shard-line: hsl(2 100% 60% / 0.9); }
   }
   .nc-btn:active:not(:disabled) { scale: 0.97; }
-  .nc-btn:focus-visible { outline: none; background-color: var(--nc-yellow); color: #120308; }
+  .nc-btn:focus-visible { outline: none; background-color: var(--nc-yellow); color: #120504; }
   .nc-btn-ghost:focus-visible { background-color: hsl(56 100% 48% / 0.12); color: var(--nc-yellow); --shard-line: var(--nc-yellow); }
   .nc-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
@@ -420,14 +399,14 @@ html.cyber-scroll body {
     font-family: var(--font-display); font-weight: 600; font-size: 0.8rem; letter-spacing: 0.06em;
     text-transform: uppercase; padding: 0.3rem 0.75rem;
     clip-path: polygon(0 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% 100%, var(--cut) 100%, 0 calc(100% - var(--cut)));
-    background: hsl(348 40% 12% / 0.8); color: hsl(350 15% 70%);
+    background: hsl(0 40% 12% / 0.8); color: hsl(2 15% 70%);
     transition: background-color .2s ease, color .2s ease, scale 160ms var(--ease-out);
   }
   .nc-chip:active:not(:disabled) { scale: 0.96; }
   .nc-chip:disabled { opacity: 0.5; cursor: not-allowed; }
-  .nc-chip[aria-pressed="true"], .nc-chip[aria-selected="true"], .nc-chip-gold { background: var(--nc-yellow); color: #120308; }
+  .nc-chip[aria-pressed="true"], .nc-chip[aria-selected="true"], .nc-chip-gold { background: var(--nc-yellow); color: #120504; }
   @media (hover: hover) and (pointer: fine) {
-    .nc-chip:not([aria-pressed="true"]):not([aria-selected="true"]):hover { background: hsl(348 40% 18%); color: hsl(40 30% 93%); }
+    .nc-chip:not([aria-pressed="true"]):not([aria-selected="true"]):hover { background: hsl(0 40% 18%); color: hsl(40 30% 93%); }
   }
   .nc-chip:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--nc-yellow); }
 
@@ -447,7 +426,7 @@ html.cyber-scroll body {
   }
 
   /* Attribute pips (character sheet) */
-  .nc-pip { flex: 1 1 0; max-width: 7px; min-width: 3px; height: 14px; transform: skewX(-18deg); background: hsl(348 30% 18%); }
+  .nc-pip { flex: 1 1 0; max-width: 7px; min-width: 3px; height: 14px; transform: skewX(-18deg); background: hsl(0 30% 18%); }
   .nc-pip[data-on="true"] { background: var(--nc-yellow); box-shadow: 0 0 8px hsl(56 100% 48% / 0.45); }
 
   /* Faint CRT scanlines over the whole Night City page */
@@ -466,7 +445,7 @@ html.cyber-scroll body {
   /* Outlined numerals for rankings */
   .nc-outline-num {
     font-family: var(--font-display); font-weight: 700; line-height: 0.8;
-    color: transparent; -webkit-text-stroke: 1px hsl(350 100% 62% / 0.75);
+    color: transparent; -webkit-text-stroke: 1px hsl(2 100% 62% / 0.75);
   }
 
   .no-scrollbar { scrollbar-width: none; }
