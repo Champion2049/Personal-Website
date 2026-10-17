@@ -82,8 +82,8 @@ export function HeroTerminal({ onClose }: { onClose?: () => void }) {
       case 'whoami':
         push(
           { kind: 'out', text: 'Chirayu Nilesh Chaudhari' },
-          { kind: 'out', text: 'AI & Data Science engineer · IEEE-published · ICPC Regionalist.' },
-          { kind: 'out', text: 'I ship ML pipelines, agentic AI tooling, and embedded experiments.' },
+          { kind: 'out', text: 'AI & Data Science student · 3 peer-reviewed papers · ICPC Regionalist.' },
+          { kind: 'out', text: 'Deep-learning research, RF & signal processing, production ML deployment.' },
         );
         break;
       case 'about': jump('#about', 'About'); break;
@@ -134,8 +134,8 @@ export function HeroTerminal({ onClose }: { onClose?: () => void }) {
           { kind: 'out', text: '-----------------' },
           { kind: 'out', text: 'OS      TRON / Night City build' },
           { kind: 'out', text: 'Stack   React · TypeScript · Python · PyTorch' },
-          { kind: 'out', text: 'Focus   ML · Agentic AI · Signal Processing' },
-          { kind: 'out', text: 'CGPA    9.33   Papers 3   ICPC Regionalist' },
+          { kind: 'out', text: 'Focus   Deep Learning · RF & DSP · ML Deployment' },
+          { kind: 'out', text: 'CGPA    9.29   Papers 3   ICPC Regionalist' },
           { kind: 'out', text: 'Year    3rd-year AI & DS' },
         );
         break;

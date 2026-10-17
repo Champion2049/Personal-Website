@@ -1,23 +1,23 @@
 import { useRef } from 'react';
-import { Code2, Server, Brain, LineChart, Cpu, Wrench } from 'lucide-react';
+import { Code2, Server, Brain, Layers, Cpu, Wrench } from 'lucide-react';
 import { SectionHeading } from '@/components/ui/section-heading';
 import { gsap, ScrollTrigger, useGSAP, prefersReducedMotion } from '@/lib/gsap';
 
 const skillsData = [
-  { icon: Code2, title: 'Languages', skills: ['Python', 'JavaScript', 'TypeScript', 'Java', 'C'] },
-  { icon: Server, title: 'Web & Backend', skills: ['React', 'Node.js', 'Next.js', 'Express', 'REST APIs', 'Docker', 'GCP'] },
-  { icon: Brain, title: 'AI & Machine Learning', skills: ['PyTorch', 'TensorFlow / Keras', 'LangChain', 'Transformers / LLMs', 'Reinforcement Learning', 'spaCy / NLP'] },
-  { icon: LineChart, title: 'Data & Research', skills: ['Data Structures & Algorithms', 'NumPy / Pandas', 'Optuna', 'GROMACS / MDAnalysis', 'Stable-Baselines3'] },
-  { icon: Cpu, title: 'Hardware & Signals', skills: ['Signal Processing (DSP)', 'SDR / ADALM-PLUTO', 'Raspberry Pi', 'Computer Vision', 'IoT / Embedded'] },
-  { icon: Wrench, title: 'Tools & Frameworks', skills: ['Git', 'Linux', 'Flask', 'MediaPipe / OpenCV', 'MCP', 'Gemini API'] },
+  { icon: Code2, title: 'Languages', skills: ['Python', 'JavaScript / TypeScript', 'Java'] },
+  { icon: Brain, title: 'ML & AI', skills: ['PyTorch', 'TensorFlow / Keras', 'scikit-learn', 'LangChain', 'spaCy', 'Stable-Baselines3', 'Optuna', 'OpenCV'] },
+  { icon: Layers, title: 'Domains', skills: ['Deep Learning', 'Reinforcement Learning', 'NLP', 'Computer Vision', 'Data Structures & Algorithms'] },
+  { icon: Cpu, title: 'Signals & Hardware', skills: ['Signal Processing', 'SDR', 'IoT & Embedded Systems'] },
+  { icon: Server, title: 'Web & Backend', skills: ['Node.js', 'React / Next.js', 'Flask'] },
+  { icon: Wrench, title: 'Infra & Tools', skills: ['Docker', 'GCP', 'Git', 'Linux'] },
 ];
 
 const marquee = [
-  'Python', 'PyTorch', 'LangChain', 'React', 'TypeScript', 'Docker', 'GCP',
-  'OpenCV', 'spaCy', 'Keras', 'Node.js', 'Raspberry Pi', 'SDR', 'Optuna', 'MCP', 'Next.js',
+  'Python', 'PyTorch', 'LangChain', 'scikit-learn', 'TypeScript', 'Docker', 'GCP', 'OpenCV',
+  'spaCy', 'Keras', 'Stable-Baselines3', 'Optuna', 'SDR', 'Node.js', 'Next.js', 'Flask',
 ];
 
-const domains = ['Machine Learning', 'Signals', 'Systems', 'Research', 'Hardware', 'Agents'];
+const domains = ['Deep Learning', 'Signal Processing', 'Computer Vision', 'NLP', 'Reinforcement Learning'];
 
 /** A short light segment that runs around the card's border while it's hovered. */
 function LightTrace() {

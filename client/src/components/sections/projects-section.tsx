@@ -19,8 +19,26 @@ interface Project {
 
 const projectsData: Project[] = [
   {
+    title: 'Expression-Robust 3D Face Reconstruction (DECA)',
+    description: 'Extended the SIGGRAPH 2021 DECA model with a residual correction head over its frozen encoder, fine-tuned on FaceScape to target hard-case expressions. Built the CUDA training pipeline and an evaluation harness with per-sample failure diagnostics; the fine-tuned model beat the pretrained baseline.',
+    tags: ['PyTorch', 'CUDA', '3D Vision'],
+    period: 'Apr 2026 – May 2026',
+    github: 'https://github.com/Champion2049/DECA',
+    category: 'AI / ML',
+    featured: true,
+  },
+  {
+    title: 'Agentic Spam Call & Misinformation Detection',
+    description: 'Fuses Whisper ASR transcription, a Log-Mel spectrogram CNN and an NLP scam-scoring model through weighted late fusion, plus an LLM explainability agent that justifies every flagged call, making classifier scores auditable.',
+    tags: ['Whisper', 'CNN', 'LLM Agents'],
+    period: 'Jan 2026 – Mar 2026',
+    github: 'https://github.com/Champion2049/Agentic-Spam-Call-Detection',
+    category: 'AI / ML',
+    featured: true,
+  },
+  {
     title: 'Suspicious Signal Detection — ML & SDR',
-    description: 'Dual-layer RF anomaly-detection pipeline using ADALM-PLUTO for I/Q capture in ISM bands. Built a synthetic QPSK-burst generator and benchmarked SVM/Random-Forest classifiers against a custom PyTorch 1D-CNN on raw I/Q.',
+    description: 'Captured live RF I/Q in ISM bands with an ADALM-PLUTO SDR and wrote a synthetic generator injecting parameterized QPSK bursts. Benchmarked SVM-RBF and Random Forest metadata classifiers against a custom PyTorch 1D CNN on raw I/Q, which caught temporal and spectral anomalies the others missed.',
     tags: ['PyTorch', 'SDR', 'DSP'],
     period: 'Nov 2025 – Dec 2025',
     github: 'https://github.com/Champion2049/SuspiciousSignal-ML-SDR',
@@ -43,7 +61,6 @@ const projectsData: Project[] = [
     period: 'Jan 2025 – Jul 2025',
     github: 'https://github.com/Champion2049/LLM_Optimized_Synth_AuNP',
     category: 'AI / ML',
-    featured: true,
   },
   {
     title: 'Facial Emotion Recognition on KDEF',
@@ -52,7 +69,6 @@ const projectsData: Project[] = [
     period: 'Oct 2025 – Nov 2025',
     github: 'https://github.com/Champion2049/AIML_ImageClass',
     category: 'AI / ML',
-    featured: true,
   },
   {
     title: 'Energy Conservation with Custom LWT',
@@ -80,7 +96,7 @@ const projectsData: Project[] = [
   },
   {
     title: 'Psychoactive Substances ML Classification',
-    description: 'A multi-stage ML application with a Flask frontend predicting substance use from personality traits and classifying substances by chemical properties. Accepted at IEEE CSITSS 2025.',
+    description: 'A multi-stage ML application with a Flask frontend predicting substance use from personality traits and classifying substances by chemical properties. Published at IEEE CSITSS 2025.',
     tags: ['Flask', 'Machine Learning', 'Python'],
     period: 'Sep 2024 – Jun 2025',
     github: 'https://github.com/Champion2049/PsychoactiveFusionML',
@@ -331,7 +347,7 @@ export function ProjectsSection() {
         <SectionHeading
           index="05"
           title={<>Things I've <span className="accent-text">built</span></>}
-          description="From RF anomaly detection to reinforcement-learning agents and full-stack tooling. Filter by domain."
+          description="From 3D face reconstruction and RF anomaly detection to reinforcement-learning agents and full-stack tooling. Filter by domain."
         />
       </div>
 
