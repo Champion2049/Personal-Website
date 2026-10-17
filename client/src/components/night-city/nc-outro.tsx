@@ -1,17 +1,46 @@
+import { useRef } from 'react';
 import { ArrowLeft, Mail, Instagram, Music2, Tv } from 'lucide-react';
 import { identity, profiles, socials } from '@/lib/personal-data';
+import { gsap, useGSAP, prefersReducedMotion } from '@/lib/gsap';
+
+const LINES: { text: string; red?: boolean }[][] = [
+  [{ text: 'See' }, { text: 'you' }, { text: 'in' }],
+  [{ text: 'Night' }, { text: 'City,' }, { text: 'choom.', red: true }],
+];
 
 /** The page used to just stop after the arcade. This is the ending. */
 export function NCOutro() {
   const backToGrid = () => window.dispatchEvent(new CustomEvent('enter-grid', { detail: { to: '/', reverse: true } }));
+  const card = useRef<HTMLDivElement>(null);
+
+  // Words switch on one after another as the card scrolls up, like a sign warming up.
+  useGSAP(
+    () => {
+      if (prefersReducedMotion()) return;
+      gsap.fromTo(
+        card.current!.querySelectorAll('[data-word]'),
+        { opacity: 0.12 },
+        { opacity: 1, ease: 'none', stagger: 0.4, scrollTrigger: { trigger: card.current, start: 'top 80%', end: 'top 30%', scrub: true } },
+      );
+    },
+    { scope: card },
+  );
+
   return (
     <section id="contact" aria-labelledby="contact-title" className="scroll-mt-32 pt-28 md:pt-40">
-      <div className="shard shard-lg relative overflow-hidden p-7 md:p-14">
+      <div ref={card} className="shard shard-lg relative overflow-hidden p-7 md:p-14">
         <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-primary/20 blur-3xl" />
-        <h2 id="contact-title" className="relative font-display text-5xl font-bold uppercase leading-[0.85] md:text-8xl">
-          See you in
-          <br />
-          Night City, <span className="text-primary">choom.</span>
+        <h2 id="contact-title" aria-label="See you in Night City, choom." className="relative font-display text-5xl font-bold uppercase leading-[0.85] md:text-8xl">
+          {LINES.map((line, l) => (
+            <span key={l} aria-hidden className="block">
+              {line.map((w, i) => (
+                <span key={i} data-word className={w.red ? 'text-primary' : undefined}>
+                  {w.text}
+                  {i < line.length - 1 ? ' ' : ''}
+                </span>
+              ))}
+            </span>
+          ))}
         </h2>
         <p className="relative mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">{identity.outro}</p>
         <div className="relative mt-8 flex flex-wrap gap-3">
