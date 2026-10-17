@@ -58,12 +58,10 @@ function CrownedFavourite({ onOpen }: { onOpen: Open }) {
   const tags = (g.tags ?? []).filter((t) => !/all-time/i.test(t));
   const root = useRef<HTMLDivElement>(null);
 
-  // The blurred key art drifts against the card, and the cover swings round to face you.
+  // The cover swings round to face you. (The blurred key art stays put: moving a blurred layer re-filters it every frame.)
   useGSAP(
     () => {
       if (prefersReducedMotion()) return;
-      const st = { trigger: root.current, start: 'top bottom', end: 'bottom top', scrub: true };
-      gsap.fromTo(root.current!.querySelector('[data-bg]'), { yPercent: -12 }, { yPercent: 12, ease: 'none', scrollTrigger: st });
       gsap.fromTo(
         root.current!.querySelector('[data-cover]'),
         { rotateY: -32, rotateZ: -4, transformPerspective: 900 },
@@ -76,7 +74,7 @@ function CrownedFavourite({ onOpen }: { onOpen: Open }) {
   return (
     <div ref={root} className="shard shard-lg shard-gold relative isolate overflow-hidden">
       {g.cover && (
-        <img data-bg aria-hidden src={g.cover} alt="" className="absolute -inset-y-[15%] inset-x-0 -z-10 h-[130%] w-full scale-110 object-cover opacity-35 blur-2xl" />
+        <img aria-hidden src={g.cover} alt="" className="absolute inset-0 -z-10 h-full w-full scale-110 object-cover opacity-35 blur-2xl" />
       )}
       <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[hsl(0_45%_4%)] via-[hsl(0_45%_4%/0.85)] to-transparent" />
       <div className="grid grid-cols-1 items-center gap-8 p-6 md:grid-cols-[minmax(0,1fr)_auto] md:p-10">
