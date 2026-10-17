@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Mail, Phone, MapPin, Github, Linkedin, ArrowUpRight, Copy, Check } from 'lucide-react';
 import { Barcode } from '@/components/hud/barcode';
-import { Decode } from '@/components/hud/decode';
 
 const EMAIL = 'me.chirayu.6@gmail.com';
 
@@ -25,13 +24,7 @@ export function ContactSection() {
   return (
     <section id="contact" className="relative overflow-hidden py-28 md:py-40">
       <div className="container relative z-10 mx-auto px-6 md:px-10">
-        <div className="flex items-center gap-3">
-          <span className="font-mono text-xs text-primary">08</span>
-          <span className="h-px w-10 bg-primary/60" />
-          <Decode text="TRANSMISSION" className="hud-label text-foreground/80" />
-        </div>
-
-        <h2 data-reveal className="mt-8 font-display font-extrabold uppercase leading-[0.86] tracking-tight">
+        <h2 data-reveal className="font-display font-extrabold uppercase leading-[0.86] tracking-tight">
           <span className="block text-[clamp(2.8rem,9vw,8rem)]">Let's build</span>
           <span className="block text-[clamp(2.8rem,9vw,8rem)] text-transparent [-webkit-text-stroke:2px_hsl(186_100%_50%)]">something</span>
           <span className="block text-[clamp(2.8rem,9vw,8rem)]">worth shipping</span>
