@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useLocation } from 'wouter';
 import { AnimatePresence, motion } from 'framer-motion';
+import { holdIntro, releaseIntro } from '@/lib/intro-gate';
 
 /**
  * Full-screen TRON light-cycle transition. Plays automatically whenever the
@@ -36,11 +37,17 @@ export function GridTransition() {
     if (wasAbout === nowAbout) return;
     if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     reverse.current = wasAbout;
+    holdIntro('grid-transition');
     window.scrollTo(0, 0);
     setCrossed(false);
     setFlash(false);
     setActive(true);
   }, [location]);
+
+  // Let the destination page's entrance play as the overlay fades away.
+  useEffect(() => {
+    if (!active) releaseIntro('grid-transition');
+  }, [active]);
 
   useEffect(() => {
     if (!active) return;
