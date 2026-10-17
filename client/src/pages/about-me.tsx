@@ -13,6 +13,7 @@ import { RecReel } from '@/components/night-city/rec-reel';
 import { BreachProtocol } from '@/components/night-city/breach-protocol';
 import { NCOutro } from '@/components/night-city/nc-outro';
 import { NCRain } from '@/components/night-city/nc-rain';
+import { NCArrival } from '@/components/night-city/nc-arrival';
 import { playGridTrack, stopGridTrack } from '@/lib/grid-audio';
 import { identity, quiz } from '@/lib/personal-data';
 import { loadFonts, NIGHT_CITY_FONTS } from '@/lib/fonts';
@@ -68,6 +69,7 @@ export default function AboutMe() {
       <NCRain />
 
       <NCNav />
+      <NCArrival />
 
       <main className="container relative z-10 mx-auto px-5 pb-12 md:px-10">
         <NCHero />
