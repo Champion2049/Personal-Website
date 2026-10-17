@@ -17,7 +17,18 @@ const HORIZON = 0.34; // horizon height as a fraction of the box
 const SPEED = 1.1; // floor rows per second
 const FRAME_MS = 1000 / 30; // a slow background: 30fps is indistinguishable and halves the work
 
-export function TronGrid({ color = '#00e5ff', className = '', fade = 'none' }: { color?: string; className?: string; fade?: Fade }) {
+export function TronGrid({
+  color = '#00e5ff',
+  className = '',
+  fade = 'none',
+  paused = false,
+}: {
+  color?: string;
+  className?: string;
+  fade?: Fade;
+  /** Stop redrawing (e.g. while something opaque covers it). */
+  paused?: boolean;
+}) {
   const ref = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -136,7 +147,7 @@ export function TronGrid({ color = '#00e5ff', className = '', fade = 'none' }: {
       raf = requestAnimationFrame(loop);
     };
     const start = () => {
-      if (reduce || raf || !visible || document.hidden) return;
+      if (reduce || paused || raf || !visible || document.hidden) return;
       raf = requestAnimationFrame(loop);
     };
     const stop = () => {
@@ -163,7 +174,7 @@ export function TronGrid({ color = '#00e5ff', className = '', fade = 'none' }: {
       io.disconnect();
       document.removeEventListener('visibilitychange', onVis);
     };
-  }, [color, fade]);
+  }, [color, fade, paused]);
 
   return <canvas ref={ref} aria-hidden className={`absolute inset-0 h-full w-full ${className}`} />;
 }

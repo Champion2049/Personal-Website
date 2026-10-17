@@ -18,7 +18,7 @@ const SETS = {
 } as const;
 const src = (dir: string, i: number) => `${dir}/${String(i + 1).padStart(4, '0')}.webp`;
 
-export function NCArrival() {
+export function NCArrival({ onCover }: { onCover?: (covering: boolean) => void }) {
   const root = useRef<HTMLElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const ready = useIntroReady();
@@ -47,30 +47,29 @@ export function NCArrival() {
   useEffect(() => {
     const c = canvas.current;
     if (!c) return;
+    // 1x is enough: the frames are only 1280px wide, and a bigger canvas just costs more per draw
     const resize = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-      c.width = Math.round(c.clientWidth * dpr);
-      c.height = Math.round(c.clientHeight * dpr);
+      c.width = c.clientWidth;
+      c.height = c.clientHeight;
       draw(current.current);
     };
     resize();
     window.addEventListener('resize', resize);
 
     let cancelled = false;
-    const load = (i: number) =>
-      new Promise<void>((resolve) => {
-        const img = new Image();
-        img.decoding = 'async';
-        img.onload = () => {
-          if (!cancelled) {
-            frames.current[i] = img;
-            if (Math.abs(i - current.current) < 2 || i === 0) draw(current.current);
-          }
-          resolve();
-        };
-        img.onerror = () => resolve();
-        img.src = src(set.dir, i);
-      });
+    // decode() finishes decoding off the main thread, so a later drawImage doesn't stall a scroll frame
+    const load = async (i: number) => {
+      const img = new Image();
+      img.src = src(set.dir, i);
+      try {
+        await img.decode();
+      } catch {
+        return;
+      }
+      if (cancelled) return;
+      frames.current[i] = img;
+      if (i === 0 || Math.abs(i - current.current) < 2) draw(current.current);
+    };
     // first frame now; the rest a few at a time so they don't crowd out the page
     load(0).then(async () => {
       if (reduce) return;
@@ -92,20 +91,36 @@ export function NCArrival() {
       if (reduce) return;
       const q = gsap.utils.selector(root);
       const proxy = { f: 0 };
+      // Redraw at most 30 times a second; it's a film sequence, and each draw is a full-screen blit.
+      let want = 0;
+      let lastDraw = 0;
+      const tick = (time: number) => {
+        if (want === current.current || time - lastDraw < 1 / 30) return;
+        lastDraw = time;
+        current.current = want;
+        draw(want);
+      };
+      gsap.ticker.add(tick);
       gsap
         .timeline({
           defaults: { ease: 'none' },
-          scrollTrigger: { trigger: root.current, start: 'top top', end: '+=220%', scrub: 0.5, pin: true },
+          scrollTrigger: {
+            trigger: root.current,
+            start: 'top top',
+            end: '+=220%',
+            scrub: 0.5,
+            pin: true,
+            // it fills the screen from the top of the page until the pin releases
+            onRefresh: (self) => onCover?.(self.scroll() < self.end),
+            onLeave: () => onCover?.(false),
+            onEnterBack: () => onCover?.(true),
+          },
         })
         .to(proxy, {
           f: set.count - 1,
           duration: 1,
           onUpdate: () => {
-            const i = Math.round(proxy.f);
-            if (i !== current.current) {
-              current.current = i;
-              draw(i);
-            }
+            want = Math.round(proxy.f);
           },
         }, 0)
         .to(q('[data-hint]'), { autoAlpha: 0, duration: 0.05 }, 0.02)
@@ -114,6 +129,7 @@ export function NCArrival() {
         .to(q('[data-beat="2"]'), { autoAlpha: 0, y: -40, duration: 0.1 }, 0.55)
         // the last stretch belongs to the sign in the render; dim it a little as the page takes over
         .to(q('[data-shade]'), { opacity: 0.45, duration: 0.08 }, 0.92);
+      return () => gsap.ticker.remove(tick);
     },
     { scope: root, dependencies: [set] },
   );
