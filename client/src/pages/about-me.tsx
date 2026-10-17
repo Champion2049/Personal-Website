@@ -27,6 +27,8 @@ loadFonts('night-city-fonts', NIGHT_CITY_FONTS);
  */
 export default function AboutMe() {
   const [lightbox, setLightbox] = useState<LightboxItem | null>(null);
+  // The flythrough is opaque and has its own rain; don't redraw the grid or rain canvases under it.
+  const [arrivalCovers, setArrivalCovers] = useState(true);
   const openLightbox = (src: string, title: string) => setLightbox({ src, title });
 
   useEffect(() => {
@@ -62,14 +64,14 @@ export default function AboutMe() {
       {/* solid backdrop so the dark-blue body bg never shows (e.g. on overscroll / below content) */}
       <div aria-hidden className="pointer-events-none fixed inset-0" style={{ background: 'hsl(0 45% 4%)', zIndex: -1 }} />
       <div aria-hidden className="pointer-events-none fixed inset-0 opacity-70">
-        <TronGrid color="#ff4034" fade="top" />
+        <TronGrid color="#ff4034" fade="top" paused={arrivalCovers} />
       </div>
       <div aria-hidden className="glow-blob animate-blob" style={{ width: 520, height: 520, top: '-12%', right: '-10%', background: 'radial-gradient(circle, hsl(2 100% 60% / 0.22), transparent 70%)' }} />
       <div aria-hidden className="nc-scanlines" />
-      <NCRain />
+      <NCRain paused={arrivalCovers} />
 
       <NCNav />
-      <NCArrival />
+      <NCArrival onCover={setArrivalCovers} />
 
       <main className="container relative z-10 mx-auto px-5 pb-12 md:px-10">
         <NCHero />

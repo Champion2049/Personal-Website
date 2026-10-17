@@ -9,13 +9,17 @@ const FRAME_MS = 1000 / 30;
  * you're climbing through it). One fixed 2D canvas at 30fps, DPR 1; paused in
  * hidden tabs and skipped for reduced motion.
  */
-export function NCRain() {
+export function NCRain({ paused = false }: { paused?: boolean }) {
   const ref = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     const canvas = ref.current;
     const ctx = canvas?.getContext('2d');
     if (!canvas || !ctx || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (paused) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      return;
+    }
 
     let w = 0;
     let h = 0;
@@ -93,7 +97,7 @@ export function NCRain() {
       window.removeEventListener('resize', resize);
       document.removeEventListener('visibilitychange', onVis);
     };
-  }, []);
+  }, [paused]);
 
   return <canvas ref={ref} aria-hidden className="pointer-events-none fixed inset-0 z-[1]" />;
 }
