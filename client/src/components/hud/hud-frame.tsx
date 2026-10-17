@@ -6,28 +6,15 @@ import { useLenis } from '@/components/ui/lenis-scroll-provider';
 import { SCENES } from './scenes';
 
 const pad = (n: number) => String(n).padStart(2, '0');
-const RULER = Array.from({ length: 12 }, (_, i) => 12 - i);
-const SIDE = ['A', 'B', 'C', 'D', 'E', 'F'];
-
-function useIST() {
-  const fmt = () =>
-    new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Kolkata' }).format(new Date());
-  const [t, setT] = useState(fmt);
-  useEffect(() => {
-    const id = setInterval(() => setT(fmt()), 20_000);
-    return () => clearInterval(id);
-  }, []);
-  return t;
-}
 
 export function enterNightCity() {
   window.dispatchEvent(new CustomEvent('enter-grid', { detail: { to: '/about-me' } }));
 }
 
 /**
- * Fixed HUD around the portfolio (after the scroll reference + the spec-sheet
- * posters): ruler that fills with scroll progress, slash-path nav, a scene
- * counter that decodes as you move between sections, and Bengaluru time.
+ * Fixed HUD around the portfolio: a hairline frame, slash-path nav, a progress
+ * line under the bar, and a scene counter that decodes between sections.
+ * Kept deliberately sparse; the content carries the page.
  */
 export function HudFrame() {
   const lenis = useLenis();
@@ -35,7 +22,6 @@ export function HudFrame() {
   const [menu, setMenu] = useState(false);
   const progress = useRef<HTMLDivElement>(null);
   const sceneLabel = useRef<HTMLSpanElement>(null);
-  const time = useIST();
 
   useGSAP(() => {
     gsap.fromTo(progress.current, { scaleX: 0 }, { scaleX: 1, ease: 'none', scrollTrigger: { start: 0, end: 'max', scrub: 0.3 } });
@@ -85,12 +71,6 @@ export function HudFrame() {
           <span key={p} className={`absolute h-[5px] w-[5px] bg-foreground/70 ${p}`} />
         ))}
       </div>
-      <div aria-hidden className="pointer-events-none fixed inset-y-0 left-0 z-40 hidden w-3 flex-col items-center justify-evenly xl:flex">
-        {SIDE.map((l) => <span key={l} className="font-mono text-[0.55rem] text-muted-foreground/60">{l}</span>)}
-      </div>
-      <div aria-hidden className="pointer-events-none fixed inset-y-0 right-0 z-40 hidden w-3 flex-col items-center justify-evenly xl:flex">
-        {SIDE.map((l) => <span key={l} className="font-mono text-[0.55rem] text-muted-foreground/60">{l}</span>)}
-      </div>
 
       {/* Top bar */}
       <header className="fixed inset-x-0 top-0 z-50 md:inset-x-2 md:top-2 lg:inset-x-3 lg:top-3">
@@ -100,7 +80,6 @@ export function HudFrame() {
               C
             </span>
             <span className="font-display text-sm font-bold tracking-[0.18em]">CHIRAYU</span>
-            <span className="hidden font-mono text-[0.65rem] text-muted-foreground sm:inline">.DEV</span>
           </button>
 
           <nav aria-label="Sections" className="ml-auto hidden items-center xl:flex">
@@ -143,16 +122,9 @@ export function HudFrame() {
           </div>
         </div>
 
-        {/* Ruler: ticks + numbers, filled with scroll progress */}
-        <div aria-hidden className="relative hidden h-4 border-b border-[var(--line)] bg-background/95 md:block">
-          <div
-            className="absolute inset-x-0 top-0 h-1.5"
-            style={{ backgroundImage: 'repeating-linear-gradient(to right, var(--line-strong) 0 1px, transparent 1px 8px)' }}
-          />
-          <div className="absolute inset-x-3 bottom-0 flex justify-between font-mono text-[0.5rem] leading-none text-muted-foreground/70">
-            {RULER.map((n) => <span key={n}>{n}</span>)}
-          </div>
-          <div ref={progress} className="absolute inset-x-0 -bottom-px h-[2px] origin-left bg-primary shadow-[0_0_8px_hsl(186_100%_50%/0.8)]" />
+        {/* Scroll progress */}
+        <div aria-hidden className="relative h-0">
+          <div ref={progress} className="absolute inset-x-0 -top-px h-[2px] origin-left bg-primary shadow-[0_0_8px_hsl(186_100%_50%/0.8)]" />
         </div>
 
         {/* Mobile menu */}
@@ -176,18 +148,12 @@ export function HudFrame() {
         )}
       </header>
 
-      {/* Bottom status: scene counter + place/time */}
-      <div aria-hidden className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex items-end justify-between px-4 pb-3 md:inset-x-2 md:bottom-2 md:px-5 lg:inset-x-3 lg:bottom-3">
-        <div className="flex items-baseline gap-3 bg-background/90 pr-3 pt-1">
-          <span className="font-mono text-xs text-primary">
-            {pad(active)}<span className="text-muted-foreground">/{pad(SCENES.length - 1)}</span>
-          </span>
-          <span ref={sceneLabel} className="hud-label min-w-[9ch] text-foreground/90" />
-        </div>
-        <div className="hidden items-baseline gap-3 bg-background/90 pl-3 pt-1 md:flex">
-          <span className="hud-label">12.97°N 77.59°E</span>
-          <span className="font-mono text-xs text-foreground/90">BLR {time} IST</span>
-        </div>
+      {/* Scene counter */}
+      <div aria-hidden className="pointer-events-none fixed bottom-0 left-0 z-40 hidden items-baseline gap-3 px-5 pb-4 md:flex lg:bottom-1 lg:left-1">
+        <span className="font-mono text-xs text-primary">
+          {pad(active)}<span className="text-muted-foreground">/{pad(SCENES.length - 1)}</span>
+        </span>
+        <span ref={sceneLabel} className="hud-label min-w-[9ch] text-foreground/90" />
       </div>
     </>
   );

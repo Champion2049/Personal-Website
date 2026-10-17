@@ -1,5 +1,4 @@
 import { useRef } from 'react';
-import { GraduationCap, MapPin, Calendar } from 'lucide-react';
 import { gsap, useGSAP, prefersReducedMotion } from '@/lib/gsap';
 import { SectionHeading } from '@/components/ui/section-heading';
 
@@ -37,11 +36,11 @@ const educationData = {
   period: 'Aug 2024 – May 2028',
   cgpa: '9.29',
   achievements: [
-    'IEEE Computational Intelligence Society — GenAI session as main speaker',
-    'IEEE SIGHT — promoting technology for social impact',
-    'JIDO Automation Club — workshops on & off campus',
-    'Rover Team AVV-B — building a new competition rover',
-    'Toastmasters International — communication & networking',
+    'IEEE Computational Intelligence Society (GenAI session speaker)',
+    'IEEE SIGHT',
+    'JIDO Automation Club',
+    'Rover Team AVV-B',
+    'Toastmasters International',
   ],
 };
 
@@ -76,7 +75,7 @@ export function ExperienceSection() {
               <span aria-hidden className="pointer-events-none absolute left-0 top-0 h-full">
                 <span data-head className="absolute -left-[5px] -top-1.5 block h-3 w-3 bg-foreground shadow-[0_0_14px_4px_hsl(186_100%_50%/0.8)]" />
               </span>
-              {experienceData.map((exp, index) => (
+              {experienceData.map((exp) => (
                 <div data-reveal
                   key={exp.company}
                   className="relative mb-10 last:mb-0"
@@ -85,17 +84,13 @@ export function ExperienceSection() {
                     <span className={`h-1.5 w-1.5 ${exp.current ? 'bg-primary' : 'bg-muted-foreground'}`} />
                   </span>
                   <div className="panel p-6">
-                    <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
+                    <div className="mb-4 flex flex-wrap items-start justify-between gap-2">
                       <div>
-                        <span className="hud-label">Log {String(index + 1).padStart(2, '0')}</span>
-                        <h3 className="mt-1 font-display text-2xl font-bold uppercase tracking-wide">{exp.company}</h3>
-                        <p className="font-medium text-primary">{exp.position}</p>
+                        <h3 className="font-display text-2xl font-bold uppercase tracking-wide">{exp.company}</h3>
+                        <p className="mt-0.5 font-medium text-primary">{exp.position}</p>
+                        <p className="mt-1 text-sm text-muted-foreground">{exp.period} · {exp.location}</p>
                       </div>
                       {exp.current && <span className="signal-tag">Current</span>}
-                    </div>
-                    <div className="flex items-center gap-4 mb-4 font-mono text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1.5"><Calendar size={13} /> {exp.period}</span>
-                      <span className="flex items-center gap-1.5"><MapPin size={13} /> {exp.location}</span>
                     </div>
                     <ul className="space-y-2.5 text-muted-foreground text-[0.95rem] leading-relaxed">
                       {exp.description.map((d, i) => (
@@ -105,11 +100,6 @@ export function ExperienceSection() {
                         </li>
                       ))}
                     </ul>
-                    <div className="flex flex-wrap gap-2 mt-4">
-                      {exp.stack.map((s) => (
-                        <span key={s} className="tag-chip text-muted-foreground">{s}</span>
-                      ))}
-                    </div>
                   </div>
                 </div>
               ))}
@@ -120,27 +110,16 @@ export function ExperienceSection() {
             className="lg:col-span-2"
           >
             <div className="panel p-6 h-full">
-              <div className="flex items-center gap-3 mb-5">
-                <div className="grid h-10 w-10 place-items-center border border-primary/50 text-primary">
-                  <GraduationCap size={18} />
-                </div>
-                <h3 className="font-display text-xl font-bold uppercase tracking-wide">Education</h3>
-              </div>
-              <h4 className="font-medium text-lg leading-snug">{educationData.degree}</h4>
-              <p className="text-primary mt-1">{educationData.institution}</p>
-              <div className="flex flex-wrap items-center gap-3 mt-3 font-mono text-xs text-muted-foreground">
-                <span className="flex items-center gap-1.5"><Calendar size={13} /> {educationData.period}</span>
-                <span className="border border-primary/50 px-2 py-0.5 text-primary">CGPA {educationData.cgpa}</span>
-              </div>
+              <h3 className="font-display text-2xl font-bold uppercase tracking-wide">Education</h3>
+              <p className="mt-4 text-lg font-medium leading-snug">{educationData.degree}</p>
+              <p className="mt-1 text-primary">{educationData.institution}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{educationData.period} · CGPA {educationData.cgpa}</p>
 
-              <div className="hairline my-5" />
-              <p className="hud-label mb-3">Clubs &amp; activities</p>
-              <ul className="space-y-2.5 text-sm text-muted-foreground">
+              <div className="hairline my-6" />
+              <p className="mb-3 text-sm text-muted-foreground">Clubs &amp; activities</p>
+              <ul className="space-y-2 text-foreground/85">
                 {educationData.achievements.map((a) => (
-                  <li key={a} className="flex gap-2.5">
-                    <span className="mt-2 h-1 w-1 shrink-0 bg-primary" />
-                    <span>{a}</span>
-                  </li>
+                  <li key={a}>{a}</li>
                 ))}
               </ul>
             </div>

@@ -47,10 +47,8 @@ function RepoCard({ r }: { r: Repo }) {
         <span className="font-mono text-sm font-medium truncate group-hover:text-primary transition-colors">{r.name}</span>
         <ArrowUpRight size={14} className="shrink-0 text-muted-foreground group-hover:text-primary" />
       </div>
-      <p className="mt-1.5 text-xs text-muted-foreground line-clamp-2 h-8">
-        {r.description || 'No description provided.'}
-      </p>
-      <div className="mt-3 flex items-center gap-4 font-mono text-[0.7rem] text-muted-foreground">
+      {r.description && <p className="mt-1.5 line-clamp-2 text-sm text-muted-foreground">{r.description}</p>}
+      <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
         {r.language && (
           <span className="flex items-center gap-1.5">
             <span className="h-2 w-2 rounded-full" style={{ background: langColor(r.language) }} />
@@ -127,32 +125,27 @@ export function GithubSection() {
         <SectionHeading
           index="06"
           title={<>Always <span className="accent-text">shipping</span></>}
-          description="Pulled live from the GitHub API on each visit. Stars, repos, languages, the works. I'm an open-source enthusiast, and everything I build is public (and linked here)."
+          description="Pulled live from GitHub on every visit. Everything I build is public."
         />
 
-        {/* Stat cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          {stats.map((s, i) => (
-            <div data-reveal
-              key={s.label}
-              className="panel p-5"
-            >
-              <s.icon size={18} className="text-primary mb-3" />
-              <div className="font-space text-3xl font-bold">
-                {loading ? <span className="inline-block h-8 w-12 rounded bg-muted animate-pulse" /> : (s.value ?? '—')}
-              </div>
-              <div className="font-mono text-[0.7rem] uppercase tracking-wider text-muted-foreground mt-1">{s.label}</div>
+        {/* Four numbers */}
+        <dl data-reveal className="mb-12 grid grid-cols-2 gap-6 lg:grid-cols-4">
+          {stats.map((s) => (
+            <div key={s.label} className="flex flex-col-reverse">
+              <dt className="mt-2 text-sm text-muted-foreground">{s.label}</dt>
+              <dd className="font-display text-4xl font-bold leading-none md:text-5xl">
+                {loading ? <span className="inline-block h-10 w-14 animate-pulse bg-muted" /> : (s.value ?? '—')}
+              </dd>
             </div>
           ))}
-        </div>
+        </dl>
 
         <div className="grid lg:grid-cols-5 gap-6">
           {/* Languages */}
           <div data-reveal
             className="lg:col-span-2 panel p-6"
           >
-            <h3 className="font-space text-lg font-semibold mb-1">Most-used languages</h3>
-            <p className="font-mono text-xs text-muted-foreground mb-5">by repository count</p>
+            <h3 className="mb-5 font-space text-lg font-semibold">Most-used languages</h3>
 
             {/* stacked bar */}
             {topLangs.length > 0 && (
@@ -175,7 +168,7 @@ export function GithubSection() {
                       <span className="h-2.5 w-2.5" style={{ background: langColor(l) }} />
                       {l}
                     </span>
-                    <span className="font-mono text-xs text-muted-foreground">{Math.round((c / langTotal) * 100)}%</span>
+                    <span className="text-muted-foreground">{Math.round((c / langTotal) * 100)}%</span>
                   </div>
                 ))
               ) : (
@@ -194,7 +187,7 @@ export function GithubSection() {
                 href={`https://github.com/${USERNAME}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 font-mono text-xs text-primary hover:gap-2.5 transition-all"
+                className="inline-flex items-center gap-1.5 text-sm text-primary transition-all hover:gap-2.5"
               >
                 <Github size={14} /> @{USERNAME}
               </a>

@@ -3,7 +3,7 @@ import { useLocation } from 'wouter';
 import { gsap } from '@/lib/gsap';
 
 const INTERACTIVE = 'a, button, [role="button"], input, textarea, label, select, [data-cursor]';
-const LOCKABLE = '.panel, [data-lock]';
+const LOCKABLE = '.panel, .shard, [data-lock]';
 const LOCK_PAD = 12;
 
 /**
