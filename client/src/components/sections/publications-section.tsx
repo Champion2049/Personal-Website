@@ -25,7 +25,7 @@ const publications = [
     title: 'Thermoelectric Energy Optimization with Deep Reinforcement Learning',
     venue: 'Springer Nature Journal',
     year: '2025',
-    status: 'Published',
+    status: 'Accepted',
   },
 ];
 
@@ -51,7 +51,6 @@ export function PublicationsSection() {
       <div className="container mx-auto px-6 md:px-10 relative z-10">
         <SectionHeading
           index="04"
-          kicker="Research & Recognition"
           title={<>Publications &amp; <span className="accent-text">honors</span></>}
           description="Peer-reviewed work across computer vision, machine learning and reinforcement learning, along with a few competitive milestones."
         />

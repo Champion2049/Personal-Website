@@ -1,21 +1,20 @@
 import { useRef, type ReactNode } from 'react';
 import { gsap, useGSAP, prefersReducedMotion } from '@/lib/gsap';
-import { Decode } from '@/components/hud/decode';
 
 interface SectionHeadingProps {
   index: string;
-  kicker: string;
   title: ReactNode;
   description?: ReactNode;
   align?: 'left' | 'center';
 }
 
 /**
- * A "scene" header: decoding label, title that wipes in, a ghost numeral
- * drifting behind it, and a light streak that crosses as you scroll past.
+ * A "scene" header: a ghost numeral drifting behind the title (it counts up
+ * through random digits when the section arrives), a light streak that
+ * crosses as you scroll past, and a title that wipes in.
  * Everything scroll-linked is transform/clip only.
  */
-export function SectionHeading({ index, kicker, title, description, align = 'left' }: SectionHeadingProps) {
+export function SectionHeading({ index, title, description, align = 'left' }: SectionHeadingProps) {
   const root = useRef<HTMLDivElement>(null);
   const isCenter = align === 'center';
 
@@ -23,11 +22,14 @@ export function SectionHeading({ index, kicker, title, description, align = 'lef
     () => {
       if (prefersReducedMotion()) return;
       const el = root.current!;
-      gsap.fromTo(
-        el.querySelector('[data-ghost]'),
-        { yPercent: 25 },
-        { yPercent: -25, ease: 'none', scrollTrigger: { trigger: el, start: 'top bottom', end: 'bottom top', scrub: true } },
-      );
+      const ghost = el.querySelector('[data-ghost]');
+      gsap.fromTo(ghost, { yPercent: 25 }, { yPercent: -25, ease: 'none', scrollTrigger: { trigger: el, start: 'top bottom', end: 'bottom top', scrub: true } });
+      gsap.to(ghost, {
+        duration: 1.1,
+        ease: 'none',
+        scrambleText: { text: index, chars: '0123456789', speed: 0.5 },
+        scrollTrigger: { trigger: el, start: 'top 80%', once: true },
+      });
       gsap.fromTo(
         el.querySelector('[data-streak]'),
         { xPercent: -120 },
@@ -38,12 +40,6 @@ export function SectionHeading({ index, kicker, title, description, align = 'lef
         duration: 0.9,
         ease: 'expo.inOut',
         clearProps: 'clipPath',
-        scrollTrigger: { trigger: el, start: 'top 80%', once: true },
-      });
-      gsap.from(el.querySelector('[data-rule]'), {
-        scaleX: 0,
-        duration: 1.1,
-        ease: 'expo.out',
         scrollTrigger: { trigger: el, start: 'top 80%', once: true },
       });
     },
@@ -61,19 +57,13 @@ export function SectionHeading({ index, kicker, title, description, align = 'lef
       </span>
 
       <div className="relative">
-        <div className={`flex items-center gap-3 ${isCenter ? 'justify-center' : ''}`}>
-          <span className="font-mono text-xs text-primary">{index}</span>
-          <span data-rule className="h-px w-10 origin-left bg-primary/60" />
-          <Decode text={kicker.toUpperCase()} className="hud-label text-foreground/80" />
-        </div>
-
-        <div className="relative mt-3 h-px overflow-hidden bg-[var(--line)]">
-          <span data-streak aria-hidden className="pointer-events-none absolute left-0 top-0 h-px w-1/3 bg-gradient-to-r from-transparent via-primary to-transparent shadow-[0_0_12px_hsl(186_100%_50%/0.8)]" />
+        <div aria-hidden className="relative h-px overflow-hidden bg-[var(--line)]">
+          <span data-streak className="pointer-events-none absolute left-0 top-0 h-px w-1/3 bg-gradient-to-r from-transparent via-primary to-transparent shadow-[0_0_12px_hsl(186_100%_50%/0.8)]" />
         </div>
 
         <h2
           data-title
-          className="relative mt-5 font-display text-4xl font-bold uppercase leading-[0.92] tracking-tight text-balance md:text-6xl lg:text-7xl"
+          className="relative mt-6 font-display text-4xl font-bold uppercase leading-[0.92] tracking-tight text-balance md:text-6xl lg:text-7xl"
         >
           {title}
         </h2>
