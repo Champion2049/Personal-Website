@@ -94,7 +94,6 @@ export function GuestbookSection() {
       <div className="container mx-auto px-6 md:px-10">
         <SectionHeading
           index="07"
-          kicker="Guestbook"
           title={<>Leave a <span className="accent-text">signal</span></>}
           description="Leave a message, share your thoughts, or just say hello! I'd love to hear from you."
         />

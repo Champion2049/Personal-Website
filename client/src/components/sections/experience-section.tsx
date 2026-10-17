@@ -66,7 +66,6 @@ export function ExperienceSection() {
       <div className="container mx-auto px-6 md:px-10">
         <SectionHeading
           index="03"
-          kicker="Trajectory"
           title={<>Experience &amp; <span className="accent-text">education</span></>}
         />
 

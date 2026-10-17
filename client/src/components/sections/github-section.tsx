@@ -126,7 +126,6 @@ export function GithubSection() {
       <div className="container mx-auto px-6 md:px-10 relative z-10">
         <SectionHeading
           index="06"
-          kicker="Live from GitHub"
           title={<>Always <span className="accent-text">shipping</span></>}
           description="Pulled live from the GitHub API on each visit. Stars, repos, languages, the works. I'm an open-source enthusiast, and everything I build is public (and linked here)."
         />

@@ -19,11 +19,10 @@ const interests = [
 
 export function AboutSection() {
   return (
-    <section id="about" className="relative py-28 md:py-40">
+    <section id="about" className="relative py-28 md:pb-40 md:pt-12">
       <div className="container mx-auto px-6 md:px-10">
         <SectionHeading
           index="01"
-          kicker="About"
           title={<>The person behind the <span className="accent-text">commits</span></>}
         />
 
