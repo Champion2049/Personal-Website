@@ -111,7 +111,10 @@ def args_from_cli():
 # Small helpers
 # --------------------------------------------------------------------------
 def reset_scene():
+    global _UNIT_CUBE
     bpy.ops.wm.read_factory_settings(use_empty=True)
+    _UNIT_CUBE = None  # the factory reset freed it
+    _FONTS.clear()
     scene = bpy.context.scene
     for c in list(bpy.data.collections):
         bpy.data.collections.remove(c)
@@ -602,9 +605,10 @@ def build_city(scene, rnd):
                     link(lo, signs)
             y += w + gap
 
-    # holo billboards high on a few towers (big gradient panels)
+    # holo billboards high on a few towers. (A fourth, at y=240 on the right,
+    # read as a blank red slab right in front of the camera during the rise.)
     for i, (side, yy, zz, colname) in enumerate([(-1, 70, 34, "red_deep"), (1, 128, 46, "yellow_dim"),
-                                                  (-1, 190, 58, "red_deep"), (1, 240, 40, "red_dim")]):
+                                                  (-1, 190, 58, "red_deep")]):
         px = side * (ST_EDGE + 0.4)
         rz = math.pi / 2 if side < 0 else -math.pi / 2
         plane(f"bill{i}", (px, yy, zz), (16, 9), (math.pi / 2, 0, rz), emit[colname], signs)
