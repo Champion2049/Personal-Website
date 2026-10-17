@@ -1,4 +1,4 @@
-import { useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { gsap, DECODE_CHARS, prefersReducedMotion } from '@/lib/gsap';
 import { holdIntro, releaseIntro } from '@/lib/intro-gate';
 import { useLenis } from '@/components/ui/lenis-scroll-provider';
@@ -10,8 +10,8 @@ import { useLenis } from '@/components/ui/lenis-scroll-provider';
  * glitches back together → settles over a Tron-grid horizon → a light line
  * collapses the overlay into the hero.
  *
- * Plays once per browser session, only on a fresh load of "/", never with
- * reduced motion. Click / Esc / Enter skips straight to the exit.
+ * Plays on every fresh load of "/" (not on in-app navigation back to it),
+ * never with reduced motion. Skip button / click / Esc / Enter jumps to the exit.
  */
 const W = 1600;
 const H = 900;
@@ -19,7 +19,6 @@ const CYAN = '#00e5ff';
 const SIGNAL = '#ff5a1f';
 const BONE = '#e6edf0';
 const WORD = 'CHIRAYU';
-const SEEN_KEY = 'intro-seen';
 
 const INITIAL_PATH = typeof window !== 'undefined' ? window.location.pathname : '/';
 let claimed = false;
@@ -27,14 +26,7 @@ function shouldPlay() {
   if (claimed) return false;
   claimed = true;
   if (INITIAL_PATH !== '/' && INITIAL_PATH !== '/index.html') return false;
-  if (prefersReducedMotion()) return false;
-  try {
-    if (sessionStorage.getItem(SEEN_KEY)) return false;
-    sessionStorage.setItem(SEEN_KEY, '1');
-  } catch {
-    /* storage blocked: just play */
-  }
-  return true;
+  return !prefersReducedMotion();
 }
 
 /** Small deterministic PRNG so the generated geometry is the same every visit. */
@@ -108,6 +100,7 @@ export function IntroSequence() {
   const root = useRef<HTMLDivElement>(null);
   const measure = useRef<SVGTextElement>(null);
   const tlRef = useRef<gsap.core.Timeline | null>(null);
+  const skipRequested = useRef(false);
   const lenis = useLenis();
   const geo = useMemo(() => (box ? buildGeometry(box) : null), [box]);
 
@@ -214,14 +207,27 @@ export function IntroSequence() {
         .to(root.current, { clipPath: 'inset(50% 0% 50% 0%)', duration: 0.55, ease: 'expo.inOut' }, 'exit+=0.12')
         .to(q('[data-line]'), { autoAlpha: 0, duration: 0.2 }, 'exit+=0.55')
         .call(finish, [], 'exit+=0.7');
+
+      // skipped before the timeline existed (while the font was loading)
+      if (skipRequested.current) tl.seek('exit');
     }, root);
 
+    return () => ctx.revert();
+  }, [active, geo]);
+
+  // Skippable from the first frame: click anywhere, Esc, Enter or Space.
+  useEffect(() => {
+    if (!active || !root.current) return;
     const skip = () => {
+      skipRequested.current = true;
       const tl = tlRef.current;
       if (tl && tl.time() < tl.labels.exit) tl.seek('exit');
     };
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') skip();
+      if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        skip();
+      }
     };
     const el = root.current;
     el.addEventListener('click', skip);
@@ -229,9 +235,8 @@ export function IntroSequence() {
     return () => {
       el.removeEventListener('click', skip);
       window.removeEventListener('keydown', onKey);
-      ctx.revert();
     };
-  }, [active, geo]);
+  }, [active]);
 
   if (!active) return null;
 
@@ -354,9 +359,11 @@ export function IntroSequence() {
 
       {/* exit light line */}
       <div data-line className="invisible absolute left-0 right-0 top-1/2 h-[3px] -translate-y-1/2 bg-[linear-gradient(90deg,transparent,#fff,transparent)] shadow-[0_0_24px_6px_rgba(0,229,255,0.7)]" />
-      <p className="absolute bottom-6 left-0 right-0 text-center font-mono text-[0.65rem] uppercase tracking-[0.3em] text-white/35">
-        Click or press Esc to skip
-      </p>
+      <button
+        className="absolute bottom-6 right-6 border border-white/25 px-3 py-1.5 font-mono text-[0.65rem] uppercase tracking-[0.25em] text-white/60 transition-colors hover:border-[#00e5ff] hover:text-[#00e5ff]"
+      >
+        Skip intro ›
+      </button>
     </div>
   );
 }

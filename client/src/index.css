@@ -21,8 +21,8 @@
   --secondary-foreground: hsl(216 33% 3%);
   --muted: hsl(210 15% 10%);
   --muted-foreground: hsl(205 10% 60%);   /* steel */
-  --accent: hsl(16 100% 56%);             /* signal orange #ff5a1f */
-  --accent-foreground: hsl(216 33% 3%);
+  --accent: hsl(186 100% 50% / 0.1);      /* hover/selected surface (menus, palette rows) */
+  --accent-foreground: hsl(186 100% 50%);
   --destructive: hsl(356 80% 58%);
   --destructive-foreground: hsl(0 0% 100%);
   --border: hsl(200 15% 15%);
@@ -142,13 +142,34 @@
     border-radius: var(--radius); padding: 0.2rem 0.5rem;
     transition: border-color .2s ease, color .2s ease, background-color .2s ease;
   }
-  /* Orange spec sticker (the one loud thing on a card, used sparingly) */
+  /* Status tag: hairline outline, cyan text, a small lit square. Orange stays a tiny accent only. */
   .signal-tag {
-    display: inline-flex; align-items: center; gap: 0.35rem;
+    display: inline-flex; align-items: center; gap: 0.45rem;
     font-family: var(--font-mono); font-size: 0.66rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase;
-    background: var(--signal); color: hsl(216 33% 3%); padding: 0.2rem 0.5rem; border-radius: var(--radius);
+    color: var(--primary); padding: 0.2rem 0.55rem; border-radius: var(--radius);
+    border: 1px solid hsl(186 100% 50% / 0.35); background: hsl(186 100% 50% / 0.05);
+  }
+  .signal-tag::before {
+    content: ''; width: 5px; height: 5px; background: currentColor; box-shadow: 0 0 6px currentColor;
   }
   .hatch { background: repeating-linear-gradient(-45deg, var(--line-strong) 0 1px, transparent 1px 6px); }
+  /* Hero name letters (moved by the pointer field in hero-section.tsx); outlined ones fill when hot */
+  .hero-ch { display: inline-block; transition: color .3s var(--ease-out), text-shadow .3s var(--ease-out); }
+  .hero-ch[data-hot] { color: var(--primary); text-shadow: 0 0 28px hsl(186 100% 50% / 0.45); }
+  /* The light-cycle (silhouette mask tinted by background-color) and the wall it lays:
+     translucent with bright edges, like a jet wall seen side-on */
+  .tron-bike {
+    background: hsl(186 100% 78%);
+    -webkit-mask: url(/tron-cycle-mask.png) center / contain no-repeat;
+    mask: url(/tron-cycle-mask.png) center / contain no-repeat;
+    filter: drop-shadow(0 0 5px hsl(186 100% 50%)) drop-shadow(0 0 14px hsl(186 100% 50% / 0.7));
+  }
+  .light-ribbon {
+    background: linear-gradient(to bottom,
+      hsl(186 100% 82%) 0 2px, hsl(186 100% 50% / 0.34) 2px,
+      hsl(186 100% 50% / 0.1) calc(100% - 2px), hsl(186 100% 70%) calc(100% - 2px));
+    box-shadow: 0 0 22px hsl(186 100% 50% / 0.45);
+  }
   /* HUD buttons: square, mono, crop handles on the ghost variant */
   .btn-hud {
     display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem;
@@ -163,7 +184,7 @@
     .btn-hud-ghost:hover { background: transparent; color: var(--primary); border-color: var(--primary); }
   }
   .btn-hud:active { scale: 0.97; }
-  .btn-hud:focus-visible, .tag-chip:focus-visible { outline: 2px solid var(--signal); outline-offset: 3px; }
+  .btn-hud:focus-visible, .tag-chip:focus-visible { outline: 2px solid var(--foreground); outline-offset: 3px; }
   /* HUD reticle cursor (see custom-cursor.tsx): positioned purely with transforms */
   .cursor-dot {
     position: fixed; left: 0; top: 0; width: 4px; height: 4px; border-radius: 50%;
@@ -173,7 +194,18 @@
     position: fixed; left: 0; top: 0; width: 22px; height: 22px;
     pointer-events: none; z-index: 9998; will-change: transform; transition: color .5s ease;
   }
-  .cursor-frame > span { position: absolute; width: 6px; height: 6px; border: 0 solid currentColor; }
+  .cursor-frame > span { position: absolute; width: 6px; height: 6px; border: 0 solid currentColor; transition: width .3s var(--ease-out), height .3s var(--ease-out); }
+  .cursor-frame[data-locked] > span { width: 12px; height: 12px; }
+  /* Light segment orbiting a hovered card's border (see skills-section.tsx) */
+  .light-trace rect {
+    fill: none; stroke: var(--primary); stroke-width: 1.5; stroke-dasharray: 9 91;
+    filter: drop-shadow(0 0 4px hsl(186 100% 50%));
+    opacity: 0; transition: opacity .3s ease;
+  }
+  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    .group:hover > .light-trace rect { opacity: 1; animation: light-trace 2.2s linear infinite; }
+  }
+  @keyframes light-trace { to { stroke-dashoffset: -100; } }
   .cursor-frame > span:nth-child(1) { top: 0; left: 0; border-top-width: 1.5px; border-left-width: 1.5px; }
   .cursor-frame > span:nth-child(2) { top: 0; right: 0; border-top-width: 1.5px; border-right-width: 1.5px; }
   .cursor-frame > span:nth-child(3) { bottom: 0; left: 0; border-bottom-width: 1.5px; border-left-width: 1.5px; }
@@ -201,7 +233,6 @@
   0% { transform: scale(1); opacity: 0.55; }
   100% { transform: scale(1.18, 1.45); opacity: 0; }
 }
-@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
 @keyframes scan { 0% { transform: translateY(-100%); } 100% { transform: translateY(100vh); } }
 
@@ -212,7 +243,6 @@
   content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
   box-shadow: 0 0 0 2px var(--primary); animation: pulse-ring 2.2s ease-out infinite;
 }
-.animate-marquee { animation: marquee 28s linear infinite; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
