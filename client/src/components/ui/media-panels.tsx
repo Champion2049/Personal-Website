@@ -1,21 +1,33 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
-  Music2, Tv, BookOpen, Eye, Star, CheckCircle2, Clock, CalendarDays,
+  Tv, BookOpen, Eye, Star, CheckCircle2, Clock, CalendarDays,
   PauseCircle, XCircle, List, Rewind, TrendingUp, ExternalLink, Disc3, Layers,
 } from 'lucide-react';
-import { profiles } from '@/lib/personal-data';
+import { profiles, now, music } from '@/lib/personal-data';
 
 const MAL_USER = 'Champion2049';
 const fmt = (n: any, d = 0) => (typeof n === 'number' ? n.toFixed(d) : '—');
 
-/* =====================  SPOTIFY  ===================== */
+/* =====================  SPOTIFY → NIGHT CITY RADIO  ===================== */
 interface Track { isPlaying: boolean; title?: string; artist?: string; album?: string; albumImageUrl?: string; songUrl?: string; }
 interface Artist { name: string; url: string; image?: string; genres?: string[]; }
 
-export function SpotifyPanel({ onMouseMove }: { onMouseMove?: any }) {
+/** "Title - Artist" from personal-data, used when Spotify can't be reached. */
+function onRepeat() {
+  const [title, ...rest] = now.listening.split(/\s+[-–—]\s+/);
+  return { title: title?.trim() || now.listening, artist: rest.join(' - ').trim() };
+}
+
+/** Stable pseudo-frequency for a song so the needle doesn't jump around. */
+function frequencyFor(s: string) {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return 88 + (h % 200) / 10; // 88.0 – 107.9
+}
+
+export function SpotifyPanel(_: { onMouseMove?: any } = {}) {
   const [track, setTrack] = useState<Track | null>(null);
-  const [trackErr, setTrackErr] = useState(false);
   const [artists, setArtists] = useState<Artist[] | null>(null);
   const [artistsErr, setArtistsErr] = useState(false);
 
@@ -24,8 +36,8 @@ export function SpotifyPanel({ onMouseMove }: { onMouseMove?: any }) {
     // Cache-bust + no-store so we always get the live track, never a cached one.
     const loadTrack = () =>
       fetch(`/api/spotify?t=${Date.now()}`, { cache: 'no-store' }).then((r) => (r.ok ? r.json() : Promise.reject()))
-        .then((d: Track) => { if (c) return; if (d && typeof d.isPlaying === 'boolean') { setTrack(d); setTrackErr(false); } else setTrackErr(true); })
-        .catch(() => { if (!c) setTrackErr(true); });
+        .then((d: Track) => { if (!c && d && typeof d.isPlaying === 'boolean') setTrack(d); })
+        .catch(() => {});
     const loadArtists = () =>
       fetch(`/api/spotify-stats?t=${Date.now()}`, { cache: 'no-store' }).then((r) => (r.ok ? r.json() : Promise.reject()))
         .then((d: Artist[]) => { if (c) return; if (Array.isArray(d) && d.length) { setArtists(d); setArtistsErr(false); } else setArtistsErr(true); })
@@ -43,85 +55,125 @@ export function SpotifyPanel({ onMouseMove }: { onMouseMove?: any }) {
     return () => { c = true; clearInterval(poll); document.removeEventListener('visibilitychange', onVisible); };
   }, []);
 
-  const hasTrack = !!(track && track.title && track.title !== 'Nothing to show');
+  const live = !!(track && track.title && track.title !== 'Nothing to show');
+  const fallback = onRepeat();
+  const title = live ? track!.title! : fallback.title;
+  const artist = live ? track!.artist : fallback.artist;
+  const playing = !!track?.isPlaying;
+  const status = playing ? 'Live right now' : live ? 'Last played' : 'On repeat';
+  const freq = frequencyFor(title);
 
   return (
-    <div className="space-y-5">
-      {/* Now playing */}
-      <a href={hasTrack ? track!.songUrl : profiles.spotify} target="_blank" rel="noopener noreferrer"
-        onMouseMove={onMouseMove} className="card-spotlight panel relative p-5 flex items-center justify-center gap-5 group">
-        <div className="relative shrink-0">
-          {hasTrack && track?.albumImageUrl ? (
-            <img src={track.albumImageUrl} alt={track.album || ''} className="h-20 w-20 rounded-lg object-cover" />
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
+      {/* Tuner */}
+      <a
+        href={live ? track!.songUrl : profiles.spotify}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="shard shard-lg shard-hover group block p-5 md:p-7"
+      >
+        <div className="flex items-start justify-between gap-4">
+          <span className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+            <span className={`h-2 w-2 rounded-full ${playing ? 'bg-[#1DB954] shadow-[0_0_10px_#1DB954]' : 'bg-primary/50'}`} />
+            {status}
+          </span>
+          <ExternalLink size={16} className="text-muted-foreground transition-colors group-hover:text-primary" />
+        </div>
+
+        <div className="mt-5 flex items-center gap-5">
+          {live && track?.albumImageUrl ? (
+            <img src={track.albumImageUrl} alt={track.album || ''} className="h-24 w-24 shrink-0 object-cover md:h-28 md:w-28 [clip-path:polygon(0_0,calc(100%-12px)_0,100%_12px,100%_100%,12px_100%,0_calc(100%-12px))]" />
           ) : (
-            <div className="grid place-items-center h-20 w-20 rounded-lg" style={{ background: '#1DB95422', color: '#1DB954' }}>
-              <Disc3 size={30} className={hasTrack ? 'animate-spin' : ''} />
+            <div className="grid h-24 w-24 shrink-0 place-items-center bg-primary/10 text-primary md:h-28 md:w-28 [clip-path:polygon(0_0,calc(100%-12px)_0,100%_12px,100%_100%,12px_100%,0_calc(100%-12px))]">
+              <Disc3 size={40} className={playing ? 'animate-spin [animation-duration:3s]' : ''} />
             </div>
           )}
-          {track?.isPlaying && (
-            <span className="absolute -bottom-1 -right-1 flex h-5 items-end gap-0.5 rounded-full bg-black/70 px-1.5 py-1">
-              {[0, 1, 2].map((i) => (
-                <motion.span key={i} className="w-0.5 h-full bg-green-400" style={{ transformOrigin: 'bottom' }}
-                  animate={{ scaleY: [0.3, 1, 0.5, 0.3] }} transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.15 }} />
-              ))}
-            </span>
-          )}
-        </div>
-        <div className="min-w-0 max-w-[18rem] text-center">
-          <div className="font-mono text-[0.65rem] uppercase tracking-[0.2em] text-muted-foreground mb-1">
-            {track?.isPlaying ? 'Now playing' : hasTrack ? 'Last listened' : 'Spotify'}
+          <div className="min-w-0">
+            <div className="font-display text-3xl font-bold leading-[1.05] md:text-4xl">{title}</div>
+            {artist && <div className="mt-1 text-lg text-muted-foreground">{artist}</div>}
           </div>
-          {hasTrack ? (
-            <>
-              <div className="font-space text-lg font-semibold truncate">{track!.title}</div>
-              <div className="text-sm text-muted-foreground truncate">{track!.artist}</div>
-            </>
-          ) : (
-            <>
-              <div className="font-space text-lg font-semibold">{trackErr ? 'Spotify offline' : 'My rotation'}</div>
-              <div className="text-sm text-muted-foreground">
-                {trackErr ? 'Live track appears once the API is connected' : 'Synthwave, OSTs & everything between'}
-              </div>
-            </>
-          )}
         </div>
-        <ExternalLink size={16} className="absolute top-4 right-4 text-muted-foreground group-hover:text-primary transition-colors" />
+
+        {/* Dial: ticks, a needle parked on this song's "frequency", and an EQ that only moves when something's actually playing */}
+        <div className="mt-7" aria-hidden>
+          <div className="flex items-end justify-between gap-[3px] h-8">
+            {Array.from({ length: 28 }).map((_, i) => (
+              <span
+                key={i}
+                className={`flex-1 origin-bottom bg-primary/70 ${playing ? 'animate-[nc-eq_900ms_ease-in-out_infinite_alternate]' : ''}`}
+                style={{ height: `${25 + ((i * 37) % 70)}%`, animationDelay: `${(i * 83) % 600}ms`, opacity: playing ? 1 : 0.35 }}
+              />
+            ))}
+          </div>
+          <div
+            className="relative mt-2 h-7 border-t border-primary/30"
+            style={{
+              backgroundImage: 'repeating-linear-gradient(to right, hsl(350 100% 60% / 0.35) 0 1px, transparent 1px 2.5%)',
+              backgroundSize: '100% 8px',
+              backgroundRepeat: 'no-repeat',
+            }}
+          >
+            <span className="absolute -top-3 h-6 w-[2px] bg-[var(--nc-yellow)] shadow-[0_0_10px_var(--nc-yellow)]" style={{ left: `${((freq - 88) / 20) * 100}%` }} />
+            <div className="absolute inset-x-0 bottom-0 flex justify-between font-mono text-[0.65rem] text-muted-foreground">
+              {[88, 92, 96, 100, 104, 108].map((f) => <span key={f}>{f}</span>)}
+            </div>
+          </div>
+          <div className="mt-2 font-mono text-xs text-muted-foreground">
+            <span className="text-[var(--nc-yellow)]">{freq.toFixed(1)}</span> Chids FM
+          </div>
+        </div>
       </a>
 
-      {/* Top artists */}
-      <div className="panel p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <Music2 size={16} className="text-primary" />
-          <h4 className="font-space font-semibold">Top artists this month</h4>
+      {/* Top artists, or the genres I bounce between if Spotify isn't answering */}
+      {artistsErr ? (
+        <div className="shard flex flex-col p-5 md:p-6">
+          <h3 className="font-display text-lg font-bold uppercase tracking-widest">What I listen to</h3>
+          <ul className="mt-4 flex flex-wrap gap-2">
+            {music.genres.map((g) => (
+              <li key={g} className="nc-chip px-3 py-1.5 text-sm">{g}</li>
+            ))}
+          </ul>
+          <p className="mt-5 text-muted-foreground italic">“{music.note}”</p>
+          <a
+            href={profiles.spotify}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-auto inline-flex items-center gap-1.5 pt-6 text-sm text-muted-foreground transition-colors hover:text-primary"
+          >
+            Follow me on Spotify <ExternalLink size={13} />
+          </a>
         </div>
-        {artists ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-            {artists.slice(0, 5).map((a) => (
-              <a key={a.name} href={a.url} target="_blank" rel="noopener noreferrer"
-                className="group flex flex-col items-center text-center">
-                {a.image ? (
-                  <img src={a.image} alt={a.name} className="h-16 w-16 rounded-full object-cover ring-1 ring-border group-hover:ring-primary/60 transition" />
-                ) : (
-                  <div className="grid place-items-center h-16 w-16 rounded-full bg-muted"><Music2 size={20} /></div>
-                )}
-                <span className="mt-2 text-xs font-medium truncate w-full group-hover:text-primary transition-colors">{a.name}</span>
-                {a.genres?.[0] && <span className="font-mono text-[0.6rem] text-muted-foreground truncate w-full">{a.genres[0]}</span>}
-              </a>
-            ))}
-          </div>
-        ) : artistsErr ? (
-          <p className="text-sm text-muted-foreground">Top artists appear once the Spotify API is connected.</p>
-        ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="flex flex-col items-center">
-                <div className="h-16 w-16 rounded-full bg-muted animate-pulse" />
-                <div className="mt-2 h-3 w-12 rounded bg-muted animate-pulse" />
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+      ) : (
+        <div className="shard p-5 md:p-6">
+          <h3 className="font-display text-lg font-bold uppercase tracking-widest">Top artists this month</h3>
+          <ol className="mt-4 space-y-1">
+            {(artists ?? Array.from({ length: 5 }).map(() => null)).slice(0, 5).map((a, i) =>
+              a ? (
+                <li key={a.name}>
+                  <a href={a.url} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-4 py-1.5">
+                    <span className="nc-outline-num w-6 text-2xl">{i + 1}</span>
+                    {a.image ? (
+                      <img src={a.image} alt="" className="h-11 w-11 shrink-0 object-cover [clip-path:polygon(0_0,calc(100%-7px)_0,100%_7px,100%_100%,7px_100%,0_calc(100%-7px))]" />
+                    ) : (
+                      <span className="h-11 w-11 shrink-0 bg-muted" />
+                    )}
+                    <span className="min-w-0">
+                      <span className="block truncate font-display text-lg font-semibold leading-tight transition-colors group-hover:text-primary">{a.name}</span>
+                      {a.genres?.[0] && <span className="block truncate text-xs text-muted-foreground">{a.genres[0]}</span>}
+                    </span>
+                  </a>
+                </li>
+              ) : (
+                <li key={i} className="flex items-center gap-4 py-1.5">
+                  <span className="w-6" />
+                  <span className="h-11 w-11 animate-pulse bg-muted" />
+                  <span className="h-4 w-28 animate-pulse bg-muted" />
+                </li>
+              ),
+            )}
+          </ol>
+        </div>
+      )}
     </div>
   );
 }
@@ -131,32 +183,32 @@ interface Media { mal_id: number; title: string; url: string; images: { jpg: { i
 type Tab = 'anime' | 'manga';
 
 const animeStatCfg = [
-  { k: 'days_watched', label: 'Days Watched', icon: Eye, d: 1 },
-  { k: 'mean_score', label: 'Mean Score', icon: Star, d: 2 },
+  { k: 'days_watched', label: 'Days watched', icon: Eye, d: 1 },
+  { k: 'mean_score', label: 'Mean score', icon: Star, d: 2 },
   { k: 'completed', label: 'Completed', icon: CheckCircle2 },
   { k: 'watching', label: 'Watching', icon: Clock },
-  { k: 'plan_to_watch', label: 'Plan to Watch', icon: CalendarDays },
-  { k: 'on_hold', label: 'On Hold', icon: PauseCircle },
+  { k: 'plan_to_watch', label: 'Plan to watch', icon: CalendarDays },
+  { k: 'on_hold', label: 'On hold', icon: PauseCircle },
   { k: 'dropped', label: 'Dropped', icon: XCircle },
-  { k: 'total_entries', label: 'Total Entries', icon: List },
+  { k: 'total_entries', label: 'Total entries', icon: List },
   { k: 'rewatched', label: 'Rewatched', icon: Rewind },
   { k: 'episodes_watched', label: 'Episodes', icon: TrendingUp },
 ];
 const mangaStatCfg = [
-  { k: 'days_read', label: 'Days Read', icon: Eye, d: 1 },
-  { k: 'mean_score', label: 'Mean Score', icon: Star, d: 2 },
+  { k: 'days_read', label: 'Days read', icon: Eye, d: 1 },
+  { k: 'mean_score', label: 'Mean score', icon: Star, d: 2 },
   { k: 'completed', label: 'Completed', icon: CheckCircle2 },
   { k: 'reading', label: 'Reading', icon: Clock },
-  { k: 'plan_to_read', label: 'Plan to Read', icon: CalendarDays },
-  { k: 'on_hold', label: 'On Hold', icon: PauseCircle },
+  { k: 'plan_to_read', label: 'Plan to read', icon: CalendarDays },
+  { k: 'on_hold', label: 'On hold', icon: PauseCircle },
   { k: 'dropped', label: 'Dropped', icon: XCircle },
-  { k: 'total_entries', label: 'Total Entries', icon: List },
+  { k: 'total_entries', label: 'Total entries', icon: List },
   { k: 'reread', label: 'Reread', icon: Rewind },
   { k: 'chapters_read', label: 'Chapters', icon: BookOpen },
   { k: 'volumes_read', label: 'Volumes', icon: Layers },
 ];
 
-export function AnimeMangaPanel({ onMouseMove }: { onMouseMove?: any }) {
+export function AnimeMangaPanel(_: { onMouseMove?: any } = {}) {
   const [tab, setTab] = useState<Tab>('anime');
   const [stats, setStats] = useState<{ anime?: any; manga?: any } | null>(null);
   const [favs, setFavs] = useState<{ anime: Media[]; manga: Media[] } | null>(null);
@@ -182,74 +234,78 @@ export function AnimeMangaPanel({ onMouseMove }: { onMouseMove?: any }) {
   const favList = (favs ? favs[tab] : []).slice(0, 4);
 
   return (
-    <div onMouseMove={onMouseMove} className="card-spotlight panel p-6">
-      {/* toggle */}
-      <div className="flex justify-center mb-6">
-        <div className="inline-flex rounded-full border border-border p-1 bg-background/40">
-          {(['anime', 'manga'] as Tab[]).map((t) => (
-            <button key={t} onClick={() => setTab(t)}
-              className={`px-5 py-1.5 rounded-full text-sm font-medium capitalize transition-all ${
-                tab === t ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
-              }`}>
-              {t}
-            </button>
-          ))}
+    <div className="shard shard-lg p-5 md:p-7">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div role="tablist" aria-label="Anime or manga" className="flex gap-1.5">
+            {(['anime', 'manga'] as Tab[]).map((t) => (
+              <button
+                key={t}
+                role="tab"
+                aria-selected={tab === t}
+                onClick={() => setTab(t)}
+                className="nc-chip px-4 py-1.5 text-sm"
+              >
+                {t}
+              </button>
+            ))}
         </div>
+        <a
+          href={profiles.myanimelist}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-primary"
+        >
+          MyAnimeList profile <ExternalLink size={13} />
+        </a>
       </div>
 
       {failed && !stat ? (
-        <p className="text-center text-sm text-muted-foreground py-4">
-          Couldn’t reach MyAnimeList right now. <a className="text-primary" href={profiles.myanimelist} target="_blank" rel="noopener noreferrer">Open my profile →</a>
+        <p className="mt-8 text-muted-foreground">
+          MyAnimeList isn't answering right now, so the live stats can't load.{' '}
+          <a className="text-primary underline underline-offset-4" href={profiles.myanimelist} target="_blank" rel="noopener noreferrer">
+            See my list on MAL instead
+          </a>
+          .
         </p>
       ) : (
-        <>
-          {/* stats grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
+        <motion.div key={tab} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
+          <dl className="mt-6 grid grid-cols-2 gap-px bg-primary/10 sm:grid-cols-3 lg:grid-cols-5">
             {cfg.map((s) => (
-              <div key={s.k} className="rounded-xl border border-border p-3 flex items-center gap-3">
-                <s.icon size={18} className="text-primary shrink-0" />
-                <div className="min-w-0">
-                  <div className="font-mono text-[0.6rem] uppercase tracking-wide text-muted-foreground truncate">{s.label}</div>
-                  <div className="font-space text-lg font-bold leading-tight">
-                    {stat ? fmt(stat[s.k], (s as any).d || 0) : <span className="inline-block h-4 w-8 rounded bg-muted animate-pulse" />}
-                  </div>
-                </div>
+              <div key={s.k} className="bg-[hsl(345_45%_5%)] px-4 py-3">
+                <dt className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <s.icon size={12} className="text-primary" /> {s.label}
+                </dt>
+                <dd className="mt-0.5 font-display text-2xl font-bold tabular-nums">
+                  {stat ? fmt(stat[s.k], (s as any).d || 0) : <span className="inline-block h-5 w-10 animate-pulse bg-muted align-middle" />}
+                </dd>
               </div>
             ))}
-          </div>
+          </dl>
 
-          {/* favorites */}
-          <div className="flex items-center gap-2 mb-3">
+          <h3 className="mt-8 flex items-center gap-2 font-display text-lg font-bold uppercase tracking-widest">
             {tab === 'anime' ? <Tv size={16} className="text-primary" /> : <BookOpen size={16} className="text-primary" />}
-            <h4 className="font-space font-semibold capitalize">Top {tab}</h4>
-          </div>
-          <div className="grid sm:grid-cols-2 gap-3">
+            Favourite {tab}
+          </h3>
+          <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
             {favList.length
               ? favList.map((m) => (
-                  <a key={m.mal_id} href={m.url} target="_blank" rel="noopener noreferrer"
-                    className="group flex overflow-hidden rounded-xl border border-border hover:border-primary/40 transition-colors">
-                    <img src={m.images.jpg.image_url} alt={m.title} className="w-16 object-cover" loading="lazy" />
-                    <div className="flex flex-col justify-between p-3 flex-1 min-w-0">
-                      <h5 className="font-space text-sm font-semibold leading-snug text-primary line-clamp-2">{m.title}</h5>
-                      <div className="flex items-center justify-between mt-2">
-                        <span className="font-mono text-[0.65rem] text-muted-foreground">{m.type}</span>
-                        <span className="inline-flex items-center gap-1 rounded-full bg-yellow-400/90 text-black px-2 py-0.5 text-[0.6rem] font-semibold">
-                          <Star size={10} /> Favorite
-                        </span>
-                      </div>
+                  <a
+                    key={m.mal_id}
+                    href={m.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group relative block aspect-[3/4] overflow-hidden [clip-path:polygon(0_0,calc(100%-12px)_0,100%_12px,100%_100%,12px_100%,0_calc(100%-12px))]"
+                  >
+                    <img src={m.images.jpg.image_url} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-3 pt-10">
+                      <div className="font-display text-base font-semibold leading-tight line-clamp-2">{m.title}</div>
+                      <div className="mt-0.5 text-xs text-white/60">{m.type}</div>
                     </div>
                   </a>
                 ))
-              : Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-24 rounded-xl bg-muted animate-pulse" />)}
+              : Array.from({ length: 4 }).map((_, i) => <div key={i} className="aspect-[3/4] animate-pulse bg-muted" />)}
           </div>
-
-          <div className="mt-5 text-center">
-            <a href={profiles.myanimelist} target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2 text-sm transition-colors hover:border-primary/50 hover:text-primary">
-              View MAL profile <ExternalLink size={14} />
-            </a>
-          </div>
-        </>
+        </motion.div>
       )}
     </div>
   );

@@ -136,7 +136,7 @@ export function ProjectsSection() {
               <button
                 key={f}
                 onClick={() => setActive(f)}
-                className={`rounded-full px-4 py-2 font-mono text-xs transition-all border ${
+                className={`press rounded-full px-4 py-2 font-mono text-xs border ${
                   active === f
                     ? 'border-primary bg-primary text-primary-foreground'
                     : 'border-border text-muted-foreground hover:border-primary/50 hover:text-foreground'
@@ -190,10 +190,10 @@ export function ProjectsSection() {
                   href={project.github}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-5 inline-flex items-center gap-2 font-mono text-sm text-primary hover:gap-3 transition-all"
+                  className="group/link mt-5 inline-flex items-center gap-2 font-mono text-sm text-primary"
                 >
                   <Github size={16} /> View source
-                  <ArrowUpRight size={15} />
+                  <ArrowUpRight size={15} className="transition-transform duration-200 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5" />
                 </a>
               </motion.article>
             ))}

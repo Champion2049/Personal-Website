@@ -1,8 +1,23 @@
 import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowUpRight, Download } from 'lucide-react';
 import { TronGrid } from '@/components/ui/tron-grid';
 import { useMagnetic } from '@/lib/use-magnetic';
+import { useIntroReady } from '@/lib/intro-gate';
+
+const EASE_OUT = [0.23, 1, 0.32, 1] as const;
+const EASE_IN_OUT = [0.77, 0, 0.175, 1] as const;
+
+const rise = (delay: number) => ({
+  hidden: { opacity: 0, y: 16 },
+  shown: { opacity: 1, y: 0, transition: { duration: 0.6, delay, ease: EASE_OUT } },
+});
+// Each line of the name rises out of its own clip.
+const nameLine = (delay: number) => ({
+  hidden: { opacity: 0, y: '35%', clipPath: 'inset(0% 0% 100% 0%)' },
+  shown: { opacity: 1, y: '0%', clipPath: 'inset(-25% -10% -35% -10%)', transition: { duration: 0.8, delay, ease: EASE_OUT } },
+});
+const TRAIL = { duration: 0.9, delay: 0.5, ease: EASE_IN_OUT };
 
 const roles = [
   'AI Engineering Intern',
@@ -62,6 +77,10 @@ export function HeroSection() {
   const typed = useTypewriter(roles);
   const magProjects = useMagnetic();
   const magResume = useMagnetic();
+  const reduce = useReducedMotion();
+  const ready = useIntroReady();
+  // Wait for the boot overlay to lift, so the entrance is actually seen.
+  const state = reduce || ready ? 'shown' : 'hidden';
 
   return (
     <section id="home" className="relative min-h-screen flex items-center overflow-hidden">
@@ -87,11 +106,9 @@ export function HeroSection() {
       </div>
 
       <div className="container mx-auto px-6 md:px-10 relative z-10 pt-28 pb-16">
-        <div className="max-w-3xl mx-auto text-center flex flex-col items-center">
+        <motion.div className="max-w-3xl mx-auto text-center flex flex-col items-center" initial={false} animate={state}>
             <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
+              variants={rise(0)}
               className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-4 py-1.5 text-sm"
             >
               <span className="relative flex h-2 w-2">
@@ -103,22 +120,31 @@ export function HeroSection() {
               </span>
             </motion.div>
 
-            <motion.h1
-              className="mt-7 font-space text-5xl sm:text-6xl md:text-7xl font-bold leading-[0.95] tracking-tight"
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-            >
-              Chirayu
-              <br />
-              <span className="text-morphing">Chaudhari</span>
-            </motion.h1>
+            <h1 className="mt-7 font-space text-5xl sm:text-6xl md:text-7xl font-bold leading-[0.95] tracking-tight">
+              <motion.span className="block" variants={nameLine(0.1)}>Chirayu</motion.span>
+              <motion.span className="block" variants={nameLine(0.2)}>
+                <span className="text-morphing">Chaudhari</span>
+              </motion.span>
+            </h1>
+
+            {/* A light-cycle streaks under the name and leaves its trail behind */}
+            <div aria-hidden className="relative mt-5 h-px w-[min(26rem,80%)]">
+              <motion.span
+                className="absolute inset-0 origin-left bg-gradient-to-r from-transparent via-primary to-transparent"
+                variants={{ hidden: { scaleX: 0 }, shown: { scaleX: 1, transition: TRAIL } }}
+              />
+              <motion.span
+                className="absolute top-1/2 -ml-3 h-1 w-6 -translate-y-1/2 rounded-full bg-white shadow-[0_0_10px_#22d3ee,0_0_22px_#22d3ee]"
+                variants={{
+                  hidden: { left: '0%', opacity: 0 },
+                  shown: { left: '100%', opacity: [0, 1, 1, 0], transition: TRAIL },
+                }}
+              />
+            </div>
 
             <motion.div
-              className="mt-6 h-8 font-mono text-lg md:text-xl text-muted-foreground"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
+              className="mt-5 h-8 font-mono text-lg md:text-xl text-muted-foreground"
+              variants={rise(0.75)}
             >
               <span className="text-primary">&gt;</span> {typed}
               <span className="ml-0.5 inline-block w-2.5 h-5 translate-y-1 bg-primary animate-pulse" />
@@ -126,26 +152,22 @@ export function HeroSection() {
 
             <motion.p
               className="mt-8 max-w-2xl text-lg text-muted-foreground leading-relaxed"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.4 }}
+              variants={rise(0.85)}
             >
               Third-year AI &amp; Data Science student building at the intersection of
               machine learning, full-stack systems, and hardware. Published author with a passion for open-source, game development, and all things sci-fi.
             </motion.p>
 
             <motion.div
-              className="mt-10 flex flex-wrap items-center gap-4"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.55 }}
+              className="mt-10 flex flex-wrap items-center justify-center gap-4"
+              variants={rise(0.95)}
             >
               <button
                 ref={magProjects.ref as any}
                 onMouseMove={magProjects.onMouseMove}
                 onMouseLeave={magProjects.onMouseLeave}
                 onClick={() => scrollTo('#projects')}
-                className="magnetic btn-shine group inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3.5 font-medium text-primary-foreground animate-pulse-glow"
+                className="magnetic press btn-shine group inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3.5 font-medium text-primary-foreground animate-pulse-glow"
               >
                 View Projects
                 <ArrowUpRight size={18} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
@@ -157,7 +179,7 @@ export function HeroSection() {
                 href="/Chirayu_Chaudhari_Resume.pdf"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="magnetic inline-flex items-center gap-2 rounded-full border border-border px-6 py-3.5 font-medium transition-colors hover:border-primary/50 hover:text-primary"
+                className="magnetic press inline-flex items-center gap-2 rounded-full border border-border px-6 py-3.5 font-medium hover:border-primary/50 hover:text-primary"
               >
                 <Download size={18} /> Résumé
               </a>
@@ -165,9 +187,7 @@ export function HeroSection() {
 
             <motion.div
               className="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-px overflow-hidden rounded-2xl border border-border bg-border/60"
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.7 }}
+              variants={rise(1.05)}
             >
               {stats.map((s) => (
                 <div key={s.label} className="bg-background px-5 py-5 text-center sm:text-left">
@@ -176,7 +196,7 @@ export function HeroSection() {
                 </div>
               ))}
             </motion.div>
-        </div>
+        </motion.div>
       </div>
 
       <button

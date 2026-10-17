@@ -91,11 +91,13 @@ export function Navigation() {
             >
               <PenLine size={13} /> Blog
             </Link>
+            {/* A hint of Night City red on the Grid side: this is the door to the personal page */}
             <button
               onClick={enterGrid}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg text-primary hover:bg-primary/10 transition-colors"
+              className="press ml-1 inline-flex items-center gap-1.5 rounded-lg border border-[hsl(350_100%_60%/0.35)] px-3 py-1.5 text-sm text-[hsl(350_100%_66%)] hover:border-[hsl(350_100%_60%/0.7)] hover:bg-[hsl(350_100%_60%/0.1)]"
             >
-              <Joystick size={13} /> Get to know me
+              <Joystick size={13} />
+              <span data-text="Get to know me" className="nc-glitch nc-glitch-hover">Get to know me</span>
             </button>
           </div>
 
@@ -139,7 +141,7 @@ export function Navigation() {
             </Link>
             <button
               onClick={() => { setIsOpen(false); enterGrid(); }}
-              className="col-span-2 inline-flex items-center gap-1.5 py-2 px-2 rounded-lg text-sm text-primary hover:bg-primary/10"
+              className="col-span-2 inline-flex items-center gap-1.5 py-2 px-2 rounded-lg text-sm text-[hsl(350_100%_66%)] hover:bg-[hsl(350_100%_60%/0.1)]"
             >
               <Joystick size={13} /> Get to know me
             </button>
