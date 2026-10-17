@@ -18,11 +18,11 @@ type Status = 'idle' | 'count' | 'play' | 'over';
 const OPP: Record<Dir, Dir> = { up: 'down', down: 'up', left: 'right', right: 'left' };
 const VEC: Record<Dir, P> = { up: { x: 0, y: -1 }, down: { x: 0, y: 1 }, left: { x: -1, y: 0 }, right: { x: 1, y: 0 } };
 
-const TRAIL = '#ff2056';
-const HEAD = '#ffe3ea';
+const TRAIL = '#ff3a2e';
+const HEAD = '#ffe6e0';
 const FOOD = '#ffc24d';
-const GRID = 'rgba(255, 60, 110, 0.12)';
-const BG = '#120308';
+const GRID = 'rgba(255, 70, 55, 0.12)';
+const BG = '#120504';
 
 export function LightCycleGame() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -181,7 +181,7 @@ export function LightCycleGame() {
       </div>
 
       <div ref={wrapRef} className="relative w-full max-w-[504px] rounded-xl overflow-hidden border border-primary/30"
-        style={{ boxShadow: '0 0 34px hsl(350 100% 55% / 0.2)' }}>
+        style={{ boxShadow: '0 0 34px hsl(2 100% 55% / 0.2)' }}>
         <canvas ref={canvasRef} width={COLS * CELL} height={ROWS * CELL} className="block w-full h-auto" />
         <div className="pointer-events-none absolute inset-0" style={{ background: 'repeating-linear-gradient(transparent 0 3px, rgba(0,0,0,0.18) 3px 4px)' }} />
 

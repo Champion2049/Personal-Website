@@ -51,7 +51,7 @@ export function NCNav() {
   return (
     <nav
       aria-label="Page sections"
-      className="sticky top-0 z-40 border-b border-primary/20 bg-[hsl(345_45%_4%/0.82)] backdrop-blur-md"
+      className="sticky top-0 z-40 border-b border-primary/20 bg-[hsl(0_45%_4%/0.94)]"
     >
       <div className="container mx-auto flex h-14 items-center gap-3 px-4 md:px-10">
         <button

@@ -10,7 +10,7 @@ import { holdIntro, releaseIntro } from '@/lib/intro-gate';
  * a CSS mask — cyan entering, crimson leaving — with its trail baked in.
  */
 const CYAN = '#22d3ee';
-const CRIMSON = '#ff2056';
+const CRIMSON = '#ff3a2e';
 const isAboutPath = (p: string) => p.startsWith('/about-me');
 
 export function GridTransition() {
@@ -81,17 +81,23 @@ export function GridTransition() {
           {/* Perspective grid floor */}
           <div className="absolute inset-x-0 bottom-0 h-1/2" style={{ perspective: '320px' }}>
             <div
-              className="absolute inset-0 origin-bottom"
+              className="absolute inset-0 origin-bottom overflow-hidden"
               style={{
                 transform: 'rotateX(70deg)',
-                backgroundImage: `linear-gradient(to right, ${c}55 1px, transparent 1px), linear-gradient(to bottom, ${c}55 1px, transparent 1px)`,
-                backgroundSize: '60px 60px',
-                animation: 'grid-rush 0.7s linear infinite',
-                transition: 'background-image 0.5s ease',
                 maskImage: 'linear-gradient(to top, black, transparent 85%)',
                 WebkitMaskImage: 'linear-gradient(to top, black, transparent 85%)',
               }}
-            />
+            >
+              {/* moved by whole 60px tiles with a transform: no per-frame repaint */}
+              <div
+                className="absolute inset-x-0 bottom-0 animate-[grid-rush-t_0.3s_linear_infinite]"
+                style={{
+                  top: -600,
+                  backgroundImage: `linear-gradient(to right, ${c}55 1px, transparent 1px), linear-gradient(to bottom, ${c}55 1px, transparent 1px)`,
+                  backgroundSize: '60px 60px',
+                }}
+              />
+            </div>
           </div>
 
           {/* Horizon glow */}

@@ -1,96 +1,72 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'wouter';
+import { gsap } from '@/lib/gsap';
 
 const INTERACTIVE = 'a, button, [role="button"], input, textarea, label, select, [data-cursor]';
 
+/**
+ * HUD reticle cursor: a dot that tracks the pointer exactly and a crop-handle
+ * frame that trails it and opens up over anything clickable.
+ * Transform-only (gsap.quickTo), no per-frame layout reads or writes, and
+ * GSAP's ticker idles once the frame has caught up.
+ */
 export function CustomCursor() {
   const dotRef = useRef<HTMLDivElement>(null);
-  const outlineRef = useRef<HTMLDivElement>(null);
-  const mousePos = useRef({ x: 0, y: 0 });
-  const outlinePos = useRef({ x: 0, y: 0 });
-  const colorRef = useRef('#22d3ee');
-  const hoverRef = useRef(false);
+  const frameRef = useRef<HTMLDivElement>(null);
   const [enabled, setEnabled] = useState(false);
   const [location] = useLocation();
-
-  // Cyan on the main site, crimson on the Night City page — morphs on route change.
-  const color = location.startsWith('/about-me') ? '#ff2056' : '#22d3ee';
-
-  useEffect(() => {
-    colorRef.current = color;
-    if (dotRef.current) {
-      dotRef.current.style.background = color;
-      dotRef.current.style.boxShadow = `0 0 14px ${color}cc`;
-    }
-    if (outlineRef.current) {
-      outlineRef.current.style.borderColor = color + (hoverRef.current ? 'e6' : '66');
-    }
-  }, [color]);
+  const color = location.startsWith('/about-me') ? '#ff3a2e' : '#00e5ff';
 
   useEffect(() => {
     if (!window.matchMedia('(pointer: fine)').matches) return;
     setEnabled(true);
-    document.documentElement.classList.add('custom-cursor-active'); // hides the OS cursor
+  }, []);
 
+  useEffect(() => {
+    const dot = dotRef.current;
+    const frame = frameRef.current;
+    if (!enabled || !dot || !frame) return;
+    document.documentElement.classList.add('custom-cursor-active');
+
+    gsap.set([dot, frame], { xPercent: -50, yPercent: -50, x: -100, y: -100 });
+    const dotX = gsap.quickSetter(dot, 'x', 'px');
+    const dotY = gsap.quickSetter(dot, 'y', 'px');
+    const frameX = gsap.quickTo(frame, 'x', { duration: 0.22, ease: 'power3' });
+    const frameY = gsap.quickTo(frame, 'y', { duration: 0.22, ease: 'power3' });
+
+    let hovering = false;
     const setHover = (on: boolean) => {
-      if (hoverRef.current === on) return;
-      hoverRef.current = on;
-      if (outlineRef.current) {
-        outlineRef.current.style.transform = on ? 'scale(1.8)' : 'scale(1)';
-        outlineRef.current.style.borderColor = colorRef.current + (on ? 'e6' : '66');
-      }
+      if (on === hovering) return;
+      hovering = on;
+      gsap.to(frame, { scale: on ? 1.7 : 1, rotate: on ? 45 : 0, duration: 0.25, ease: 'power3.out', overwrite: 'auto' });
     };
 
-    const handleMouseMove = (e: MouseEvent) => {
-      mousePos.current.x = e.clientX;
-      mousePos.current.y = e.clientY;
-      if (dotRef.current) {
-        dotRef.current.style.left = e.clientX + 'px';
-        dotRef.current.style.top = e.clientY + 'px';
-      }
+    const onMove = (e: PointerEvent) => {
+      dotX(e.clientX);
+      dotY(e.clientY);
+      frameX(e.clientX);
+      frameY(e.clientY);
+      setHover(!!(e.target as Element | null)?.closest?.(INTERACTIVE));
     };
+    const onLeave = () => setHover(false);
 
-    const handleMouseLeaveWindow = () => setHover(false);
-
-    let raf = 0;
-    let frame = 0;
-    const animate = () => {
-      const factor = 0.18;
-      outlinePos.current.x += (mousePos.current.x - outlinePos.current.x) * factor;
-      outlinePos.current.y += (mousePos.current.y - outlinePos.current.y) * factor;
-      if (outlineRef.current) {
-        outlineRef.current.style.left = outlinePos.current.x - 13 + 'px';
-        outlineRef.current.style.top = outlinePos.current.y - 13 + 'px';
-      }
-      // Re-evaluate hover from what's ACTUALLY under the pointer, every few frames.
-      // Using elementFromPoint (not the last mousemove target) means the ring
-      // shrinks back even when the DOM changes under a stationary cursor —
-      // e.g. async content loads, overlays open/close, or a link unmounts.
-      if ((frame++ & 7) === 0) {
-        const el = document.elementFromPoint(mousePos.current.x, mousePos.current.y);
-        setHover(!!(el && el.closest && el.closest(INTERACTIVE)));
-      }
-      raf = requestAnimationFrame(animate);
-    };
-
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseleave', handleMouseLeaveWindow);
-    raf = requestAnimationFrame(animate);
-
+    window.addEventListener('pointermove', onMove, { passive: true });
+    document.addEventListener('pointerleave', onLeave);
     return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseleave', handleMouseLeaveWindow);
-      cancelAnimationFrame(raf);
+      window.removeEventListener('pointermove', onMove);
+      document.removeEventListener('pointerleave', onLeave);
       document.documentElement.classList.remove('custom-cursor-active');
     };
-  }, []);
+  }, [enabled]);
 
   if (!enabled) return null;
 
   return (
     <>
-      <div ref={dotRef} className="cursor-dot" style={{ background: color, boxShadow: `0 0 14px ${color}cc` }} />
-      <div ref={outlineRef} className="cursor-outline" style={{ borderColor: color + '66' }} />
+      <div ref={frameRef} aria-hidden className="cursor-frame" style={{ color }}>
+        <span /><span /><span /><span />
+      </div>
+      <div ref={dotRef} aria-hidden className="cursor-dot" style={{ background: color }} />
     </>
   );
 }
