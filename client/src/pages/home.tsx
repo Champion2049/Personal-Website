@@ -12,6 +12,7 @@ import { GithubSection } from '@/components/sections/github-section';
 import { GuestbookSection } from '@/components/sections/guestbook-section';
 import { ContactSection } from '@/components/sections/contact-section';
 import { gsap, ScrollTrigger, useGSAP, prefersReducedMotion } from '@/lib/gsap';
+import { usePauseOffscreen } from '@/lib/pause-offscreen';
 
 const links = [
   { icon: Github, href: 'https://github.com/Champion2049', label: 'GitHub' },
@@ -22,6 +23,7 @@ const links = [
 
 export default function Home() {
   const page = useRef<HTMLDivElement>(null);
+  usePauseOffscreen(page);
 
   // One batched reveal for every [data-reveal] block: a top-down scan wipe, once.
   useGSAP(

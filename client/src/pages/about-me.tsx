@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { LightCycleGame } from '@/components/ui/light-cycle-game';
 import { SpotifyPanel, AnimeMangaPanel } from '@/components/ui/media-panels';
 import { TronGrid } from '@/components/ui/tron-grid';
@@ -18,6 +18,7 @@ import { playGridTrack, stopGridTrack } from '@/lib/grid-audio';
 import { identity, quiz } from '@/lib/personal-data';
 import { loadFonts, NIGHT_CITY_FONTS } from '@/lib/fonts';
 import { gsap, useGSAP, prefersReducedMotion } from '@/lib/gsap';
+import { usePauseOffscreen } from '@/lib/pause-offscreen';
 
 loadFonts('night-city-fonts', NIGHT_CITY_FONTS);
 
@@ -27,8 +28,10 @@ loadFonts('night-city-fonts', NIGHT_CITY_FONTS);
  */
 export default function AboutMe() {
   const [lightbox, setLightbox] = useState<LightboxItem | null>(null);
-  // The flythrough is opaque and has its own rain; don't redraw the grid or rain canvases under it.
+  // The flythrough is opaque and has its own rain; hide the rain layer under it.
   const [arrivalCovers, setArrivalCovers] = useState(true);
+  const page = useRef<HTMLDivElement>(null);
+  usePauseOffscreen(page);
   const openLightbox = (src: string, title: string) => setLightbox({ src, title });
 
   useEffect(() => {
@@ -60,13 +63,14 @@ export default function AboutMe() {
   }, []);
 
   return (
-    <div className="dark theme-cyber relative min-h-screen overflow-x-clip">
+    <div ref={page} className="dark theme-cyber relative min-h-screen overflow-x-clip">
       {/* solid backdrop so the dark-blue body bg never shows (e.g. on overscroll / below content) */}
       <div aria-hidden className="pointer-events-none fixed inset-0" style={{ background: 'hsl(0 45% 4%)', zIndex: -1 }} />
       <div aria-hidden className="pointer-events-none fixed inset-0 opacity-70">
-        <TronGrid color="#ff4034" fade="top" paused={arrivalCovers} />
+        {/* a static backdrop here: it sits behind the content, so animating it isn't worth a redraw every frame */}
+        <TronGrid color="#ff4034" fade="top" paused />
       </div>
-      <div aria-hidden className="glow-blob animate-blob" style={{ width: 520, height: 520, top: '-12%', right: '-10%', background: 'radial-gradient(circle, hsl(2 100% 60% / 0.22), transparent 70%)' }} />
+      <div aria-hidden className="glow-blob" style={{ width: 520, height: 520, top: '-12%', right: '-10%', background: 'radial-gradient(circle, hsl(2 100% 60% / 0.22), transparent 70%)' }} />
       <div aria-hidden className="nc-scanlines" />
       <NCRain paused={arrivalCovers} />
 
