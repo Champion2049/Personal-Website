@@ -12,6 +12,47 @@ export const profiles = {
   letterboxd: '',
 };
 
+export const socials = {
+  email: 'me.chirayu.6@gmail.com',
+  instagram: 'https://instagram.com/me.chirayu6',
+  instagramHandle: '@me.chirayu6',
+};
+
+/* ============================================================
+   IDENTITY — the top of the page. Your own intro, split into beats
+   so it reads like a person talking instead of one wall of text.
+   ============================================================ */
+export const identity = {
+  name: 'Chirayu',
+  handle: 'Chids',
+  city: 'Bengaluru',
+  timeZone: 'Asia/Kolkata',
+  lead: "Hey there, I'm Chirayu, but you can also call me Chids. I assume you aren't here for the technical details, so let's skip the formalities.",
+  intro: [
+    "I'm just a regular dude who likes to code, play games and occasionally watch an anime or a movie. PC gaming is a very big part of my life, as you'll probably see below.",
+    'I have a very vast taste in music too, and I like to listen to a lot of different genres.',
+  ],
+  outro: "If you want to know more, feel free to reach out on any of my socials, or just send me an email. I'm always open to making new friends and connections.",
+};
+
+/* ============================================================
+   CHARACTER SHEET — Cyberpunk 2077 attributes (max 20).
+   The numbers are a first guess: tune them. Notes come from your intro.
+   ============================================================ */
+export const attributes = [
+  { key: 'Body', value: 13, note: 'Gym (when I actually go), badminton, hiking and trekking. Any kind of sport, really.' },
+  { key: 'Reflexes', value: 18, note: 'Souls-likes. Boss attempt #47 and still going.' },
+  { key: 'Technical', value: 17, note: "Code for fun. Bikes and cars? I'm your guy." },
+  { key: 'Intelligence', value: 15, note: "I like to read, just not as much as I'd like to." },
+  { key: 'Cool', value: 16, note: 'Eclectic music taste. Always up for a new restaurant or café.' },
+];
+
+/* Shown on the radio when Spotify's top-artists API can't be reached. */
+export const music = {
+  genres: ['Synthwave', 'Electronic', 'Phonk', 'Pop', 'Game & film OSTs'],
+  note: 'Synthwave just hits different, but hey so does Phonk and Pop. I have eclectic tastes.',
+};
+
 export const now = {
   listening: 'Eyes Without a Face - Billy Idol',
   watching: 'The Mentalist',
@@ -168,4 +209,14 @@ export const quiz: QuizQuestion[] = [
     ],
     reveal: 'Chonqing China you feel me? But like imagines castles and magic and dragons and stuff. Both sound fun ngl.',
   },
+];
+
+/* ============================================================
+   SHARDS — unlocked by beating Breach Protocol, one per daemon.
+   Small true things about you; swap them out whenever.
+   ============================================================ */
+export const shards = [
+  { daemon: 'DATAMINE_V1', title: 'Guitar', body: "I play guitar. Trinity Grade 5, if you're asking." },
+  { daemon: 'DATAMINE_V2', title: 'Off campus', body: "I'm on the rover team at uni, building a competition rover from scratch." },
+  { daemon: 'DATAMINE_V3', title: 'Dream city', body: "I'd live in a rain-soaked neon megacity. Chongqing, you feel me?" },
 ];

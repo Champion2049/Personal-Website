@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { holdIntro, releaseIntro } from '@/lib/intro-gate';
 
 /**
  * TRON-style "system boot" overlay for the home page.
@@ -42,12 +43,14 @@ export function BootSequence() {
     done.current = true;
     timers.current.forEach(clearTimeout);
     setActive(false);
+    releaseIntro('boot');
     document.body.style.overflow = '';
   }
 
   function skip() {
     if (!loaded) return; // only skippable once everything is loaded in
     setFading(true);
+    releaseIntro('boot');
     window.setTimeout(finish, 400);
   }
 
@@ -66,6 +69,7 @@ export function BootSequence() {
     if (!fresh || reduce) return;
 
     setActive(true);
+    holdIntro('boot');
     document.body.style.overflow = 'hidden';
 
     STEPS.forEach((line, i) => {
@@ -76,11 +80,12 @@ export function BootSequence() {
     });
 
     const total = 320 + STEPS.length * 360 + 420;
-    timers.current.push(window.setTimeout(() => setFading(true), total));
+    timers.current.push(window.setTimeout(() => { setFading(true); releaseIntro('boot'); }, total));
     timers.current.push(window.setTimeout(finish, total + 650));
 
     return () => {
       timers.current.forEach(clearTimeout);
+      releaseIntro('boot');
       document.body.style.overflow = '';
     };
   }, []);
