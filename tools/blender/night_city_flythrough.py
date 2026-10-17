@@ -36,9 +36,10 @@ keyframes) so it can be opened in Blender's UI.
 
 Scene layout (Blender units ~ metres): the avenue runs along +Y, the road is the
 strip |x| < 7 at z = 0, towers line both sides, an elevated rail crosses at
-y = 96, a skybridge at y = 130, a block spans the avenue at y = 285..297 (the
-camera climbs its face and crests it), and the mega-tower closes the street at
-y ~ 350 with the NIGHT CITY sign.
+y = 96, skybridges at y = 130 and 256, a low block with a giant screen sits at
+y = 304, and the mega-tower closes the street at y ~ 350 with the NIGHT CITY sign.
+The camera rises past the last towers' corners and terraces and crests the
+skyline to face the sign.
 
 Every moving thing (camera, train, flying cars, traffic, sign flicker, hologram
 scanlines, searchlights, rain, steam) is a pure function of the frame number, so
@@ -319,24 +320,30 @@ def no_light_sampling(m):
         m.cycles.emission_sampling = "NONE"
 
 
-def mat_emit(name, color, strength, haze=0.7):
+def obj_attr(n, name):
+    """Per-object custom property read in the shader. Changing it per frame only
+    updates the object in Cycles; editing node values would recompile shaders."""
+    a = n.new("ShaderNodeAttribute")
+    a.attribute_type = "OBJECT"
+    a.attribute_name = name
+    return a.outputs["Fac"]
+
+
+def mat_emit(name, color, strength, haze=0.7, attr=None):
     m, nt, out = new_mat(name)
     em = nt.nodes.new("ShaderNodeEmission")
     em.inputs["Color"].default_value = color
     em.inputs["Strength"].default_value = strength
+    if attr:
+        mul = nt.nodes.new("ShaderNodeMath"); mul.operation = "MULTIPLY"; mul.inputs[1].default_value = strength
+        nt.links.new(obj_attr(nt.nodes, attr), mul.inputs[0])
+        nt.links.new(mul.outputs[0], em.inputs["Strength"])
     sock = em.outputs[0]
     if haze:
         sock = add_haze(nt, sock, density=0.0052, strength=haze)
     finish(nt, sock, out)
     no_light_sampling(m)
     return m
-
-
-def emission_socket(m):
-    for nd in m.node_tree.nodes:
-        if nd.type == "EMISSION" and tuple(nd.inputs["Color"].default_value) != tuple(HAZE):
-            return nd.inputs["Strength"]
-    return None
 
 
 def mat_dark(name, color=(0.010, 0.010, 0.011, 1), rough=0.5, metal=0.3):
@@ -498,15 +505,14 @@ def mat_holo(name, color, strength=3.0, alpha=0.55, glow=0.35):
     math_ = _mathf(n, l)
     tc = n.new("ShaderNodeTexCoord")
     sep = n.new("ShaderNodeSeparateXYZ"); l.new(tc.outputs["Object"], sep.inputs[0])
-    scan = n.new("ShaderNodeValue"); scan.name = "scan"; scan.outputs[0].default_value = 0.0
-    lines = math_("FRACT", math_("ADD", math_("MULTIPLY", sep.outputs["Z"], vb=2.4), scan.outputs[0]))
+    scan = obj_attr(n, "scan")
+    lines = math_("FRACT", math_("ADD", math_("MULTIPLY", sep.outputs["Z"], vb=2.4), scan))
     lines = math_("MULTIPLY_ADD", math_("GREATER_THAN", lines, vb=0.42), vb=0.75)
     lines.node.inputs[2].default_value = 0.25
-    band = math_("FRACT", math_("ADD", math_("MULTIPLY", sep.outputs["Z"], vb=0.05), math_("MULTIPLY", scan.outputs[0], vb=0.07)))
+    band = math_("FRACT", math_("ADD", math_("MULTIPLY", sep.outputs["Z"], vb=0.05), math_("MULTIPLY", scan, vb=0.07)))
     band = math_("MULTIPLY_ADD", math_("GREATER_THAN", band, vb=0.9), vb=1.4)
     band.node.inputs[2].default_value = 1.0
-    flick = n.new("ShaderNodeValue"); flick.name = "flicker"; flick.outputs[0].default_value = 1.0
-    k = math_("MULTIPLY", math_("MULTIPLY", lines, band), flick.outputs[0])
+    k = math_("MULTIPLY", math_("MULTIPLY", lines, band), obj_attr(n, "hflick"))
     em = n.new("ShaderNodeEmission"); em.inputs["Color"].default_value = color
     l.new(math_("MULTIPLY", k, vb=strength), em.inputs["Strength"])
     tr = n.new("ShaderNodeBsdfTransparent")
@@ -586,7 +592,7 @@ def mat_smog():
     # the domain is a unit cube scaled up; object z runs 0..1 over 0..420 m
     zm = math_("MULTIPLY", sep.outputs["Z"], vb=420.0)
     fall = math_("EXPONENT", math_("MULTIPLY", zm, vb=-1 / 38.0))
-    dens = math_("MULTIPLY_ADD", fall, vb=0.0055)
+    dens = math_("MULTIPLY_ADD", fall, vb=0.0048)
     dens.node.inputs[2].default_value = 0.0007  # thin high haze for searchlight beams
     noise = n.new("ShaderNodeTexNoise"); noise.inputs["Scale"].default_value = 9.0
     noise.inputs["Detail"].default_value = 3
@@ -595,8 +601,8 @@ def mat_smog():
     patch.node.inputs[2].default_value = 0.35
     dens = math_("MULTIPLY", dens, patch)
     v = n.new("ShaderNodeVolumePrincipled")
-    v.inputs["Color"].default_value = (0.86, 0.9, 0.95, 1)
-    v.inputs["Anisotropy"].default_value = 0.45
+    v.inputs["Color"].default_value = (0.8, 0.9, 1.0, 1)
+    v.inputs["Anisotropy"].default_value = 0.5
     l.new(dens, v.inputs["Density"])
     l.new(v.outputs[0], out.inputs["Volume"])
     return m
@@ -609,11 +615,11 @@ def mat_steam(seed):
     math_ = _mathf(n, l)
     tc = n.new("ShaderNodeTexCoord")
     gen = n.new("ShaderNodeSeparateXYZ"); l.new(tc.outputs["Generated"], gen.inputs[0])
-    rise = n.new("ShaderNodeValue"); rise.name = "rise"; rise.outputs[0].default_value = 0.0
+    rise = obj_attr(n, "rise")
     vec = n.new("ShaderNodeVectorMath"); vec.operation = "ADD"
     l.new(tc.outputs["Object"], vec.inputs[0])
     comb = n.new("ShaderNodeCombineXYZ"); comb.inputs[0].default_value = seed * 3.1
-    l.new(rise.outputs[0], comb.inputs[2])
+    l.new(rise, comb.inputs[2])
     l.new(comb.outputs[0], vec.inputs[1])
     noise = n.new("ShaderNodeTexNoise"); noise.inputs["Scale"].default_value = 2.2
     noise.inputs["Detail"].default_value = 4; noise.inputs["Distortion"].default_value = 0.6
@@ -700,12 +706,12 @@ END_Y = 340.0
 RAIL_Y = 96.0
 RAIL_Z = 15.0
 BRIDGE_Y = 130.0
-GATE_Y0, GATE_Y1 = 285.0, 297.0   # the block spanning the avenue that the camera crests
-GATE_Z0, GATE_Z1 = 40.0, 78.0
+STREET_END = 300.0                # towers line the avenue up to here
+SCREEN_Y = 304.0                  # low block with the giant CHIDS FM screen, well behind the climb
 MEGA_FACE = END_Y + 9.6
 SIGN_Z = 128.0
 
-SPILL = {"red": (1.0, 0.07, 0.025), "yellow": (1.0, 0.55, 0.06), "cyan": (0.25, 0.8, 1.0)}
+SPILL = {"red": (1.0, 0.07, 0.025), "yellow": (1.0, 0.55, 0.06), "cyan": (0.25, 0.8, 1.0), "cool": (0.62, 0.82, 1.0)}
 
 
 class Dyn:
@@ -717,11 +723,12 @@ class Dyn:
         self.train = None
         self.avs = []          # (object, path fn)
         self.cars = []         # (object, x, y0, v)
-        self.flickers = []     # (socket, base, seed)
-        self.holo_mats = []
+        self.flickers = []     # (material name, seed) -> objects get a "flick" attribute
+        self.holo_mats = []    # materials whose objects get "scan"/"hflick" attributes
         self.holo_spin = []    # objects rotating slowly
         self.searchlights = []  # (object, base yaw, tilt, phase)
-        self.steam_mats = []
+        self.steam_obs = []
+        self.attr_obs = {}     # material name -> objects using it (filled after the build)
         self.beacons = []      # (socket, base, phase)
 
 
@@ -747,6 +754,7 @@ def build_city(scene, rnd, dyn):
         "yellow_dim": mat_emit("neon_yellow_dim", NEON_YELLOW, 1.6),
         "cyan": mat_emit("neon_cyan", CYAN, 5.0),
         "warm": mat_emit("lamp_warm", WHITE_WARM, 9.0),
+        "cool": mat_emit("lamp_cool", COOL_WHITE, 12.0, haze=0.4),
         "led": mat_emit("led_white", WHITE_WARM, 14.0, haze=0.4),
         "tail": mat_emit("tail_light", NEON_RED, 11.0, haze=0.4),
         "tail_streak": mat_emit("tail_streak", NEON_RED, 1.2, haze=0.4),
@@ -756,9 +764,9 @@ def build_city(scene, rnd, dyn):
         "window_train": mat_emit("train_windows", WHITE_WARM, 4.5, haze=0.5),
         "beacon": mat_emit("beacon", NEON_RED, 12.0, haze=0.3),
     }
-    shops = [mat_shopfront("shop_red", NEON_RED, 0.32), mat_shopfront("shop_red2", RED_DEEP, 0.4),
-             mat_shopfront("shop_amber", AMBER, 0.45), mat_shopfront("shop_amber2", AMBER, 0.3),
-             mat_shopfront("shop_cool", COOL_WHITE, 0.32), mat_shopfront("shop_dark", NEON_RED, 0.14)]
+    shops = [mat_shopfront("shop_red", NEON_RED, 0.3), mat_shopfront("shop_amber", AMBER, 0.42),
+             mat_shopfront("shop_amber2", AMBER, 0.28), mat_shopfront("shop_cool", COOL_WHITE, 0.4),
+             mat_shopfront("shop_cool2", COOL_WHITE, 0.22), mat_shopfront("shop_dark", NEON_RED, 0.12)]
     mega_mat = mat_tower("tower_mega", dens_lo=0.03, dens_span=0.05, bright=0.8)
 
     greebles = BoxBatch()   # AC units, ledges, fins: dark metal
@@ -777,7 +785,7 @@ def build_city(scene, rnd, dyn):
     sign_i = 0
     for side in (-1, 1):
         y = -24.0
-        while y < GATE_Y1 + 10:
+        while y < STREET_END:
             w = rnd.uniform(9, 19)
             d = rnd.uniform(14, 28)
             h = rnd.choice([rnd.uniform(30, 70), rnd.uniform(60, 130), rnd.uniform(100, 190)])
@@ -838,9 +846,9 @@ def build_city(scene, rnd, dyn):
                 word, ck, style = SIGN_WORDS[sign_i]
                 sign_i += 1
                 mat = emit[ck]
-                if word in FLICKER_WORDS:  # its own material so it can stutter on its own
-                    mat = mat_emit(f"neon_{word}", NEON_RED if ck == "red" else NEON_YELLOW, 6.0 if ck == "red" else 5.0)
-                    dyn.flickers.append((emission_socket(mat), 6.0 if ck == "red" else 5.0, rnd.random() * 100))
+                if word in FLICKER_WORDS:  # its own material, driven per object, so it can stutter on its own
+                    mat = mat_emit(f"neon_{word}", NEON_RED if ck == "red" else NEON_YELLOW, 6.0 if ck == "red" else 5.0, attr="flick")
+                    dyn.flickers.append((mat.name, rnd.random() * 100))
                 place_sign(word, ck, style, side, cy, rnd, mat, board, signs, lights, emit)
             y += w + gap
 
@@ -851,8 +859,7 @@ def build_city(scene, rnd, dyn):
     build_rail(rnd, dyn, city, movers, lights, emit, concrete, metal, dark)
     build_bridge(city, lights, emit, concrete, tower_cool)
     build_holograms(dyn, signs, lights)
-    build_gate(city, lights, emit, tower, board)
-    dyn.holo_mats.append(bpy.data.materials["gate_screen"])
+    build_climb(rnd, dyn, city, signs, lights, emit, tower, tower_cool, board, concrete)
     build_mega(rnd, dyn, city, signs, lights, emit, mega_mat, board, tower, tower_cool)
     build_street(rnd, dyn, city, signs, lights, movers, emit, dark, metal)
     build_avs(dyn, movers, lights, emit, dark)
@@ -872,7 +879,7 @@ def place_sign(word, ck, style, side, cy, rnd, mat, board, signs, lights, emit):
         box(f"bft_{word}", (px, cy - 0.2, zc + hgt / 2), (1.95, 0.07, 0.07), mat, signs)
         neon_text(f"sg_{word}", word, size, mat, (px, cy - 0.22, zc), (math.pi / 2, 0, 0),
                   tube=rnd.random() < 0.4, vertical=True, coll=signs)
-        add_light(f"spill_{word}", "POINT", (px - side * 1.4, cy - 1.8, zc - 1), spill, 1800, lights, size=1.2)
+        add_light(f"spill_{word}", "POINT", (px - side * 1.4, cy - 1.8, zc - 1), spill, 450, lights, size=1.2)
     else:
         # facade sign above the canopy, slanted towards the street
         size = rnd.uniform(1.7, 2.5) if style != "box" else rnd.uniform(1.6, 2.1)
@@ -901,7 +908,7 @@ def place_sign(word, ck, style, side, cy, rnd, mat, board, signs, lights, emit):
                         p = Vector((px, cy, zc + e * size * 0.68)) + off + nb * 0.05
                         box(f"bulb_{word}{k}{e}", tuple(p), (0.16, 0.16, 0.16),
                             emit["warm"] if (k % 2) else emit["yellow"], signs)
-        lo = add_light(f"spill_{word}", "AREA", (px - side * 2.5, cy, zc - 1), spill, 900, lights, size=width)
+        lo = add_light(f"spill_{word}", "AREA", (px - side * 2.5, cy, zc - 1), spill, 380, lights, size=width)
         lo.rotation_euler = (0, -side * math.pi / 2.4, 0)
 
 
@@ -917,9 +924,9 @@ def build_rail(rnd, dyn, city, movers, lights, emit, concrete, metal, dark):
             box(f"rail_pillar{e}{x}", (x, RAIL_Y + e * 1.8, 0), (1.4, 1.4, RAIL_Z), concrete, city)
     # warning lights + warm under-deck lights (light the road and the fog)
     for x in range(-60, 61, 12):
-        box(f"rail_under{x}", (x, RAIL_Y, RAIL_Z - 0.06), (2.4, 0.5, 0.06), emit["warm"], city)
+        box(f"rail_under{x}", (x, RAIL_Y, RAIL_Z - 0.06), (2.4, 0.5, 0.06), emit["cool"], city)
     for x in (-5, 5):
-        add_light(f"rail_spot{x}", "SPOT", (x, RAIL_Y, RAIL_Z - 0.3), (1.0, 0.6, 0.35), 5500, lights,
+        add_light(f"rail_spot{x}", "SPOT", (x, RAIL_Y, RAIL_Z - 0.3), (0.7, 0.86, 1.0), 4500, lights,
                   size=0.4, rot=(0, 0, 0), spot=math.radians(95), blend=0.6)
     box("rail_sign_bg", (0, RAIL_Y - deck_w / 2 - 0.2, RAIL_Z + 0.15), (18, 0.2, 1.1), emit["yellow_dim"], city)
     # the train: an empty carrying 6 cars
@@ -948,7 +955,7 @@ def build_bridge(city, lights, emit, concrete, tower_cool):
     box("bridge_floor", (0, BRIDGE_Y, 25.6), (2 * ST_EDGE + 6, 6.6, 0.4), concrete, city)
     for e in (-1, 1):
         box(f"bridge_led{e}", (0, BRIDGE_Y + e * 3.35, 25.62), (2 * ST_EDGE + 6, 0.06, 0.06), emit["led"], city)
-    add_light("bridge_under", "AREA", (0, BRIDGE_Y, 25.4), (1.0, 0.5, 0.25), 2500, lights, size=10, rot=(0, 0, 0))
+    add_light("bridge_under", "AREA", (0, BRIDGE_Y, 25.4), (0.7, 0.86, 1.0), 2200, lights, size=10, rot=(0, 0, 0))
 
 
 def build_holograms(dyn, signs, lights):
@@ -957,7 +964,7 @@ def build_holograms(dyn, signs, lights):
     red = mat_holo("holo_red", NEON_RED, strength=4.2, alpha=0.6)
     yel = mat_holo("holo_yellow", NEON_YELLOW, strength=3.0, alpha=0.5)
     cyan = mat_holo("holo_cyan", CYAN, strength=2.6, alpha=0.5)
-    dyn.holo_mats += [red, yel, cyan]
+    dyn.holo_mats += [red.name, yel.name, cyan.name]
     # CHIDS, hanging in the air over the left lanes; the camera flies under it
     hx, hy, hz = -6.5, 178.0, 35.0
     rz = math.radians(14)
@@ -968,8 +975,8 @@ def build_holograms(dyn, signs, lights):
         b = box(f"holo_frame{k}", (0, 0, z_), (w_, 0.05, h_), yel, signs)
         b.parent = frame
     plate = plane("holo_plate", (hx, hy + 0.3, hz), (24, 10.5), (math.pi / 2, 0, rz), mat_holo("holo_plate", NEON_RED, 0.22, 0.08, glow=0.05), signs)
-    dyn.holo_mats.append(plate.data.materials[0])
-    add_light("holo_chids_glow", "POINT", (hx + 2, hy - 4, hz), SPILL["red"], 16000, lights, size=5)
+    dyn.holo_mats.append(plate.data.materials[0].name)
+    add_light("holo_chids_glow", "POINT", (hx + 2, hy - 4, hz), SPILL["red"], 4000, lights, size=5)
     # wireframe globe on the right
     me = bpy.data.meshes.new("globe")
     bm = bmesh.new()
@@ -992,35 +999,43 @@ def build_holograms(dyn, signs, lights):
     add_light("holo_globe_glow", "POINT", (11.0, 224.0, 58.0), SPILL["cyan"], 9000, lights, size=5)
 
 
-def build_gate(city, lights, emit, tower, board):
-    """A block bridging the avenue near the end. The camera climbs its face
-    (windows rushing past) and crests its roof to reveal the mega-tower."""
-    w = 2 * ST_EDGE + 30
-    box("gate", (0, (GATE_Y0 + GATE_Y1) / 2, GATE_Z0), (w, GATE_Y1 - GATE_Y0, GATE_Z1 - GATE_Z0), tower, city)
-    box("gate_soffit", (0, (GATE_Y0 + GATE_Y1) / 2, GATE_Z0 - 0.3), (w, GATE_Y1 - GATE_Y0 + 0.6, 0.3), board, city)
-    for z in (GATE_Z0 + 0.2, GATE_Z1 - 0.3):
-        box(f"gate_led{z}", (0, GATE_Y0 - 0.12, z), (w, 0.08, 0.1), emit["led"], city)
-    for k in range(9):  # vertical red ribs on the face
-        x = -w / 2 + 3 + k * (w - 6) / 8
-        box(f"gate_rib{k}", (x, GATE_Y0 - 0.1, GATE_Z0 + 1), (0.18, 0.12, GATE_Z1 - GATE_Z0 - 2), emit["red_dim"], city)
-    # roof edge: yellow chevrons that flash by as the camera crests
-    for k in range(14):
-        x = -w / 2 + 2 + k * (w - 4) / 13
-        box(f"gate_chev{k}", (x, GATE_Y0 + 0.4, GATE_Z1), (1.6, 0.3, 0.5), emit["yellow"], city)
-    # a giant ad screen on its face, tuned to the radio from the Night City page
+def build_climb(rnd, dyn, city, signs, lights, emit, tower, tower_cool, board, concrete):
+    """The rise at the end of the avenue. Instead of a wall: the flanking towers'
+    corners and terraces recede on both sides, a glazed skybridge drops away
+    below the camera, and a low block further back carries a giant screen tuned
+    to the radio from the Night City page."""
+    # skybridge between the last towers; the camera rises past it
+    box("bridge2", (0, 256.0, 52.0), (2 * ST_EDGE + 8, 7.0, 4.2), tower_cool, city)
+    box("bridge2_floor", (0, 256.0, 51.6), (2 * ST_EDGE + 8, 7.6, 0.4), concrete, city)
+    for e in (-1, 1):
+        box(f"bridge2_led{e}", (0, 256.0 + e * 3.85, 51.62), (2 * ST_EDGE + 8, 0.06, 0.06), emit["led"], city)
+        box(f"bridge2_red{e}", (0, 256.0 + e * 3.55, 56.2), (2 * ST_EDGE + 8, 0.06, 0.06), emit["red_dim"], city)
+    # terraces on the last towers: stepped balconies with lit edges and railings (parallax on the way up)
+    for side in (-1, 1):
+        for k, z in enumerate((34.0, 46.0, 58.0, 70.0)):
+            depth = 2.2 + 0.6 * k
+            box(f"terrace{side}{k}", (side * (ST_EDGE - depth / 2 + 0.2), 236.0 + 6 * k, z), (depth, 14.0, 0.5), concrete, city)
+            box(f"terrace_led{side}{k}", (side * (ST_EDGE - depth + 0.25), 236.0 + 6 * k, z - 0.08), (0.08, 14.0, 0.08),
+                emit["led" if k % 2 else "yellow_dim"], city)
+            for j in range(4):
+                box(f"rail{side}{k}{j}", (side * (ST_EDGE - depth + 0.3), 230.5 + 6 * k + j * 3.6, z + 0.5), (0.08, 0.08, 1.1), board, city)
+    # the screen block, low enough to drop out of the final frame
+    bw, bd, bh = 64.0, 18.0, 64.0
+    box("screen_block", (0, SCREEN_Y + bd / 2, 0), (bw, bd, bh), tower, city)
+    box("screen_block_led", (0, SCREEN_Y - 0.1, bh - 0.4), (bw, 0.1, 0.12), emit["led"], city)
     sw, sh = 46.0, 24.0
-    scr_z = GATE_Z0 + 4 + sh / 2
+    scr_z = bh - 6 - sh / 2
     screen = mat_holo("gate_screen", NEON_RED, strength=1.1, alpha=1.0, glow=0.25)
-    plane("gate_screen", (0, GATE_Y0 - 0.15, scr_z), (sw, sh), (math.pi / 2, 0, 0), screen, city)
-    screen["is_screen"] = True
-    box("gate_screen_frame_t", (0, GATE_Y0 - 0.2, scr_z + sh / 2), (sw + 0.6, 0.12, 0.3), emit["yellow"], city)
-    box("gate_screen_frame_b", (0, GATE_Y0 - 0.2, scr_z - sh / 2 - 0.3), (sw + 0.6, 0.12, 0.3), emit["yellow"], city)
-    neon_text("gate_fm", "CHIDS FM", 8.0, emit["yellow"], (0, GATE_Y0 - 0.45, scr_z + 3.2), (math.pi / 2, 0, 0),
+    plane("gate_screen", (0, SCREEN_Y - 0.15, scr_z), (sw, sh), (math.pi / 2, 0, 0), screen, city)
+    dyn.holo_mats.append(screen.name)
+    box("gate_screen_frame_t", (0, SCREEN_Y - 0.2, scr_z + sh / 2), (sw + 0.6, 0.12, 0.3), emit["yellow"], city)
+    box("gate_screen_frame_b", (0, SCREEN_Y - 0.2, scr_z - sh / 2 - 0.3), (sw + 0.6, 0.12, 0.3), emit["yellow"], city)
+    neon_text("gate_fm", "CHIDS FM", 8.0, emit["yellow"], (0, SCREEN_Y - 0.45, scr_z + 3.2), (math.pi / 2, 0, 0),
               coll=city, spacing=1.08)
-    neon_text("gate_freq", "97.8  //  ON AIR", 2.6, emit["warm"], (0, GATE_Y0 - 0.45, scr_z - 5.6), (math.pi / 2, 0, 0),
+    neon_text("gate_freq", "97.8  //  ON AIR", 2.6, emit["warm"], (0, SCREEN_Y - 0.45, scr_z - 5.6), (math.pi / 2, 0, 0),
               fontfile=FONT_SUB, coll=city, spacing=1.5)
-    add_light("gate_wash", "AREA", (0, GATE_Y0 - 6, GATE_Z0 + 2), (1.0, 0.25, 0.08), 9000, lights, size=40,
-              rot=(math.radians(143), 0, 0))  # up the face
+    add_light("screen_glow", "AREA", (0, SCREEN_Y - 8, scr_z), (1.0, 0.18, 0.06), 2400, lights, size=40,
+              rot=(math.radians(-90), 0, 0))
 
 
 def build_mega(rnd, dyn, city, signs, lights, emit, mega_mat, board, tower, tower_cool):
@@ -1097,24 +1112,25 @@ def build_street(rnd, dyn, city, signs, lights, movers, emit, dark, metal):
                 sag = (1 - (2 * t - 1) ** 2) * 2.2
                 box(f"lan{i}_{k}", (x, yy, z0 - sag - 0.6), (0.35, 0.35, 0.45), emit[rnd.choice(["red", "yellow"])], signs)
 
-    # sodium street lamps: also the main light in the low smog
+    # cool LED street lamps: the main light in the low smog, so the haze reads steel-teal
     for side in (-1, 1):
-        for yy in range(10, int(GATE_Y1), 24):
+        for yy in range(10, int(STREET_END), 24):
             yy += side * 6
             px = side * (ROAD_HALF + 0.6)
             box(f"pole{side}{yy}", (px, yy, 0), (0.18, 0.18, 8.2), metal, city)
             box(f"arm{side}{yy}", (px - side * 1.2, yy, 8.0), (2.4, 0.15, 0.15), metal, city)
-            box(f"lamp{side}{yy}", (px - side * 2.1, yy, 7.85), (0.9, 0.35, 0.12), emit["warm"], city)
-            add_light(f"sl{side}{yy}", "SPOT", (px - side * 2.1, yy, 7.6), (1.0, 0.58, 0.36), 3200, lights,
+            box(f"lamp{side}{yy}", (px - side * 2.1, yy, 7.85), (0.9, 0.35, 0.12), emit["cool"], city)
+            add_light(f"sl{side}{yy}", "SPOT", (px - side * 2.1, yy, 7.6), (0.66, 0.84, 1.0), 2600, lights,
                       size=0.4, spot=math.radians(100), blend=0.5)
 
     # street steam: vents on the sidewalks, each lit from below by a coloured lamp
-    for i, (x, y_, col) in enumerate(((-8.6, 26, "red"), (8.4, 52, "yellow"), (-8.2, 80, "yellow"),
-                                       (8.8, 118, "red"), (-8.6, 150, "red"), (8.4, 196, "yellow"))):
+    for i, (x, y_, col) in enumerate(((-8.6, 26, "cool"), (8.4, 52, "yellow"), (-8.2, 80, "cool"),
+                                       (8.8, 118, "red"), (-8.6, 150, "cool"), (8.4, 196, "cool"))):
         m = mat_steam(i)
-        dyn.steam_mats.append(m)
         ob = box(f"steam{i}", (x, y_, 0.1), (5.0, 5.0, 16.0), m, signs)
         ob["volume_only"] = True
+        ob["rise"] = 0.0
+        dyn.steam_obs.append(ob)
         add_light(f"steam_lamp{i}", "POINT", (x, y_, 0.6), SPILL[col], 1500, lights, size=0.5)
 
     # traffic: tail lights (away, right lanes) and head lights (towards us, left lanes),
@@ -1149,6 +1165,7 @@ def build_avs(dyn, movers, lights, emit, dark):
         ((-14.0, 360.0, 70.0), (-6.0, 150.0, 58.0), (0.45, 1.0)),    # coming towards us high up
         ((-160.0, 330.0, 112.0), (160.0, 345.0, 118.0), (0.7, 1.0)),  # crossing in front of the mega-tower
         ((90.0, 420.0, 150.0), (40.0, 300.0, 140.0), (0.6, 1.0)),    # far, high
+        ((-70.0, 262.0, 74.0), (70.0, 270.0, 66.0), (0.64, 0.86)),    # crossing just in front during the climb
     ]
     for i, (a, b, win) in enumerate(paths):
         av = bpy.data.objects.new(f"av{i}", None); link(av, movers)
@@ -1251,10 +1268,10 @@ KEYS = [
     (0.00, (-1.6, -8.0, 1.6), (-0.8, 60.0, 5.5), 5.0, 24, 15),
     (0.17, (1.0, 45.0, 2.4), (0.4, 140.0, 9.0), 2.5, 24, 15),
     (0.31, (0.6, 99.0, 7.0), (-2.0, 185.0, 17.0), -1.5, 23, 15),   # under the rail as the train crosses
-    (0.44, (-3.2, 140.0, 16.5), (-12.0, 190.0, 30.0), -6.5, 22, 14),  # under the skybridge, banking towards CHIDS
+    (0.44, (-3.2, 140.0, 16.5), (-6.0, 190.0, 30.0), -6.5, 22, 14),  # under the skybridge, banking towards CHIDS
     (0.58, (2.4, 196.0, 30.0), (8.0, 262.0, 44.0), 5.0, 22, 14),    # past the globe
-    (0.72, (1.0, 236.0, 46.0), (0.0, 330.0, 66.0), 2.0, 24, 16),    # climbing past the gate's giant screen
-    (0.86, (0.4, 252.0, 80.0), (0.0, 340.0, 104.0), 0.6, 26, 18),   # the gate drops away, the sign rises
+    (0.71, (-2.5, 230.0, 46.0), (16.0, 300.0, 62.0), 7.0, 22, 15),  # climbing; looking right, tower corners recede
+    (0.85, (-0.8, 248.0, 80.0), (6.0, 340.0, 104.0), 2.5, 25, 18),  # the skybridge drops away, the sign rises
     (1.00, (0.0, 262.0, 108.0), (0.0, MEGA_FACE, 124.0), 0.0, 27, 20),
 ]
 
@@ -1298,6 +1315,30 @@ def hash01(*xs):
     return h / 0xFFFFFFFF
 
 
+def set_attr(obs, key, value):
+    for ob in obs:
+        if ob.get(key) != value:
+            ob[key] = value
+            ob.update_tag(refresh={"OBJECT"})
+
+
+def collect_attr_objects(dyn):
+    """Map each attribute-driven material to the objects that use it, and give
+    those objects their default attribute values."""
+    names = set(dyn.holo_mats) | {m for m, _ in dyn.flickers}
+    for ob in bpy.data.objects:
+        mats = [sl.material for sl in ob.material_slots if sl.material]
+        for m in mats:
+            if m.name in names:
+                dyn.attr_obs.setdefault(m.name, []).append(ob)
+                if m.name in dyn.holo_mats:
+                    ob["scan"] = 0.0; ob["hflick"] = 1.0
+                else:
+                    ob["flick"] = 1.0
+    for ob, _ in dyn.beacons:
+        ob["base_scale"] = tuple(ob.scale)
+
+
 def apply_frame(dyn, f, frames, mobile):
     t = (f - 1) / max(1, frames - 1)
     # time in "desktop frames", so the mobile sequence shows the same moments
@@ -1316,21 +1357,21 @@ def apply_frame(dyn, f, frames, mobile):
     # flying cars
     for av, a, b, (w0, w1) in dyn.avs:
         k = max(0.0, min(1.0, (t - w0) / (w1 - w0)))
-        av.location = a.lerp(b, k)
-        av.hide_render = not (w0 - 0.02 <= t <= w1 + 0.02)
+        inside = w0 - 0.02 <= t <= w1 + 0.02
+        av.location = a.lerp(b, k) if inside else Vector((0, 0, -2000))  # parked out of sight
     # neon stutter: mostly on, occasionally dropping out for a frame or two
-    for sock, base, seed in dyn.flickers:
+    for mname, seed in dyn.flickers:
         r = hash01(seed, td // 2)
-        sock.default_value = base * (0.06 if r < 0.12 else 0.45 if r < 0.2 else 1.0)
+        set_attr(dyn.attr_obs.get(mname, []), "flick", 0.06 if r < 0.12 else 0.45 if r < 0.2 else 1.0)
     for ob, phase in dyn.beacons:
         on = math.sin(td * 0.35 + phase * 6.28) > 0.3
-        ob.hide_render = not on
+        ob.scale = tuple(ob["base_scale"]) if on else (1e-4, 1e-4, 1e-4)
     # holograms: scanlines scroll, a rare glitch dims them
-    for m in dyn.holo_mats:
-        nodes = m.node_tree.nodes
-        nodes["scan"].outputs[0].default_value = td * 0.18
-        g = hash01(len(m.name), td)
-        nodes["flicker"].outputs[0].default_value = 0.35 if g < 0.06 else 1.0
+    for i, mname in enumerate(dyn.holo_mats):
+        g = hash01(i * 7 + 3, td)
+        obs = dyn.attr_obs.get(mname, [])
+        set_attr(obs, "scan", td * 0.18)
+        set_attr(obs, "hflick", 0.35 if g < 0.06 else 1.0)
     for ob in dyn.holo_spin:
         ob.rotation_euler.z = td * 0.012 + (0.6 if ob.name == "holo_ring" else 0.0)
     # searchlights sweep
@@ -1339,8 +1380,7 @@ def apply_frame(dyn, f, frames, mobile):
         tilt = math.radians(22 + 8 * math.sin(td * 0.031 + phase * 1.7))
         # spot points down -Z: flip it up, then tip it towards the camera side
         lo.rotation_euler = (math.pi + tilt, 0.0, yaw)
-    for m in dyn.steam_mats:
-        m.node_tree.nodes["rise"].outputs[0].default_value = -td * 0.06
+    set_attr(dyn.steam_obs, "rise", -td * 0.06)
 
 
 # --------------------------------------------------------------------------
@@ -1404,6 +1444,7 @@ def setup(args, pass_name="beauty"):
     scene.camera = cam
     dyn.cam = cam
     dyn.rain = build_rain(scene, cam, rnd)
+    collect_attr_objects(dyn)
     set_pass(scene, args, pass_name, world, smog, dyn)
     return scene, dyn
 
@@ -1420,6 +1461,10 @@ def set_pass(scene, args, pass_name, world, smog, dyn):
         scene.cycles.volume_bounces = 0
         scene.cycles.volume_step_rate = 4.0
         scene.cycles.volume_max_steps = 128
+        # ray-marched volumes: the unbiased path rebuilds its acceleration over the whole
+        # smog domain on every object update (~25 s a frame here); this is ~1 s
+        if hasattr(scene.cycles, "volume_biased"):
+            scene.cycles.volume_biased = True
         scene.view_settings.view_transform = "Standard"
         try:
             scene.view_settings.look = "None"
@@ -1432,7 +1477,7 @@ def set_pass(scene, args, pass_name, world, smog, dyn):
     _PASS_GROUP.nodes["volume_pass"].outputs[0].default_value = 1.0 if vol else 0.0
     world.node_tree.nodes["volume_pass"].outputs[0].default_value = 1.0 if vol else 0.0
     # in the volume pass the sky only lights the smog: brighter, so the haze reads cool teal
-    world.node_tree.nodes["sky"].inputs["Strength"].default_value = 5.0 if vol else 1.0
+    world.node_tree.nodes["sky"].inputs["Strength"].default_value = 9.0 if vol else 1.0
     for ob in bpy.data.objects:
         if ob.get("volume_only"):
             ob.hide_render = not vol
@@ -1566,6 +1611,10 @@ def post(args):
         r_ = r_.transform((w, h), Image.AFFINE, (1 - k, 0, w * k / 2, 0, 1 - k, h * k / 2), Image.BILINEAR)
         b_ = b_.transform((w, h), Image.AFFINE, (1 + k, 0, -w * k / 2, 0, 1 + k, -h * k / 2), Image.BILINEAR)
         out = np.asarray(Image.merge("RGB", (r_, g_, b_))).astype(np.float32) / 255.0
+        # cool the shadows (multiplicative, so blacks stay black): neon keeps its heat, darks go steel-teal
+        luma2 = out @ np.array([0.2126, 0.7152, 0.0722], np.float32)
+        shadow = (np.clip(1 - luma2 / 0.38, 0, 1) ** 1.4)[..., None]
+        out = out * (1 - shadow * np.array([0.16, 0.03, -0.08], np.float32))
         # vignette + quiet bands for the overlaid copy, easing in over the last quarter
         yy, xx = np.mgrid[0:h, 0:w]
         d = np.sqrt(((xx - w / 2) / (w / 2)) ** 2 + ((yy - h / 2) / (h / 2)) ** 2)
