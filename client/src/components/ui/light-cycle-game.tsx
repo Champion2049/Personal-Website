@@ -189,9 +189,9 @@ export function LightCycleGame() {
           <div className="absolute inset-0 grid place-items-center bg-black/80 backdrop-blur-[2px] px-4">
             <div className="text-center">
               <p className="font-mono text-[0.6rem] sm:text-[0.65rem] tracking-[0.4em] text-primary/70 mb-2">CHIRAYU SYSTEMS // ARCADE</p>
-              <h3 className="font-display text-2xl sm:text-4xl font-bold neon-text leading-none">LIGHT&#8209;CYCLE</h3>
+              <h3 className="font-tron text-2xl sm:text-4xl font-bold neon-text leading-none">LIGHT&#8209;CYCLE</h3>
               <p className="mt-2 font-mono text-[0.7rem] sm:text-xs text-muted-foreground">enter the grid · survive · derez your rivals</p>
-              <button onClick={begin} className="mt-5 rounded-full bg-primary px-7 py-3 font-display font-bold tracking-wider text-primary-foreground transition-transform hover:scale-105 animate-pulse-glow">
+              <button onClick={begin} className="mt-5 rounded-full bg-primary px-7 py-3 font-tron font-bold tracking-wider text-primary-foreground transition-transform hover:scale-105 animate-pulse-glow">
                 ▶ PRESS START
               </button>
               <p className="mt-3 font-mono text-[0.7rem] text-muted-foreground animate-pulse">
@@ -203,16 +203,16 @@ export function LightCycleGame() {
 
         {status === 'count' && (
           <div className="absolute inset-0 grid place-items-center bg-black/55">
-            <span key={count} className="font-display text-6xl sm:text-7xl font-black neon-text animate-glitch">{count === 0 ? 'GO' : count}</span>
+            <span key={count} className="font-tron text-6xl sm:text-7xl font-black neon-text animate-glitch">{count === 0 ? 'GO' : count}</span>
           </div>
         )}
 
         {status === 'over' && (
           <div className="absolute inset-0 grid place-items-center bg-black/80 backdrop-blur-[2px] px-4">
             <div className="text-center">
-              <p className="font-display text-2xl sm:text-4xl font-bold neon-text animate-glitch">DERESOLVED</p>
+              <p className="font-tron text-2xl sm:text-4xl font-bold neon-text animate-glitch">DERESOLVED</p>
               <p className="mt-2 text-sm text-muted-foreground">{score} node{score === 1 ? '' : 's'} collected{score >= best && score > 0 ? ' · NEW BEST' : ''}.</p>
-              <button onClick={begin} className="mt-4 rounded-full bg-primary px-7 py-2.5 font-display font-bold tracking-wider text-primary-foreground transition-transform hover:scale-105 animate-pulse-glow">
+              <button onClick={begin} className="mt-4 rounded-full bg-primary px-7 py-2.5 font-tron font-bold tracking-wider text-primary-foreground transition-transform hover:scale-105 animate-pulse-glow">
                 ↻ RUN AGAIN
               </button>
             </div>
