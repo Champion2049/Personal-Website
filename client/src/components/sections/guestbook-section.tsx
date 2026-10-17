@@ -109,7 +109,7 @@ export function GuestbookSection() {
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <label htmlFor="name" className="hud-label mb-2 block">
+                <label htmlFor="name" className="mb-2 block text-sm text-muted-foreground">
                   Name <span className="text-[var(--signal)]">*</span>
                 </label>
                 <Input
@@ -123,7 +123,7 @@ export function GuestbookSection() {
                 />
               </div>
               <div>
-                <label htmlFor="email" className="hud-label mb-2 block">
+                <label htmlFor="email" className="mb-2 block text-sm text-muted-foreground">
                   Email (optional)
                 </label>
                 <Input
@@ -137,7 +137,7 @@ export function GuestbookSection() {
               </div>
             </div>
             <div>
-              <label htmlFor="message" className="hud-label mb-2 block">
+              <label htmlFor="message" className="mb-2 block text-sm text-muted-foreground">
                 Message <span className="text-[var(--signal)]">*</span>
               </label>
               <Textarea
@@ -162,7 +162,7 @@ export function GuestbookSection() {
 
           {/* Entries List */}
           <div data-reveal className="lg:col-span-7">
-            <h3 className="hud-label mb-4 flex items-center gap-3" data-testid="guestbook-description">
+            <h3 className="mb-4 flex items-center gap-3 text-sm text-muted-foreground" data-testid="guestbook-description">
               Recent messages <span className="h-px flex-1 bg-[var(--line)]" /> {entries.length > 0 && <span>{String(entries.length).padStart(2, '0')}</span>}
             </h3>
 

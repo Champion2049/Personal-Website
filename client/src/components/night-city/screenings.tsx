@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { movies, tvShows, type RankItem } from '@/lib/personal-data';
+import { gsap, useGSAP, prefersReducedMotion } from '@/lib/gsap';
 
 type Open = (src: string, title: string) => void;
 
@@ -35,7 +36,7 @@ function Row({ item, rank, onOpen }: { item: RankItem; rank: number; onOpen: Ope
   );
   const cls = 'shard shard-sm shard-hover group relative isolate flex min-h-[104px] w-full items-stretch gap-3 overflow-hidden text-left';
   return (
-    <li>
+    <li data-row>
       {hasImg ? (
         <button onClick={() => onOpen(item.cover!, item.title)} className={`${cls} cursor-zoom-in`} aria-label={`${item.title}, view poster`}>
           {inner}
@@ -49,7 +50,7 @@ function Row({ item, rank, onOpen }: { item: RankItem; rank: number; onOpen: Ope
 
 function RankList({ title, items, onOpen }: { title: string; items: RankItem[]; onOpen: Open }) {
   return (
-    <div>
+    <div data-list>
       <h3 className="mb-4 font-display text-2xl font-bold uppercase tracking-wider">{title}</h3>
       <ol className="space-y-3">
         {items.map((m, i) => (
@@ -60,9 +61,28 @@ function RankList({ title, items, onOpen }: { title: string; items: RankItem[]; 
   );
 }
 
+/** Films slide in from the left, series from the right; scrubbed per row. */
 export function Screenings({ onOpen }: { onOpen: Open }) {
+  const root = useRef<HTMLDivElement>(null);
+  useGSAP(
+    () => {
+      if (prefersReducedMotion()) return;
+      gsap.utils.toArray<HTMLElement>('[data-list]', root.current).forEach((list, side) => {
+        const dir = side === 0 ? -1 : 1;
+        list.querySelectorAll<HTMLElement>('[data-row]').forEach((row) => {
+          gsap.fromTo(
+            row,
+            { xPercent: dir * 18, autoAlpha: 0 },
+            { xPercent: 0, autoAlpha: 1, ease: 'power3.out', scrollTrigger: { trigger: row, start: 'top 98%', end: 'top 72%', scrub: 0.5 } },
+          );
+        });
+      });
+    },
+    { scope: root },
+  );
+
   return (
-    <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-8">
+    <div ref={root} className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-8">
       <RankList title="Films" items={movies} onOpen={onOpen} />
       <RankList title="Series" items={tvShows} onOpen={onOpen} />
     </div>
