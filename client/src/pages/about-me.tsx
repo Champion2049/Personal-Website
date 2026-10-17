@@ -12,9 +12,11 @@ import { Screenings } from '@/components/night-city/screenings';
 import { RecReel } from '@/components/night-city/rec-reel';
 import { BreachProtocol } from '@/components/night-city/breach-protocol';
 import { NCOutro } from '@/components/night-city/nc-outro';
+import { NCRain } from '@/components/night-city/nc-rain';
 import { playGridTrack, stopGridTrack } from '@/lib/grid-audio';
 import { identity, quiz } from '@/lib/personal-data';
 import { loadFonts, NIGHT_CITY_FONTS } from '@/lib/fonts';
+import { gsap, useGSAP, prefersReducedMotion } from '@/lib/gsap';
 
 loadFonts('night-city-fonts', NIGHT_CITY_FONTS);
 
@@ -30,6 +32,19 @@ export default function AboutMe() {
     playGridTrack(); // also covers a hard reload (queues until first interaction if autoplay is blocked)
     return () => stopGridTrack();
   }, []);
+
+  // The two arcade cabinets slide in from opposite sides.
+  useGSAP(() => {
+    if (prefersReducedMotion()) return;
+    gsap.utils.toArray<HTMLElement>('#arcade [data-cabinet]').forEach((el, i) => {
+      const dir = i === 0 ? -1 : 1;
+      gsap.fromTo(
+        el,
+        { xPercent: dir * 14, rotate: dir * -2.5, autoAlpha: 0 },
+        { xPercent: 0, rotate: 0, autoAlpha: 1, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 95%', end: 'top 60%', scrub: 0.6 } },
+      );
+    });
+  });
 
   useEffect(() => {
     document.documentElement.classList.add('cyber-scroll');
@@ -50,46 +65,47 @@ export default function AboutMe() {
       </div>
       <div aria-hidden className="glow-blob animate-blob" style={{ width: 520, height: 520, top: '-12%', right: '-10%', background: 'radial-gradient(circle, hsl(2 100% 60% / 0.22), transparent 70%)' }} />
       <div aria-hidden className="nc-scanlines" />
+      <NCRain />
 
       <NCNav />
 
       <main className="container relative z-10 mx-auto px-5 pb-12 md:px-10">
         <NCHero />
 
-        <NCSection id="radio" title="Radio" meta="Live from my Spotify">
+        <NCSection id="radio" index="01" title="Radio" meta="Live from my Spotify">
           <SpotifyPanel />
         </NCSection>
 
-        <NCSection id="anime" title="Anime & manga" meta="Live from MyAnimeList">
+        <NCSection id="anime" index="02" title="Anime & manga" meta="Live from MyAnimeList">
           <AnimeMangaPanel />
         </NCSection>
 
-        <NCSection id="games" title="Games" meta={gamesMeta}>
+        <NCSection id="games" index="03" title="Games" meta={gamesMeta}>
           <GameLibrary onOpen={openLightbox} />
         </NCSection>
 
-        <NCSection id="screen" title="Films & TV" meta="Ranked. Scores are mine, out of 10.">
+        <NCSection id="screen" index="04" title="Films & TV" meta="Ranked. Scores are mine, out of 10.">
           <Screenings onOpen={openLightbox} />
         </NCSection>
 
-        <NCSection id="pick" title="Pick for me">
+        <NCSection id="pick" index="05" title="Pick for me">
           <RecReel />
         </NCSection>
 
-        <NCSection id="vibe" title="Vibe check" meta={`${quiz.length} questions, no wrong answers`}>
+        <NCSection id="vibe" index="06" title="Vibe check" meta={`${quiz.length} questions, no wrong answers`}>
           <CompatibilityQuiz />
         </NCSection>
 
-        <NCSection id="arcade" title="Arcade">
+        <NCSection id="arcade" index="07" title="Arcade">
           <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-2">
-            <div className="shard shard-lg p-5 md:p-7">
+            <div data-cabinet className="shard shard-lg p-5 md:p-7">
               <h3 className="font-tron text-xl font-bold tracking-wider">Light-Cycle</h3>
               <p className="mt-1.5 mb-6 text-muted-foreground">
                 Sticking with the Tron theme. Steer with the arrow keys or WASD, grab the energy nodes, and don't cross your own trail.
               </p>
               <LightCycleGame />
             </div>
-            <div className="shard shard-lg p-5 md:p-7 [--shard-line:hsl(64_60%_50%/0.3)]">
+            <div data-cabinet className="shard shard-lg p-5 md:p-7 [--shard-line:hsl(64_60%_50%/0.3)]">
               <h3 className="font-display text-2xl font-bold uppercase tracking-wider text-[hsl(64_85%_66%)]">Breach Protocol</h3>
               <p className="mt-1.5 mb-6 text-muted-foreground">
                 Cyberpunk's netrunning minigame. Upload all three daemons to unlock three shards about me.
