@@ -61,7 +61,7 @@ function RankList({ title, items, onOpen }: { title: string; items: RankItem[]; 
   );
 }
 
-/** Films slide in from the left, series from the right, leaning into the move; scrubbed per row. */
+/** Films slide in from the left, series from the right; scrubbed per row. */
 export function Screenings({ onOpen }: { onOpen: Open }) {
   const root = useRef<HTMLDivElement>(null);
   useGSAP(
@@ -72,8 +72,8 @@ export function Screenings({ onOpen }: { onOpen: Open }) {
         list.querySelectorAll<HTMLElement>('[data-row]').forEach((row) => {
           gsap.fromTo(
             row,
-            { xPercent: dir * 18, skewX: dir * -10, autoAlpha: 0 },
-            { xPercent: 0, skewX: 0, autoAlpha: 1, ease: 'power3.out', scrollTrigger: { trigger: row, start: 'top 98%', end: 'top 72%', scrub: 0.5 } },
+            { xPercent: dir * 18, autoAlpha: 0 },
+            { xPercent: 0, autoAlpha: 1, ease: 'power3.out', scrollTrigger: { trigger: row, start: 'top 98%', end: 'top 72%', scrub: 0.5 } },
           );
         });
       });
