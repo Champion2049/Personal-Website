@@ -129,7 +129,7 @@ def args_from_cli():
     p.add_argument("--quality", type=int, default=66)
     p.add_argument("--poster", default="")
     p.add_argument("--size", default="", help="WxH output size for post (e.g. 1280x720)")
-    p.add_argument("--vol-gain", type=float, default=1.0)
+    p.add_argument("--vol-gain", type=float, default=0.8)
     return p.parse_args(argv)
 
 
@@ -490,7 +490,7 @@ def mat_shopfront(name, color, strength=1.1):
     return m
 
 
-def mat_holo(name, color, strength=3.0, alpha=0.55):
+def mat_holo(name, color, strength=3.0, alpha=0.55, glow=0.35):
     """Hologram: emissive, see-through, with scanlines that scroll with the frame
     (the `scan` value node is driven per frame) and a soft vertical gradient."""
     m, nt, out = new_mat(name)
@@ -516,7 +516,7 @@ def mat_holo(name, color, strength=3.0, alpha=0.55):
     add = n.new("ShaderNodeAddShader")
     l.new(mix.outputs[0], add.inputs[0])
     em2 = n.new("ShaderNodeEmission"); em2.inputs["Color"].default_value = color
-    l.new(math_("MULTIPLY", k, vb=strength * 0.35), em2.inputs["Strength"])
+    l.new(math_("MULTIPLY", k, vb=strength * glow), em2.inputs["Strength"])
     l.new(em2.outputs[0], add.inputs[1])
     finish(nt, add.outputs[0], out)
     no_light_sampling(m)
@@ -528,9 +528,9 @@ def mat_rain():
     n, l = nt.nodes, nt.links
     em = n.new("ShaderNodeEmission")
     em.inputs["Color"].default_value = srgb("#e6eef2")
-    em.inputs["Strength"].default_value = 0.45
+    em.inputs["Strength"].default_value = 0.38
     tr = n.new("ShaderNodeBsdfTransparent")
-    mix = n.new("ShaderNodeMixShader"); mix.inputs[0].default_value = 0.32
+    mix = n.new("ShaderNodeMixShader"); mix.inputs[0].default_value = 0.3
     l.new(tr.outputs[0], mix.inputs[1]); l.new(em.outputs[0], mix.inputs[2])
     finish(nt, mix.outputs[0], out)
     no_light_sampling(m)
@@ -549,7 +549,7 @@ def mat_world(scene):
     for nd in list(n):
         n.remove(nd)
     out = n.new("ShaderNodeOutputWorld")
-    bg = n.new("ShaderNodeBackground")
+    bg = n.new("ShaderNodeBackground"); bg.name = "sky"
     tc = n.new("ShaderNodeTexCoord")
     sep = n.new("ShaderNodeSeparateXYZ"); l.new(tc.outputs["Generated"], sep.inputs[0])
     mr = n.new("ShaderNodeMapRange")
@@ -585,9 +585,9 @@ def mat_smog():
     sep = n.new("ShaderNodeSeparateXYZ"); l.new(tc.outputs["Object"], sep.inputs[0])
     # the domain is a unit cube scaled up; object z runs 0..1 over 0..420 m
     zm = math_("MULTIPLY", sep.outputs["Z"], vb=420.0)
-    fall = math_("EXPONENT", math_("MULTIPLY", zm, vb=-1 / 45.0))
-    dens = math_("MULTIPLY_ADD", fall, vb=0.016)
-    dens.node.inputs[2].default_value = 0.0012  # thin high haze for searchlight beams
+    fall = math_("EXPONENT", math_("MULTIPLY", zm, vb=-1 / 38.0))
+    dens = math_("MULTIPLY_ADD", fall, vb=0.0055)
+    dens.node.inputs[2].default_value = 0.0007  # thin high haze for searchlight beams
     noise = n.new("ShaderNodeTexNoise"); noise.inputs["Scale"].default_value = 9.0
     noise.inputs["Detail"].default_value = 3
     l.new(tc.outputs["Object"], noise.inputs["Vector"])
@@ -701,7 +701,7 @@ RAIL_Y = 96.0
 RAIL_Z = 15.0
 BRIDGE_Y = 130.0
 GATE_Y0, GATE_Y1 = 285.0, 297.0   # the block spanning the avenue that the camera crests
-GATE_Z0, GATE_Z1 = 44.0, 98.0
+GATE_Z0, GATE_Z1 = 40.0, 78.0
 MEGA_FACE = END_Y + 9.6
 SIGN_Z = 128.0
 
@@ -749,17 +749,16 @@ def build_city(scene, rnd, dyn):
         "warm": mat_emit("lamp_warm", WHITE_WARM, 9.0),
         "led": mat_emit("led_white", WHITE_WARM, 14.0, haze=0.4),
         "tail": mat_emit("tail_light", NEON_RED, 11.0, haze=0.4),
-        "tail_streak": mat_emit("tail_streak", NEON_RED, 2.2, haze=0.4),
+        "tail_streak": mat_emit("tail_streak", NEON_RED, 1.2, haze=0.4),
         "head": mat_emit("head_light", WHITE_WARM, 14.0, haze=0.4),
-        "head_streak": mat_emit("head_streak", WHITE_WARM, 1.6, haze=0.4),
         "giant": mat_emit("giant_sign", NEON_RED, 7.0, haze=0.2),
         "giant_y": mat_emit("giant_sign_y", NEON_YELLOW, 5.5, haze=0.2),
         "window_train": mat_emit("train_windows", WHITE_WARM, 4.5, haze=0.5),
         "beacon": mat_emit("beacon", NEON_RED, 12.0, haze=0.3),
     }
-    shops = [mat_shopfront("shop_red", NEON_RED, 0.6), mat_shopfront("shop_red2", RED_DEEP, 0.75),
-             mat_shopfront("shop_amber", AMBER, 0.4), mat_shopfront("shop_cool", COOL_WHITE, 0.25),
-             mat_shopfront("shop_dark", NEON_RED, 0.22)]
+    shops = [mat_shopfront("shop_red", NEON_RED, 0.32), mat_shopfront("shop_red2", RED_DEEP, 0.4),
+             mat_shopfront("shop_amber", AMBER, 0.45), mat_shopfront("shop_amber2", AMBER, 0.3),
+             mat_shopfront("shop_cool", COOL_WHITE, 0.32), mat_shopfront("shop_dark", NEON_RED, 0.14)]
     mega_mat = mat_tower("tower_mega", dens_lo=0.03, dens_span=0.05, bright=0.8)
 
     greebles = BoxBatch()   # AC units, ledges, fins: dark metal
@@ -782,6 +781,8 @@ def build_city(scene, rnd, dyn):
             w = rnd.uniform(9, 19)
             d = rnd.uniform(14, 28)
             h = rnd.choice([rnd.uniform(30, 70), rnd.uniform(60, 130), rnd.uniform(100, 190)])
+            if y > 225:
+                h = rnd.uniform(30, 85)  # stay under the sight line to the sign at the end
             gap = rnd.uniform(0.8, 3.0)
             cool = rnd.random() < 0.28
             tmat = tower_cool if cool else tower
@@ -851,6 +852,7 @@ def build_city(scene, rnd, dyn):
     build_bridge(city, lights, emit, concrete, tower_cool)
     build_holograms(dyn, signs, lights)
     build_gate(city, lights, emit, tower, board)
+    dyn.holo_mats.append(bpy.data.materials["gate_screen"])
     build_mega(rnd, dyn, city, signs, lights, emit, mega_mat, board, tower, tower_cool)
     build_street(rnd, dyn, city, signs, lights, movers, emit, dark, metal)
     build_avs(dyn, movers, lights, emit, dark)
@@ -956,38 +958,38 @@ def build_holograms(dyn, signs, lights):
     yel = mat_holo("holo_yellow", NEON_YELLOW, strength=3.0, alpha=0.5)
     cyan = mat_holo("holo_cyan", CYAN, strength=2.6, alpha=0.5)
     dyn.holo_mats += [red, yel, cyan]
-    # CHIDS, standing in the air on the left, angled to the avenue
-    hx, hy, hz = -15.5, 172.0, 31.0
-    rz = math.radians(-58)
-    neon_text("holo_chids", "CHIDS", 11.0, red, (hx, hy, hz), (math.pi / 2, 0, rz), coll=signs, spacing=1.05, extrude=0.0)
+    # CHIDS, hanging in the air over the left lanes; the camera flies under it
+    hx, hy, hz = -6.5, 178.0, 35.0
+    rz = math.radians(14)
+    neon_text("holo_chids", "CHIDS", 7.5, red, (hx, hy, hz), (math.pi / 2, 0, rz), coll=signs, spacing=1.05, extrude=0.0)
     frame = bpy.data.objects.new("holo_frame", None); link(frame, signs)
     frame.location = (hx, hy, hz); frame.rotation_euler = (0, 0, rz)
-    for k, (w_, h_, z_) in enumerate([(34, 0.25, 7.6), (34, 0.25, -7.6)]):
+    for k, (w_, h_, z_) in enumerate([(24, 0.2, 5.4), (24, 0.2, -5.6)]):
         b = box(f"holo_frame{k}", (0, 0, z_), (w_, 0.05, h_), yel, signs)
         b.parent = frame
-    plate = plane("holo_plate", (hx, hy, hz), (34, 14), (math.pi / 2, 0, rz), mat_holo("holo_plate", NEON_RED, 0.5, 0.25), signs)
+    plate = plane("holo_plate", (hx, hy + 0.3, hz), (24, 10.5), (math.pi / 2, 0, rz), mat_holo("holo_plate", NEON_RED, 0.22, 0.08, glow=0.05), signs)
     dyn.holo_mats.append(plate.data.materials[0])
-    add_light("holo_chids_glow", "POINT", (hx + 4, hy - 4, hz), SPILL["red"], 26000, lights, size=6)
+    add_light("holo_chids_glow", "POINT", (hx + 2, hy - 4, hz), SPILL["red"], 16000, lights, size=5)
     # wireframe globe on the right
     me = bpy.data.meshes.new("globe")
     bm = bmesh.new()
-    bmesh.ops.create_icosphere(bm, subdivisions=2, radius=8.5)
+    bmesh.ops.create_icosphere(bm, subdivisions=2, radius=6.5)
     bm.to_mesh(me); bm.free()
     me.materials.append(cyan)
     globe = link(bpy.data.objects.new("holo_globe", me), signs)
-    globe.location = (17.0, 228.0, 54.0)
+    globe.location = (12.5, 228.0, 58.0)  # above the right sidewalk; the camera passes below-left
     wm = globe.modifiers.new("wire", "WIREFRAME"); wm.thickness = 0.09; wm.use_replace = True
     dyn.holo_spin.append(globe)
     ring = bpy.data.meshes.new("ring")
     bm = bmesh.new()
-    bmesh.ops.create_circle(bm, cap_ends=False, radius=12.5, segments=96)
+    bmesh.ops.create_circle(bm, cap_ends=False, radius=9.5, segments=96)
     bm.to_mesh(ring); bm.free()
     ring.materials.append(yel)
     ro = link(bpy.data.objects.new("holo_ring", ring), signs)
     ro.location = globe.location; ro.rotation_euler = (math.radians(74), 0, 0)
     sk = ro.modifiers.new("skin", "WIREFRAME"); sk.thickness = 0.18
     dyn.holo_spin.append(ro)
-    add_light("holo_globe_glow", "POINT", (15.0, 224.0, 54.0), SPILL["cyan"], 14000, lights, size=6)
+    add_light("holo_globe_glow", "POINT", (11.0, 224.0, 58.0), SPILL["cyan"], 9000, lights, size=5)
 
 
 def build_gate(city, lights, emit, tower, board):
@@ -1005,9 +1007,18 @@ def build_gate(city, lights, emit, tower, board):
     for k in range(14):
         x = -w / 2 + 2 + k * (w - 4) / 13
         box(f"gate_chev{k}", (x, GATE_Y0 + 0.4, GATE_Z1), (1.6, 0.3, 0.5), emit["yellow"], city)
-    # a sign on its face
-    neon_text("gate_sign", "WATSON  //  KABUKI", 2.6, emit["yellow"], (0, GATE_Y0 - 0.25, GATE_Z0 + 9), (math.pi / 2, 0, 0),
-              fontfile=FONT_SUB, coll=city, spacing=1.4)
+    # a giant ad screen on its face, tuned to the radio from the Night City page
+    sw, sh = 46.0, 24.0
+    scr_z = GATE_Z0 + 4 + sh / 2
+    screen = mat_holo("gate_screen", NEON_RED, strength=1.1, alpha=1.0, glow=0.25)
+    plane("gate_screen", (0, GATE_Y0 - 0.15, scr_z), (sw, sh), (math.pi / 2, 0, 0), screen, city)
+    screen["is_screen"] = True
+    box("gate_screen_frame_t", (0, GATE_Y0 - 0.2, scr_z + sh / 2), (sw + 0.6, 0.12, 0.3), emit["yellow"], city)
+    box("gate_screen_frame_b", (0, GATE_Y0 - 0.2, scr_z - sh / 2 - 0.3), (sw + 0.6, 0.12, 0.3), emit["yellow"], city)
+    neon_text("gate_fm", "CHIDS FM", 8.0, emit["yellow"], (0, GATE_Y0 - 0.45, scr_z + 3.2), (math.pi / 2, 0, 0),
+              coll=city, spacing=1.08)
+    neon_text("gate_freq", "97.8  //  ON AIR", 2.6, emit["warm"], (0, GATE_Y0 - 0.45, scr_z - 5.6), (math.pi / 2, 0, 0),
+              fontfile=FONT_SUB, coll=city, spacing=1.5)
     add_light("gate_wash", "AREA", (0, GATE_Y0 - 6, GATE_Z0 + 2), (1.0, 0.25, 0.08), 9000, lights, size=40,
               rot=(math.radians(143), 0, 0))  # up the face
 
@@ -1110,18 +1121,21 @@ def build_street(rnd, dyn, city, signs, lights, movers, emit, dark, metal):
     # each trailing a faint streak that sells the speed
     for i in range(30):
         y0 = rnd.uniform(-10, END_Y - 40)
-        lane_x = rnd.choice([-4.8, -4.4, -2.0, 2.0, 4.4, 4.8])
+        lane_x = rnd.choice([-4.8, -4.4, 4.4, 4.8])
         away = lane_x > 0
         v = rnd.uniform(0.55, 0.95) * (1 if away else -1.1)
+        if -16 < y0 + v < 10:  # nothing right beside the camera on the first frames (it's the poster)
+            y0 += 30
         car = bpy.data.objects.new(f"car{i}", None); link(car, movers)
         for part in (box(f"cb{i}", (0, 0, 0.3), (1.9, 4.4, 0.75), dark, movers),
                      box(f"cc{i}", (0, 0.3, 1.05), (1.6, 2.2, 0.55), dark, movers)):
             part.parent = car
-        lm, sm = (emit["tail"], emit["tail_streak"]) if away else (emit["head"], emit["head_streak"])
+        lm = emit["tail"] if away else emit["head"]
         end = -2.21 if away else 2.21
         for e in (-1, 1):
-            b = box(f"cl{i}{e}", (e * 0.7, end, 0.8), (0.42, 0.04, 0.12), lm, movers); b.parent = car
-            s = box(f"cs{i}{e}", (e * 0.7, end + (-3.2 if away else 3.2), 0.82), (0.12, 6.0, 0.05), sm, movers); s.parent = car
+            b = box(f"cl{i}{e}", (e * 0.7, end, 0.8), (0.38, 0.04, 0.1), lm, movers); b.parent = car
+            if away:  # a faint tail-light trail sells the speed
+                s = box(f"cs{i}{e}", (e * 0.7, end - 2.6, 0.84), (0.06, 5.0, 0.04), emit["tail_streak"], movers); s.parent = car
         dyn.cars.append((car, lane_x, y0, v))
 
 
@@ -1238,10 +1252,10 @@ KEYS = [
     (0.17, (1.0, 45.0, 2.4), (0.4, 140.0, 9.0), 2.5, 24, 15),
     (0.31, (0.6, 99.0, 7.0), (-2.0, 185.0, 17.0), -1.5, 23, 15),   # under the rail as the train crosses
     (0.44, (-3.2, 140.0, 16.5), (-12.0, 190.0, 30.0), -6.5, 22, 14),  # under the skybridge, banking towards CHIDS
-    (0.58, (2.4, 196.0, 33.0), (10.0, 262.0, 54.0), 5.0, 22, 14),   # past the globe
-    (0.74, (1.5, 262.0, 62.0), (0.0, 300.0, 92.0), 2.0, 24, 16),    # facing the gate block, climbing
-    (0.88, (0.6, 266.0, 96.0), (0.0, 330.0, 118.0), 0.5, 26, 18),   # cresting its roof
-    (1.00, (0.0, 268.0, 113.0), (0.0, MEGA_FACE, 124.0), 0.0, 27, 20),
+    (0.58, (2.4, 196.0, 30.0), (8.0, 262.0, 44.0), 5.0, 22, 14),    # past the globe
+    (0.72, (1.0, 236.0, 46.0), (0.0, 330.0, 66.0), 2.0, 24, 16),    # climbing past the gate's giant screen
+    (0.86, (0.4, 252.0, 80.0), (0.0, 340.0, 104.0), 0.6, 26, 18),   # the gate drops away, the sign rises
+    (1.00, (0.0, 262.0, 108.0), (0.0, MEGA_FACE, 124.0), 0.0, 27, 20),
 ]
 
 
@@ -1352,7 +1366,7 @@ def setup(args, pass_name="beauty"):
     cy.diffuse_bounces = 1
     cy.glossy_bounces = 1
     cy.transmission_bounces = 1
-    cy.transparent_max_bounces = 8
+    cy.transparent_max_bounces = 6
     cy.volume_bounces = 0
     cy.caustics_reflective = False
     cy.caustics_refractive = False
@@ -1366,7 +1380,7 @@ def setup(args, pass_name="beauty"):
     scene.render.image_settings.color_depth = "8"
     scene.view_settings.view_transform = "AgX" if "AgX" in [i.identifier for i in scene.view_settings.bl_rna.properties["view_transform"].enum_items] else "Filmic"
     try:
-        scene.view_settings.look = "AgX - Medium High Contrast"
+        scene.view_settings.look = "AgX - High Contrast"
     except Exception:
         try:
             scene.view_settings.look = "Medium High Contrast"
@@ -1402,10 +1416,10 @@ def set_pass(scene, args, pass_name, world, smog, dyn):
         # quarter resolution: fog is soft, so this is plenty
         scene.render.resolution_x, scene.render.resolution_y = W // 4, H // 4
         scene.render.resolution_percentage = 100
-        scene.cycles.samples = args.samples or 40
+        scene.cycles.samples = args.samples or 16
         scene.cycles.volume_bounces = 0
-        scene.cycles.volume_step_rate = 2.0
-        scene.cycles.volume_max_steps = 256
+        scene.cycles.volume_step_rate = 4.0
+        scene.cycles.volume_max_steps = 128
         scene.view_settings.view_transform = "Standard"
         try:
             scene.view_settings.look = "None"
@@ -1414,9 +1428,11 @@ def set_pass(scene, args, pass_name, world, smog, dyn):
     else:
         scene.render.resolution_x, scene.render.resolution_y = W, H
         scene.render.resolution_percentage = args.scale
-        scene.cycles.samples = args.samples or 10
+        scene.cycles.samples = args.samples or 8
     _PASS_GROUP.nodes["volume_pass"].outputs[0].default_value = 1.0 if vol else 0.0
     world.node_tree.nodes["volume_pass"].outputs[0].default_value = 1.0 if vol else 0.0
+    # in the volume pass the sky only lights the smog: brighter, so the haze reads cool teal
+    world.node_tree.nodes["sky"].inputs["Strength"].default_value = 5.0 if vol else 1.0
     for ob in bpy.data.objects:
         if ob.get("volume_only"):
             ob.hide_render = not vol
