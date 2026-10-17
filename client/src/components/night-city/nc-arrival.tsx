@@ -112,8 +112,8 @@ export function NCArrival() {
         .to(q('[data-beat="1"]'), { autoAlpha: 0, y: -40, duration: 0.1 }, 0.2)
         .fromTo(q('[data-beat="2"]'), { autoAlpha: 0, y: 40 }, { autoAlpha: 1, y: 0, duration: 0.1 }, 0.32)
         .to(q('[data-beat="2"]'), { autoAlpha: 0, y: -40, duration: 0.1 }, 0.55)
-        // the last stretch belongs to the sign in the render, then the street fades into the page
-        .to(q('[data-shade]'), { opacity: 1, duration: 0.08 }, 0.92);
+        // the last stretch belongs to the sign in the render; dim it a little as the page takes over
+        .to(q('[data-shade]'), { opacity: 0.45, duration: 0.08 }, 0.92);
     },
     { scope: root, dependencies: [set] },
   );
