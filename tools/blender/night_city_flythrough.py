@@ -1,9 +1,16 @@
 """
-Night City flythrough (v2): a procedural, rain-soaked neon canyon rendered as an
-image sequence for the scroll-scrubbed arrival on /about-me.
+Night City flythrough (v3): a procedural, rain-soaked neon canyon rendered as a
+short H.264 video that the /about-me arrival scrubs with scroll.
 
 Everything is generated from code (no external assets apart from the OFL fonts
 next to this file), so the look can be tweaked and re-rendered.
+
+v3 look: a gloomy, dull city (wet grey-brown concrete, masonry, brutalist
+slabs, grime, grey-teal smog) where all the colour comes from light: neon,
+LED billboards, holograms, lamps, the train and their reflections. The street
+is dense: a market strip with awnings and bulb strings, vending machines,
+pedestrians (some under LED umbrellas), fire escapes, pipes, trash, steam,
+cable webs and lantern strings, some low enough to pass right over the lens.
 
 Each frame is two renders composited in post:
 
@@ -14,20 +21,23 @@ Each frame is two renders composited in post:
               lit steam. Fog is low-frequency, so 1/4 resolution is plenty and it
               costs a fraction of rendering volumetrics in the beauty pass.
 
-    # render both passes (PNG) for a sequence
-    python night_city_flythrough.py render --res desktop --frames 120 --pass beauty --out /tmp/nc/d/beauty
-    python night_city_flythrough.py render --res desktop --frames 120 --pass volume --out /tmp/nc/d/volume
+    # render both passes (PNG) for a sequence (desktop 240 frames, phones 180)
+    python night_city_flythrough.py render --res desktop --frames 240 --pass beauty --out /tmp/nc/d/beauty
+    python night_city_flythrough.py render --res desktop --frames 240 --pass volume --out /tmp/nc/d/volume
 
-    # composite (volume, bloom, anamorphic streaks, chromatic aberration, grain,
-    # vignette, quiet text bands) and encode WebP for the site
-    python night_city_flythrough.py post --src /tmp/nc/d --dst client/public/nightcity/fly/d \
-        --size 1280x720 --quality 66 --poster client/public/nightcity/fly/poster.jpg
+    # composite (volume, bloom, anamorphic streaks, chromatic aberration, the
+    # dull-base grade, vignette, quiet text bands) to PNG frames
+    python night_city_flythrough.py post --src /tmp/nc/d --dst /tmp/nc/d/post --size 1280x720 \
+        --format png --poster client/public/nightcity/fly/poster.jpg
+
+    # encode the frames to a scrubbable H.264 MP4 (a keyframe every 6 frames)
+    python night_city_flythrough.py encode --src /tmp/nc/d/post --dst client/public/nightcity/fly/nc-desktop.mp4 --crf 24
 
     # look-dev: both passes + post for a few frames, into one folder
-    python night_city_flythrough.py look --res desktop --frames 120 --frames-list 1,40,80,120 --out /tmp/nc/look
+    python night_city_flythrough.py look --res desktop --frames 240 --frames-list 1,60,110,160,200,240 --out /tmp/nc/look
 
     # a single beauty still
-    python night_city_flythrough.py still --res desktop --frames 120 --frame 60 --out /tmp/nc/still.png
+    python night_city_flythrough.py still --res desktop --frames 240 --frame 60 --out /tmp/nc/still.png
 
 `python` is any interpreter with the `bpy` module (pip install bpy), or run
 inside Blender: blender -b -P night_city_flythrough.py -- render ...
@@ -41,9 +51,11 @@ y = 304, and the mega-tower closes the street at y ~ 350 with the NIGHT CITY sig
 The camera rises past the last towers' corners and terraces and crests the
 skyline to face the sign.
 
-Every moving thing (camera, train, flying cars, traffic, sign flicker, hologram
-scanlines, searchlights, rain, steam) is a pure function of the frame number, so
-the sequence scrubs backwards cleanly.
+Every moving thing (camera, train, flying cars, traffic, pedestrians, sign
+flicker, hologram scanlines, billboard graphics, searchlights, rain, steam) is a
+pure function of the frame number, so the sequence scrubs backwards cleanly.
+Animation speeds are expressed in v2 "desktop frames" (120 over the shot), so
+any frame count shows the same moments; more frames just mean finer steps.
 """
 
 import argparse
@@ -55,7 +67,7 @@ import time
 
 import bpy
 import bmesh  # only importable once bpy is loaded
-from mathutils import Quaternion, Vector
+from mathutils import Matrix, Quaternion, Vector
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 FONT_DIR = os.path.join(HERE, "fonts")
@@ -85,7 +97,7 @@ COOL_WHITE = srgb("#bfe6ee")  # a few office floors, for colour contrast
 # hot cores go red-orange instead.
 NEON_RED = (1.0, 0.03, 0.006, 1.0)
 NEON_YELLOW = (0.95, 0.72, 0.0, 1.0)       # --nc-yellow #f3e600, warmed so it reads in haze
-HAZE = srgb("#0d1c22")                     # cool steel-teal smog (complement of the neon)
+HAZE = srgb("#18232a")                     # grey-teal smog: dull and cool, so the neon is the only colour
 
 SIGN_WORDS = [
     # (text, colour key, style)  - words from lib/personal-data.ts
@@ -113,12 +125,16 @@ def args_from_cli():
     argv = sys.argv
     argv = argv[argv.index("--") + 1:] if "--" in argv else argv[1:]
     p = argparse.ArgumentParser()
-    p.add_argument("mode", choices=["render", "still", "post", "look"])
+    p.add_argument("mode", choices=["render", "still", "post", "look", "encode"])
     p.add_argument("--res", choices=["desktop", "mobile"], default="desktop")
     p.add_argument("--pass", dest="pass_", choices=["beauty", "volume"], default="beauty")
-    p.add_argument("--frames", type=int, default=120)
+    p.add_argument("--frames", type=int, default=240)
+    p.add_argument("--format", choices=["png", "webp"], default="png", help="post output format")
+    p.add_argument("--crf", type=int, default=24, help="encode: x264 constant rate factor")
+    p.add_argument("--fps", type=int, default=30, help="encode: frame rate")
+    p.add_argument("--gop", type=int, default=6, help="encode: keyframe interval (small = smooth scrubbing)")
     p.add_argument("--frame", type=int, default=1)
-    p.add_argument("--frames-list", default="1,40,80,120")
+    p.add_argument("--frames-list", default="1,60,110,160,200,240")
     p.add_argument("--start", type=int, default=1)
     p.add_argument("--end", type=int, default=0)
     p.add_argument("--out", default="/tmp/nc")
@@ -196,6 +212,16 @@ def plane(name, loc, size_xy, rot, mat, coll=None):
     ob = bpy.data.objects.new(name, me)
     ob.location = loc
     ob.rotation_euler = rot
+    return link(ob, coll)
+
+
+def instance(name, mesh, mat, coll=None):
+    """An object sharing `mesh`, with its own (object-linked) material."""
+    if not mesh.materials:
+        mesh.materials.append(mat)
+    ob = bpy.data.objects.new(name, mesh)
+    ob.material_slots[0].link = "OBJECT"
+    ob.material_slots[0].material = mat
     return link(ob, coll)
 
 
@@ -346,14 +372,84 @@ def mat_emit(name, color, strength, haze=0.7, attr=None):
     return m
 
 
-def mat_dark(name, color=(0.010, 0.010, 0.011, 1), rough=0.5, metal=0.3):
+def mat_dark(name, color=(0.010, 0.010, 0.011, 1), rough=0.5, metal=0.3, grime=0.0):
+    """Plain surface. `grime` > 0 breaks it up with blotches and wet streaks
+    (darker patches, glossier where rain runs), so concrete and metal read as
+    old and soaked rather than as flat CG boxes."""
     m, nt, out = new_mat(name)
     b = nt.nodes.new("ShaderNodeBsdfPrincipled")
     b.inputs["Base Color"].default_value = color
     b.inputs["Roughness"].default_value = rough
     b.inputs["Metallic"].default_value = metal
+    if grime:
+        n, l = nt.nodes, nt.links
+        math_ = _mathf(n, l)
+        tc = n.new("ShaderNodeTexCoord")
+        blot = n.new("ShaderNodeTexNoise"); blot.inputs["Scale"].default_value = 0.35; blot.inputs["Detail"].default_value = 4
+        l.new(tc.outputs["Object"], blot.inputs["Vector"])
+        k = math_("MULTIPLY_ADD", blot.outputs["Fac"], vb=1.2 * grime); k.node.inputs[2].default_value = 1.0 - 0.6 * grime
+        col = n.new("ShaderNodeVectorMath"); col.operation = "SCALE"
+        col.inputs[0].default_value = color[:3]
+        l.new(k, col.inputs["Scale"])
+        l.new(col.outputs[0], b.inputs["Base Color"])
+        r = math_("MULTIPLY_ADD", blot.outputs["Fac"], vb=0.5); r.node.inputs[2].default_value = rough - 0.25
+        l.new(r, b.inputs["Roughness"])
     finish(nt, add_haze(nt, b.outputs[0]), out)
     return m
+
+
+def facade_bsdf(n, l, math_, u, z, rnd, facade, cool):
+    """The wall between the windows. v2 was near-black everywhere; v3 gives the
+    city a dull, wet, lived-in base (grime blotches, rain streaks, joints) that
+    only the lights bring to life."""
+    b = n.new("ShaderNodeBsdfPrincipled")
+    if facade == "glass" or cool:
+        b.inputs["Base Color"].default_value = (0.020, 0.023, 0.026, 1)
+        b.inputs["Roughness"].default_value = 0.18
+        b.inputs["Metallic"].default_value = 0.7
+        return b.outputs[0]
+    # grime blotches + vertical rain streaks in facade space (u along the wall, z up)
+    comb = n.new("ShaderNodeCombineXYZ")
+    l.new(u, comb.inputs[0]); l.new(z, comb.inputs[1]); l.new(rnd, comb.inputs[2])
+    blot = n.new("ShaderNodeTexNoise"); blot.inputs["Scale"].default_value = 0.08; blot.inputs["Detail"].default_value = 4
+    l.new(comb.outputs[0], blot.inputs["Vector"])
+    sc = n.new("ShaderNodeCombineXYZ")
+    l.new(math_("MULTIPLY", u, vb=1.4), sc.inputs[0]); l.new(math_("MULTIPLY", z, vb=0.05), sc.inputs[1]); l.new(rnd, sc.inputs[2])
+    streak = n.new("ShaderNodeTexNoise"); streak.inputs["Scale"].default_value = 1.3; streak.inputs["Detail"].default_value = 2
+    l.new(sc.outputs[0], streak.inputs["Vector"])
+    grime = math_("MULTIPLY_ADD", blot.outputs["Fac"], vb=1.3); grime.node.inputs[2].default_value = 0.35
+    wet = math_("MAXIMUM", math_("SUBTRACT", streak.outputs["Fac"], vb=0.5), vb=0.0)  # 0..0.5 where water runs
+    grime = math_("MULTIPLY", grime, math_("SUBTRACT", va=1.0, b=math_("MULTIPLY", wet, vb=0.9)))
+    if facade == "masonry":
+        vec = n.new("ShaderNodeCombineXYZ"); l.new(u, vec.inputs[0]); l.new(z, vec.inputs[1])
+        br = n.new("ShaderNodeTexBrick")
+        br.inputs["Color1"].default_value = (0.070, 0.050, 0.040, 1)
+        br.inputs["Color2"].default_value = (0.052, 0.042, 0.036, 1)
+        br.inputs["Mortar"].default_value = (0.022, 0.022, 0.022, 1)
+        br.inputs["Scale"].default_value = 1.0
+        br.inputs["Mortar Size"].default_value = 0.018
+        br.inputs["Brick Width"].default_value = 0.9
+        br.inputs["Row Height"].default_value = 0.3
+        l.new(vec.outputs[0], br.inputs["Vector"])
+        base = br.outputs["Color"]
+        rough_lo, metal = 0.55, 0.0
+    else:
+        # concrete: dull grey slabs with dark panel joints (brutalist), or plain dark render
+        joint_u = math_("LESS_THAN", math_("FRACT", math_("MULTIPLY", u, vb=1 / 4.8)), vb=0.015)
+        joint_v = math_("LESS_THAN", math_("FRACT", math_("MULTIPLY", z, vb=1 / 3.1)), vb=0.02)
+        joint = math_("SUBTRACT", va=1.0, b=math_("MULTIPLY", math_("MAXIMUM", joint_u, joint_v), vb=0.55))
+        mix = n.new("ShaderNodeVectorMath"); mix.operation = "SCALE"
+        mix.inputs[0].default_value = (0.068, 0.067, 0.064) if facade == "concrete" else (0.036, 0.034, 0.032)
+        l.new(joint, mix.inputs["Scale"])
+        base = mix.outputs[0]
+        rough_lo, metal = (0.6, 0.0) if facade == "concrete" else (0.5, 0.15)
+    col = n.new("ShaderNodeVectorMath"); col.operation = "SCALE"
+    l.new(base, col.inputs[0]); l.new(grime, col.inputs["Scale"])
+    l.new(col.outputs[0], b.inputs["Base Color"])
+    rough = math_("SUBTRACT", va=rough_lo + 0.25, b=math_("MULTIPLY", wet, vb=1.2))  # glossy where it's wet
+    l.new(rough, b.inputs["Roughness"])
+    b.inputs["Metallic"].default_value = metal
+    return b.outputs[0]
 
 
 def _mathf(n, l):
@@ -367,9 +463,10 @@ def _mathf(n, l):
     return math_
 
 
-def mat_tower(name="tower", dens_lo=0.05, dens_span=0.26, bright=1.25, cool=False):
-    """Dark facade with a procedural, per-building grid of lit windows.
-    `cool` towers (corporate glass) get a denser, dimmer cool-white grid."""
+def mat_tower(name="tower", dens_lo=0.05, dens_span=0.26, bright=1.25, cool=False, facade="plain"):
+    """Facade with a procedural, per-building grid of lit windows.
+    `cool` towers (corporate glass) get a denser, dimmer cool-white grid.
+    `facade` picks the wall: plain, masonry (brick), concrete (brutalist panels)."""
     m, nt, out = new_mat(name)
     n, l = nt.nodes, nt.links
     math_ = _mathf(n, l)
@@ -429,12 +526,9 @@ def mat_tower(name="tower", dens_lo=0.05, dens_span=0.26, bright=1.25, cool=Fals
     em = n.new("ShaderNodeEmission")
     l.new(ramp.outputs["Color"], em.inputs["Color"])
     l.new(strength, em.inputs["Strength"])
-    b = n.new("ShaderNodeBsdfPrincipled")
-    b.inputs["Base Color"].default_value = (0.008, 0.009, 0.010, 1)
-    b.inputs["Roughness"].default_value = 0.22 if cool else 0.4
-    b.inputs["Metallic"].default_value = 0.6 if cool else 0.35
+    wall = facade_bsdf(n, l, math_, u, pos.outputs["Z"], info.outputs["Random"], facade, cool)
     add = n.new("ShaderNodeAddShader")
-    l.new(b.outputs[0], add.inputs[0]); l.new(em.outputs[0], add.inputs[1])
+    l.new(wall, add.inputs[0]); l.new(em.outputs[0], add.inputs[1])
     finish(nt, add_haze(nt, add.outputs[0]), out)
     no_light_sampling(m)
     return m
@@ -460,7 +554,7 @@ def mat_road():
     bump = n.new("ShaderNodeBump"); bump.inputs["Strength"].default_value = 0.035
     l.new(bump_n.outputs["Fac"], bump.inputs["Height"])
     b = n.new("ShaderNodeBsdfPrincipled")
-    b.inputs["Base Color"].default_value = (0.004, 0.004, 0.0045, 1)
+    b.inputs["Base Color"].default_value = (0.011, 0.011, 0.012, 1)
     b.inputs["Metallic"].default_value = 0.0
     if "Specular IOR Level" in b.inputs:
         b.inputs["Specular IOR Level"].default_value = 0.8
@@ -529,6 +623,59 @@ def mat_holo(name, color, strength=3.0, alpha=0.55, glow=0.35):
     return m
 
 
+def mat_billboard(name, kind, col_a, col_b, strength=3.2):
+    """Animated LED billboard. A procedural graphic on the plane's UVs that moves
+    with the object's `t` attribute (set per frame, so only the object updates):
+    eq (equalizer bars), wave (sine traces over a grid), scroll (diagonal bands),
+    rings (pulsing circles). A dim fill keeps the panel from reading as a hole."""
+    m, nt, out = new_mat(name)
+    n, l = nt.nodes, nt.links
+    math_ = _mathf(n, l)
+    tc = n.new("ShaderNodeTexCoord")
+    sep = n.new("ShaderNodeSeparateXYZ"); l.new(tc.outputs["UV"], sep.inputs[0])
+    u, v = sep.outputs["X"], sep.outputs["Y"]
+    t = obj_attr(n, "t")
+    if kind == "eq":
+        idx = math_("FLOOR", math_("MULTIPLY", u, vb=18.0))
+        comb = n.new("ShaderNodeCombineXYZ")
+        l.new(idx, comb.inputs[0]); l.new(math_("FLOOR", math_("MULTIPLY", t, vb=0.5)), comb.inputs[1])
+        wn = n.new("ShaderNodeTexWhiteNoise"); wn.noise_dimensions = "3D"
+        l.new(comb.outputs[0], wn.inputs["Vector"])
+        hgt = math_("MULTIPLY_ADD", wn.outputs["Value"], vb=0.55); hgt.node.inputs[2].default_value = 0.18
+        wob = math_("MULTIPLY", math_("SINE", math_("ADD", math_("MULTIPLY", idx, vb=0.8), math_("MULTIPLY", t, vb=0.35))), vb=0.16)
+        hgt = math_("ADD", hgt, wob)
+        gap = math_("GREATER_THAN", math_("FRACT", math_("MULTIPLY", u, vb=18.0)), vb=0.2)
+        seg = math_("GREATER_THAN", math_("FRACT", math_("MULTIPLY", v, vb=26.0)), vb=0.22)  # LED segments
+        on = math_("MULTIPLY", math_("MULTIPLY", math_("LESS_THAN", v, hgt), gap), seg)
+    elif kind == "wave":
+        ph = math_("MULTIPLY", t, vb=0.22)
+        w1 = math_("ADD", math_("MULTIPLY", math_("SINE", math_("ADD", math_("MULTIPLY", u, vb=9.0), ph)), vb=0.26), vb=0.5)
+        w2 = math_("ADD", math_("MULTIPLY", math_("SINE", math_("SUBTRACT", math_("MULTIPLY", u, vb=14.0), math_("MULTIPLY", ph, vb=1.6))), vb=0.16), vb=0.5)
+        on1 = math_("LESS_THAN", math_("ABSOLUTE", math_("SUBTRACT", v, w1)), vb=0.03)
+        on2 = math_("MULTIPLY", math_("LESS_THAN", math_("ABSOLUTE", math_("SUBTRACT", v, w2)), vb=0.018), vb=0.6)
+        grid = math_("MULTIPLY", math_("MAXIMUM", math_("LESS_THAN", math_("FRACT", math_("MULTIPLY", u, vb=12.0)), vb=0.04),
+                                       math_("LESS_THAN", math_("FRACT", math_("MULTIPLY", v, vb=7.0)), vb=0.06)), vb=0.18)
+        on = math_("MAXIMUM", math_("MAXIMUM", on1, on2), grid)
+    elif kind == "scroll":
+        bands = math_("FRACT", math_("SUBTRACT", math_("ADD", math_("MULTIPLY", u, vb=4.0), math_("MULTIPLY", v, vb=1.6)), math_("MULTIPLY", t, vb=0.05)))
+        on = math_("MULTIPLY_ADD", math_("LESS_THAN", bands, vb=0.42), vb=0.85)
+        on.node.inputs[2].default_value = 0.15
+    else:  # rings
+        cu = math_("SUBTRACT", u, vb=0.5); cv = math_("MULTIPLY", math_("SUBTRACT", v, vb=0.5), vb=0.6)
+        r = math_("SQRT", math_("ADD", math_("MULTIPLY", cu, cu), math_("MULTIPLY", cv, cv)))
+        ring = math_("FRACT", math_("SUBTRACT", math_("MULTIPLY", r, vb=6.0), math_("MULTIPLY", t, vb=0.06)))
+        on = math_("MULTIPLY", math_("LESS_THAN", ring, vb=0.28), math_("SUBTRACT", va=1.0, b=math_("MULTIPLY", r, vb=1.3)))
+    mix = n.new("ShaderNodeMix"); mix.data_type = "RGBA"
+    mix.inputs[6].default_value = col_a; mix.inputs[7].default_value = col_b
+    l.new(v, mix.inputs[0])
+    k = math_("ADD", math_("MULTIPLY", on, vb=strength), vb=0.12)  # dim fill
+    em = n.new("ShaderNodeEmission")
+    l.new(mix.outputs[2], em.inputs["Color"]); l.new(k, em.inputs["Strength"])
+    finish(nt, add_haze(nt, em.outputs[0], density=0.0052, strength=0.3), out)
+    no_light_sampling(m)
+    return m
+
+
 def mat_rain():
     m, nt, out = new_mat("rain")
     n, l = nt.nodes, nt.links
@@ -563,10 +710,19 @@ def mat_world(scene):
     mr.inputs["From Max"].default_value = 0.4
     l.new(sep.outputs["Z"], mr.inputs["Value"])
     mix = n.new("ShaderNodeMix"); mix.data_type = "RGBA"
-    mix.inputs[6].default_value = (0.030, 0.050, 0.058, 1)  # horizon: cool smog
-    mix.inputs[7].default_value = (0.002, 0.003, 0.0038, 1)  # zenith
+    mix.inputs[6].default_value = (0.034, 0.060, 0.068, 1)  # horizon: grey-teal smog lit by the city
+    mix.inputs[7].default_value = (0.004, 0.0055, 0.0065, 1)  # zenith: overcast, never quite black
     l.new(mr.outputs[0], mix.inputs[0])
-    l.new(mix.outputs[2], bg.inputs["Color"])
+    # light pollution: a teal glow band hugging the skyline (only seen once the camera clears the roofs)
+    gl = n.new("ShaderNodeMapRange")
+    gl.inputs["From Min"].default_value = 0.16
+    gl.inputs["From Max"].default_value = 0.0
+    l.new(sep.outputs["Z"], gl.inputs["Value"])
+    glow = n.new("ShaderNodeMix"); glow.data_type = "RGBA"; glow.blend_type = "ADD"
+    l.new(gl.outputs[0], glow.inputs[0])
+    l.new(mix.outputs[2], glow.inputs[6])
+    glow.inputs[7].default_value = (0.012, 0.036, 0.044, 1)
+    l.new(glow.outputs[2], bg.inputs["Color"])
     bg.inputs["Strength"].default_value = 1.0
     # camera-ray switch, used by the volume pass
     lp = n.new("ShaderNodeLightPath")
@@ -730,6 +886,8 @@ class Dyn:
         self.steam_obs = []
         self.attr_obs = {}     # material name -> objects using it (filled after the build)
         self.beacons = []      # (socket, base, phase)
+        self.peds = []         # (object, x, y0, v): pedestrians strolling along the sidewalks
+        self.billboards = []   # LED billboard planes, animated through their "t" attribute
 
 
 def build_city(scene, rnd, dyn):
@@ -739,13 +897,15 @@ def build_city(scene, rnd, dyn):
     movers = bpy.data.collections.new("movers"); scene.collection.children.link(movers)
 
     tower = mat_tower()
-    tower_cool = mat_tower("tower_cool", dens_lo=0.18, dens_span=0.3, bright=0.55, cool=True)
-    dark = mat_dark("facade_dark")
-    metal = mat_dark("metal", color=(0.02, 0.021, 0.024, 1), rough=0.35, metal=0.8)
-    concrete = mat_dark("concrete", color=(0.03, 0.03, 0.032, 1), rough=0.75, metal=0.0)
+    tower_cool = mat_tower("tower_cool", dens_lo=0.18, dens_span=0.3, bright=0.55, cool=True, facade="glass")
+    tower_masonry = mat_tower("tower_masonry", dens_lo=0.08, dens_span=0.3, bright=1.1, facade="masonry")
+    tower_concrete = mat_tower("tower_concrete", dens_lo=0.06, dens_span=0.22, bright=1.0, facade="concrete")
+    dark = mat_dark("facade_dark", color=(0.022, 0.021, 0.02, 1), rough=0.5, metal=0.2, grime=0.6)
+    metal = mat_dark("metal", color=(0.035, 0.033, 0.031, 1), rough=0.4, metal=0.75, grime=0.7)
+    concrete = mat_dark("concrete", color=(0.065, 0.064, 0.061, 1), rough=0.75, metal=0.0, grime=0.8)
     board = mat_dark("sign_board", color=(0.006, 0.005, 0.005, 1), rough=0.3, metal=0.5)
     road = mat_road()
-    curb = mat_dark("curb", color=(0.018, 0.018, 0.02, 1), rough=0.25, metal=0.0)
+    curb = mat_dark("curb", color=(0.045, 0.045, 0.047, 1), rough=0.35, metal=0.0, grime=0.9)
     emit = {
         "red": mat_emit("neon_red", NEON_RED, 6.5),
         "red_dim": mat_emit("neon_red_dim", NEON_RED, 2.2),
@@ -759,8 +919,8 @@ def build_city(scene, rnd, dyn):
         "tail": mat_emit("tail_light", NEON_RED, 11.0, haze=0.4),
         "tail_streak": mat_emit("tail_streak", NEON_RED, 1.2, haze=0.4),
         "head": mat_emit("head_light", WHITE_WARM, 14.0, haze=0.4),
-        "giant": mat_emit("giant_sign", NEON_RED, 7.0, haze=0.2),
-        "giant_y": mat_emit("giant_sign_y", NEON_YELLOW, 5.5, haze=0.2),
+        "giant": mat_emit("giant_sign", NEON_RED, 10.0, haze=0.2),
+        "giant_y": mat_emit("giant_sign_y", NEON_YELLOW, 7.0, haze=0.2),
         "window_train": mat_emit("train_windows", WHITE_WARM, 4.5, haze=0.5),
         "beacon": mat_emit("beacon", NEON_RED, 12.0, haze=0.3),
     }
@@ -772,6 +932,8 @@ def build_city(scene, rnd, dyn):
     greebles = BoxBatch()   # AC units, ledges, fins: dark metal
     leds = BoxBatch()       # thin LED strips: white-hot
     ledges_red = BoxBatch()  # red ledge strips
+    escapes = BoxBatch()    # fire escapes and pipes: rusty metal
+    slabs = BoxBatch()      # brutalist slab bands: grimy concrete
 
     # ground: road, sidewalks, curbs
     plane("road", (0, END_Y / 2 + 20, 0), (2 * ROAD_HALF, END_Y + 120), (0, 0, 0), road, city)
@@ -793,11 +955,15 @@ def build_city(scene, rnd, dyn):
                 h = rnd.uniform(30, 85)  # stay under the sight line to the sign at the end
             gap = rnd.uniform(0.8, 3.0)
             cool = rnd.random() < 0.28
-            tmat = tower_cool if cool else tower
             cx = side * (ST_EDGE + d / 2 + rnd.uniform(0, 1.5))
             cy = y + w / 2
             face_x = cx - side * d / 2  # street-facing facade plane
+            # v3 dressing uses its own generator, so the approved v2 layout doesn't move
+            rd = random.Random(int((y + 100) * 37) * 3 + side)
+            facade = "glass" if cool else rd.choices(["masonry", "concrete", "plain"], weights=[0.45, 0.35, 0.2])[0]
+            tmat = {"glass": tower_cool, "masonry": tower_masonry, "concrete": tower_concrete, "plain": tower}[facade]
             box(f"t{side}_{int(y)}", (cx, cy, 0), (d, w, h), tmat, city)
+            dress_facade(rd, facade, side, face_x, cy, w, h, escapes, slabs)
             # setback tiers
             top = h
             tier_w, tier_d = w, d
@@ -855,6 +1021,9 @@ def build_city(scene, rnd, dyn):
     greebles.build("greebles", metal, city)
     leds.build("led_strips", emit["led"], city)
     ledges_red.build("red_strips", emit["red_dim"], city)
+    rust = mat_dark("rust", color=(0.045, 0.026, 0.018, 1), rough=0.55, metal=0.6, grime=0.8)
+    escapes.build("fire_escapes", rust, city)
+    slabs.build("brutal_slabs", concrete, city)
 
     build_rail(rnd, dyn, city, movers, lights, emit, concrete, metal, dark)
     build_bridge(city, lights, emit, concrete, tower_cool)
@@ -863,6 +1032,207 @@ def build_city(scene, rnd, dyn):
     build_mega(rnd, dyn, city, signs, lights, emit, mega_mat, board, tower, tower_cool)
     build_street(rnd, dyn, city, signs, lights, movers, emit, dark, metal)
     build_avs(dyn, movers, lights, emit, dark)
+    build_dressing(dyn, city, signs, lights, movers, emit, dark, metal, board)
+
+
+def dress_facade(rd, facade, side, face_x, cy, w, h, escapes, slabs):
+    """Facade detail by building type: fire escapes and drain pipes on masonry,
+    deep slab bands on brutalist concrete. Pipes on everything but glass."""
+    if facade == "glass":
+        return
+    out = -side  # towards the street
+    for _ in range(rd.randint(1, 3)):  # drain / service pipes
+        py = cy + rd.uniform(-w / 2 + 0.6, w / 2 - 0.6)
+        escapes.add(face_x + out * 0.12, py, 0.3, 0.16, 0.16, min(h, 70) - 0.5)
+    if facade == "masonry" and rd.random() < 0.7:
+        # fire escape: platforms each storey, railings, and a zig-zag stair between them
+        ew = 4.2
+        ey = cy + rd.uniform(-w / 2 + ew / 2 + 0.3, w / 2 - ew / 2 - 0.3) if w > ew + 1 else cy
+        top = min(int(h / 3.1), 14)
+        for fl in range(2, top):
+            z = fl * 3.1
+            escapes.add(face_x + out * 0.5, ey, z, 1.0, ew, 0.08)                # platform
+            escapes.add(face_x + out * 0.98, ey, z + 0.08, 0.05, ew, 0.05)      # top rail
+            escapes.add(face_x + out * 0.98, ey, z + 0.55, 0.05, ew, 0.04)      # mid rail
+            for k in range(5):
+                escapes.add(face_x + out * 0.98, ey - ew / 2 + k * ew / 4, z + 0.08, 0.05, 0.05, 1.0)  # balusters
+            d = 1 if fl % 2 else -1
+            for s in range(7):  # stair down to the platform below
+                escapes.add(face_x + out * 0.55, ey + d * (-ew / 2 + 0.4 + s * 0.48), z - 0.2 - s * 0.42, 0.7, 0.5, 0.05)
+    if facade == "concrete":
+        z = 6.2
+        while z < min(h, 110) - 2:
+            slabs.add(face_x + out * 0.45, cy, z, 0.9, w + 0.2, 0.55 if rd.random() < 0.7 else 1.1)
+            z += rd.choice([6.2, 6.2, 9.3])
+
+
+def build_dressing(dyn, city, signs, lights, movers, emit, dark, metal, board):
+    """v3 street life: market stalls with awnings and bulb strings, vending
+    machines, trash, pedestrians (some under LED umbrellas), animated LED
+    billboards, and more cables and lantern strings, some low enough to sweep
+    right over the lens. Own random generator, so v2's layout stays put."""
+    rd = random.Random(31337)
+    cloth = [mat_dark(f"awning{i}", color=c, rough=0.8, metal=0.0, grime=0.6) for i, c in enumerate(
+        [(0.10, 0.022, 0.016, 1), (0.05, 0.052, 0.028, 1), (0.028, 0.036, 0.044, 1), (0.085, 0.062, 0.018, 1)])]
+    wood = mat_dark("stall_wood", color=(0.05, 0.035, 0.024, 1), rough=0.6, metal=0.0, grime=0.8)
+    trash = mat_dark("trash", color=(0.016, 0.018, 0.017, 1), rough=0.3, metal=0.0, grime=0.5)
+    bulb = mat_emit("bulb", WHITE_WARM, 7.0, haze=0.4)
+    vend = [mat_emit("vend_cool", COOL_WHITE, 2.6, haze=0.4), mat_emit("vend_red", NEON_RED, 2.4, haze=0.4),
+            mat_emit("vend_yellow", NEON_YELLOW, 2.2, haze=0.4)]
+    goods = [emit["red_dim"], emit["yellow_dim"], mat_emit("goods_cool", COOL_WHITE, 1.4, haze=0.4)]
+    posts, bags = BoxBatch(), BoxBatch()
+
+    def clear_of_poles(y):
+        return all(abs(y - p) > 1.6 for p in (RAIL_Y - 1.8, RAIL_Y + 1.8))
+
+    # market strip: stalls on both sidewalks along the first stretch of the street
+    for side in (-1, 1):
+        y = 2.0 + rd.uniform(0, 3)
+        while y < 168:
+            if 88 < y < 104:  # leave the rail crossing open
+                y = 104
+            sw = rd.uniform(2.6, 3.6)
+            if not clear_of_poles(y) or rd.random() < 0.18:
+                y += sw + rd.uniform(1, 4)
+                continue
+            x_in, x_out = side * 10.6, side * 8.7
+            xc = (x_in + x_out) / 2
+            box(f"counter{side}_{int(y)}", (side * 9.75, y, 0.16), (1.1, sw - 0.4, 1.0), wood, city)
+            for px in (x_in, x_out):
+                for e in (-1, 1):
+                    posts.add(px, y + e * (sw / 2 - 0.08), 0.16, 0.08, 0.08, 2.7 if px == x_in else 2.35)
+            plane(f"awning{side}_{int(y)}", (xc, y, 2.62), (2.3, sw + 0.2), (0, side * 0.22, 0), rd.choice(cloth), city)
+            for k in range(6):  # bulb string along the front edge
+                box(f"bulb{side}_{int(y)}_{k}", (x_out - side * 0.05, y - sw / 2 + (k + 0.5) * sw / 6, 2.28 - 0.08 * (k % 2)),
+                    (0.11, 0.11, 0.11), bulb, signs)
+            add_light(f"stall{side}_{int(y)}", "POINT", (side * 9.5, y, 2.1), (1.0, 0.66, 0.36), 110, lights, size=0.6)
+            plane(f"stall_sign{side}_{int(y)}", (side * 10.55, y, 1.95), (sw - 0.6, 0.7), (math.pi / 2, 0, math.pi / 2),
+                  rd.choice(goods), signs)
+            for _ in range(rd.randint(2, 5)):  # goods on the counter
+                posts.add(side * rd.uniform(9.4, 10.1), y + rd.uniform(-sw / 2 + 0.3, sw / 2 - 0.3), 1.16,
+                          rd.uniform(0.15, 0.4), rd.uniform(0.15, 0.4), rd.uniform(0.1, 0.35))
+            if rd.random() < 0.3:  # a food cart's steam
+                m = mat_steam(100 + len(dyn.steam_obs))
+                ob = box(f"stall_steam{side}_{int(y)}", (side * 9.5, y, 1.1), (1.8, 1.8, 5.0), m, signs)
+                ob["volume_only"] = True; ob["rise"] = 0.0
+                dyn.steam_obs.append(ob)
+            y += sw + rd.uniform(0.2, 1.4)
+    posts.build("stall_posts", metal, city)
+
+    # vending machines against the walls further down, glowing into the wet pavement
+    for i in range(12):
+        side = 1 if i % 2 else -1
+        y = rd.uniform(168, 250) if i < 8 else rd.uniform(8, 160)
+        box(f"vend{i}", (side * (ST_EDGE - 0.45), y, 0.16), (0.8, 1.1, 1.95), dark, city)
+        mat = rd.choice(vend)
+        plane(f"vend_front{i}", (side * (ST_EDGE - 0.86), y, 1.2), (0.95, 1.5), (math.pi / 2, 0, math.pi / 2), mat, signs)
+        add_light(f"vend_l{i}", "POINT", (side * (ST_EDGE - 1.6), y, 1.2), (0.7, 0.85, 1.0) if mat is vend[0] else SPILL["red" if mat is vend[1] else "yellow"],
+                  60, lights, size=0.5)
+
+    # trash: wet bags piled against the walls
+    for _ in range(34):
+        side = rd.choice((-1, 1))
+        y = rd.uniform(-4, 250)
+        for _ in range(rd.randint(3, 7)):
+            s = rd.uniform(0.3, 0.7)
+            bags.add(side * (ST_EDGE - rd.uniform(0.3, 1.0)), y + rd.uniform(-0.8, 0.8), 0.16 + rd.uniform(0, 0.25), s, s * rd.uniform(0.8, 1.3), s * 0.8)
+    bags.build("trash", trash, city)
+
+    # more cables and lantern strings; the low ones sweep over the lens on the street stretch
+    cable_mat = mat_dark("cable_v3", color=(0.004, 0.004, 0.004, 1), rough=0.6, metal=0.0)
+    lantern = bpy.data.meshes.new("lantern")
+    bm = bmesh.new(); bmesh.ops.create_uvsphere(bm, u_segments=10, v_segments=6, radius=0.17); bm.to_mesh(lantern); bm.free()
+    lantern_mats = [mat_emit("lantern_red", NEON_RED, 2.2, haze=0.5), mat_emit("lantern_amber", AMBER, 1.6, haze=0.5)]
+    for i in range(36):
+        low = i < 12
+        yy = rd.uniform(4, 92) if low else rd.uniform(-4, 250)
+        z0 = rd.uniform(5.6, 7.6) if low else rd.uniform(9, 30)
+        cu = bpy.data.curves.new(f"cable_v3_{i}", "CURVE"); cu.dimensions = "3D"
+        cu.bevel_depth = 0.03
+        sp = cu.splines.new("BEZIER"); sp.bezier_points.add(2)
+        sag = rd.uniform(0.8, 2.4)
+        pts = [(-ST_EDGE, yy, z0), (0, yy + rd.uniform(-1.5, 1.5), z0 - sag), (ST_EDGE, yy + rd.uniform(-3, 3), z0 + rd.uniform(-1.5, 2.5))]
+        for bp, p in zip(sp.bezier_points, pts):
+            bp.co = p; bp.handle_left_type = bp.handle_right_type = "AUTO"
+        cu.materials.append(cable_mat)
+        link(bpy.data.objects.new(f"cable_v3_{i}", cu), city)
+        if (low and i % 3 == 0) or (not low and rd.random() < 0.3):
+            mat = rd.choice(lantern_mats)
+            n_l = rd.randint(5, 9)
+            for k in range(n_l):
+                tt = (k + 0.5) / n_l
+                x = -ST_EDGE + tt * 2 * ST_EDGE
+                s = (1 - (2 * tt - 1) ** 2) * sag * 0.9
+                instance(f"lan_v3_{i}_{k}", lantern, mat, signs).location = (x, yy, z0 - s - 0.45)
+
+    # pedestrians on the sidewalks, a few under LED-shaft umbrellas (Blade Runner)
+    coat = mat_dark("coat", color=(0.018, 0.018, 0.02, 1), rough=0.45, metal=0.0, grime=0.4)
+    brolly = mat_dark("umbrella", color=(0.012, 0.012, 0.014, 1), rough=0.18, metal=0.0)
+    person, canopy, shaft = person_meshes()
+    shaft_mats = [emit["red"], emit["yellow"], emit["cool"]]
+    for i in range(96):
+        side = rd.choice((-1, 1))
+        y0 = rd.uniform(-6, 250)
+        x = side * rd.uniform(7.4, 8.5)
+        v = rd.choice((0.0, 0.05, 0.07, 0.09, -0.06, -0.08))
+        p = instance(f"ped{i}", person, coat, movers)
+        s = rd.uniform(0.92, 1.1)
+        p.scale = (s, s, s)
+        if rd.random() < 0.42:
+            instance(f"brolly{i}", canopy, brolly, movers).parent = p
+            if rd.random() < 0.55:
+                instance(f"shaft{i}", shaft, rd.choice(shaft_mats), movers).parent = p
+        dyn.peds.append((p, x, y0, v))
+
+    # animated LED billboards, slanted towards the street; each throws coloured light on the wet street
+    boards = [
+        (38.0, -1, 27.0, 9.0, 5.4, "scroll", NEON_RED, NEON_YELLOW, "red"),
+        (70.0, 1, 25.0, 9.0, 5.4, "eq", NEON_YELLOW, NEON_RED, "yellow"),
+        (122.0, -1, 35.0, 13.0, 7.5, "wave", COOL_WHITE, NEON_RED, "cool"),
+        (158.0, 1, 39.0, 13.0, 7.5, "rings", NEON_YELLOW, NEON_RED, "yellow"),
+        (204.0, 1, 44.0, 11.0, 40.0, "eq", NEON_RED, NEON_YELLOW, "red"),
+        (232.0, -1, 48.0, 15.0, 8.5, "scroll", NEON_YELLOW, NEON_RED, "yellow"),
+    ]
+    for i, (by, side, bz, bw, bh, kind, ca, cb, spill) in enumerate(boards):
+        mat = mat_billboard(f"billboard{i}", kind, ca, cb)
+        rz = (math.pi / 2 - 0.7) if side < 0 else -(math.pi / 2 - 0.7)
+        nb = Vector((math.sin(rz), -math.cos(rz), 0))
+        c = Vector((side * (ST_EDGE + 0.6), by, bz))
+        bo = plane(f"billboard{i}", tuple(c), (bw, bh), (math.pi / 2, 0, rz), mat, signs)
+        bo["t"] = 0.0
+        dyn.billboards.append(bo)
+        box(f"billboard_back{i}", tuple(c - nb * 0.25), (bw + 0.6, 0.3, bh + 0.6), board, city).rotation_euler = (0, 0, rz)
+        lo = add_light(f"billboard_spill{i}", "AREA", tuple(c + nb * 3.0), SPILL[spill], 1600 if bh < 20 else 4200, lights, size=bw)
+        lo.rotation_euler = (math.pi / 2, 0, rz + math.pi)
+
+
+def person_meshes():
+    """Low-poly figures for the crowds: a trench-coat silhouette, an umbrella
+    canopy, and the umbrella's shaft (lit on some, like Blade Runner's LED umbrellas)."""
+    def mesh_from(build, name):
+        me = bpy.data.meshes.new(name)
+        bm = bmesh.new()
+        build(bm)
+        bm.to_mesh(me); bm.free()
+        return me
+
+    def person(bm):
+        bmesh.ops.create_cone(bm, cap_ends=True, segments=8, radius1=0.30, radius2=0.19, depth=1.25,
+                              matrix=Matrix.Translation((0, 0, 1.18)))
+        bmesh.ops.create_icosphere(bm, subdivisions=1, radius=0.13, matrix=Matrix.Translation((0, 0, 1.95)))
+        for e in (-0.1, 0.1):
+            bmesh.ops.create_cone(bm, cap_ends=True, segments=6, radius1=0.07, radius2=0.08, depth=0.6,
+                                  matrix=Matrix.Translation((e, 0, 0.3)))
+
+    def canopy(bm):
+        bmesh.ops.create_cone(bm, cap_ends=False, segments=10, radius1=0.62, radius2=0.04, depth=0.32,
+                              matrix=Matrix.Translation((0.05, 0, 2.28)))
+
+    def shaft(bm):
+        bmesh.ops.create_cone(bm, cap_ends=True, segments=6, radius1=0.018, radius2=0.018, depth=0.95,
+                              matrix=Matrix.Translation((0.05, 0, 1.92)))
+
+    return mesh_from(person, "person"), mesh_from(canopy, "canopy"), mesh_from(shaft, "shaft")
 
 
 def place_sign(word, ck, style, side, cy, rnd, mat, board, signs, lights, emit):
@@ -1061,7 +1431,7 @@ def build_mega(rnd, dyn, city, signs, lights, emit, mega_mat, board, tower, towe
     box("giant_bot", (0, MEGA_FACE - 0.4, gz - 13.35), (60.6, 0.3, 0.35), emit["yellow_dim"], signs)
     for k in range(6):
         box(f"mega_band{k}", (0, MEGA_FACE + 0.25, 20 + k * 28), (70.2, 0.3, 1.4), board, city)
-    add_light("giant_spill", "AREA", (0, MEGA_FACE - 14, gz - 4), (1, 0.12, 0.05), 30000, lights, size=40,
+    add_light("giant_spill", "AREA", (0, MEGA_FACE - 14, gz - 4), (1, 0.12, 0.05), 38000, lights, size=40,
               rot=(math.radians(72), 0, 0))
     # searchlights on the crown, sweeping the smog
     for i, (x, phase) in enumerate(((-15, 0.0), (0, 2.1), (15, 4.2))):
@@ -1133,6 +1503,9 @@ def build_street(rnd, dyn, city, signs, lights, movers, emit, dark, metal):
         dyn.steam_obs.append(ob)
         add_light(f"steam_lamp{i}", "POINT", (x, y_, 0.6), SPILL[col], 1500, lights, size=0.5)
 
+    # wet black car paint and dark glass: reads as sleek shapes catching the neon, not boxes
+    paint = mat_dark("car_paint", color=(0.006, 0.006, 0.007, 1), rough=0.16, metal=0.5)
+    glass = mat_dark("car_glass", color=(0.002, 0.002, 0.003, 1), rough=0.05, metal=0.2)
     # traffic: tail lights (away, right lanes) and head lights (towards us, left lanes),
     # each trailing a faint streak that sells the speed
     for i in range(30):
@@ -1143,8 +1516,8 @@ def build_street(rnd, dyn, city, signs, lights, movers, emit, dark, metal):
         if -16 < y0 + v < 10:  # nothing right beside the camera on the first frames (it's the poster)
             y0 += 30
         car = bpy.data.objects.new(f"car{i}", None); link(car, movers)
-        for part in (box(f"cb{i}", (0, 0, 0.3), (1.9, 4.4, 0.75), dark, movers),
-                     box(f"cc{i}", (0, 0.3, 1.05), (1.6, 2.2, 0.55), dark, movers)):
+        for part in (box(f"cb{i}", (0, 0, 0.3), (1.9, 4.4, 0.75), paint, movers),
+                     box(f"cc{i}", (0, 0.3, 1.05), (1.6, 2.2, 0.55), glass, movers)):
             part.parent = car
         lm = emit["tail"] if away else emit["head"]
         end = -2.21 if away else 2.21
@@ -1381,6 +1754,12 @@ def apply_frame(dyn, f, frames, mobile):
         # spot points down -Z: flip it up, then tip it towards the camera side
         lo.rotation_euler = (math.pi + tilt, 0.0, yaw)
     set_attr(dyn.steam_obs, "rise", -td * 0.06)
+    # LED billboards animate on their own clock; pedestrians stroll (wrapping along the block)
+    set_attr(dyn.billboards, "t", td)
+    for ob, x, y0, v in dyn.peds:
+        y = (y0 + v * td + 8) % 262 - 8
+        ob.location = (x, y, 0.16)
+        ob.rotation_euler = (0, 0, 0 if v >= 0 else math.pi)
 
 
 # --------------------------------------------------------------------------
@@ -1477,7 +1856,8 @@ def set_pass(scene, args, pass_name, world, smog, dyn):
     _PASS_GROUP.nodes["volume_pass"].outputs[0].default_value = 1.0 if vol else 0.0
     world.node_tree.nodes["volume_pass"].outputs[0].default_value = 1.0 if vol else 0.0
     # in the volume pass the sky only lights the smog: brighter, so the haze reads cool teal
-    world.node_tree.nodes["sky"].inputs["Strength"].default_value = 9.0 if vol else 1.0
+    # beauty: an overcast fill so the dull surfaces read (wet concrete, brick), not pure black
+    world.node_tree.nodes["sky"].inputs["Strength"].default_value = 9.0 if vol else 1.7
     for ob in bpy.data.objects:
         if ob.get("volume_only"):
             ob.hide_render = not vol
@@ -1504,7 +1884,7 @@ def render(args):
 def bake_keys(scene, dyn, frames, mobile):
     """Bake the per-frame state to keyframes so the saved .blend plays in Blender."""
     obs = [dyn.cam, dyn.rain, dyn.train] + [c[0] for c in dyn.cars] + [a[0] for a in dyn.avs] + dyn.holo_spin \
-        + [s[0] for s in dyn.searchlights]
+        + [s[0] for s in dyn.searchlights] + [pd[0] for pd in dyn.peds]
     for f in range(1, frames + 1):
         apply_frame(dyn, f, frames, mobile)
         for ob in obs:
@@ -1547,8 +1927,10 @@ def look(args):
 
 # --------------------------------------------------------------------------
 # Post: add the volume pass, bloom + anamorphic streaks on the highlights,
-# slight chromatic aberration, vignette, quiet bands for the overlaid copy in
-# the last quarter, fine grain, WebP.
+# slight chromatic aberration, the v3 grade (a dull, desaturated base with
+# smoky lifted blacks; the lights keep their colour), vignette, quiet bands for
+# the overlaid copy in the last quarter. PNG for the video encode (no grain:
+# noise is expensive in video, the page can add it), or WebP.
 # --------------------------------------------------------------------------
 def post(args):
     import numpy as np
@@ -1592,8 +1974,11 @@ def post(args):
         luma = disp @ np.array([0.2126, 0.7152, 0.0722], np.float32)
         hi = (np.clip((luma - 0.5) / 0.5, 0, 1) ** 1.5)[..., None] * disp
         hi_im = Image.fromarray((np.clip(hi, 0, 1) * 255).astype(np.uint8))
+        t = (frame - 1) / max(1, total - 1)
+        end = np.clip((t - 0.62) / 0.25, 0, 1)
+        end = end * end * (3 - 2 * end)  # 0 on the street, 1 over the skyline
         glow = np.zeros_like(disp)
-        for r, wgt in ((max(2, w // 300), 0.6), (max(4, w // 100), 0.5), (max(8, w // 36), 0.42)):
+        for r, wgt in ((max(2, w // 300), 0.6), (max(4, w // 100), 0.5), (max(8, w // 36), 0.42 + 0.35 * end)):
             small = hi_im.resize((w // 2, h // 2), Image.BILINEAR).filter(ImageFilter.GaussianBlur(r / 2))
             glow += np.asarray(small.resize((w, h), Image.BILINEAR)).astype(np.float32) / 255.0 * wgt
         # anamorphic streaks from the hottest points only
@@ -1611,32 +1996,66 @@ def post(args):
         r_ = r_.transform((w, h), Image.AFFINE, (1 - k, 0, w * k / 2, 0, 1 - k, h * k / 2), Image.BILINEAR)
         b_ = b_.transform((w, h), Image.AFFINE, (1 + k, 0, -w * k / 2, 0, 1 + k, -h * k / 2), Image.BILINEAR)
         out = np.asarray(Image.merge("RGB", (r_, g_, b_))).astype(np.float32) / 255.0
-        # cool the shadows (multiplicative, so blacks stay black): neon keeps its heat, darks go steel-teal
+        # v3 grade: everything that isn't a light goes dull. Desaturate by darkness (the
+        # dim, coloured spill on concrete greys out; lamps, signs and their halos keep
+        # their colour), cool the shadows, then lift the blacks into grey-teal smog.
         luma2 = out @ np.array([0.2126, 0.7152, 0.0722], np.float32)
+        dull = 0.62 * (1 - np.clip((luma2 - 0.10) / 0.45, 0, 1))
+        cool = np.clip((out[..., 2] - out[..., 0]) / np.maximum(luma2, 0.02) * 2.0, 0, 1)
+        dull = (dull * (1 - 0.75 * end * cool))[..., None]
+        out = out + (luma2[..., None] - out) * dull
         shadow = (np.clip(1 - luma2 / 0.38, 0, 1) ** 1.4)[..., None]
-        out = out * (1 - shadow * np.array([0.16, 0.03, -0.08], np.float32))
+        out = out * (1 - shadow * np.array([0.14, 0.03, -0.06], np.float32))
+        lift = (1 - np.clip(luma2 / 0.25, 0, 1))[..., None] * np.array([0.020, 0.027, 0.031], np.float32)
+        out = out + lift * (1 - out)
         # vignette + quiet bands for the overlaid copy, easing in over the last quarter
         yy, xx = np.mgrid[0:h, 0:w]
         d = np.sqrt(((xx - w / 2) / (w / 2)) ** 2 + ((yy - h / 2) / (h / 2)) ** 2)
         vig = 1 - 0.32 * np.clip(d - 0.5, 0, 1) ** 1.3
-        t = (frame - 1) / max(1, total - 1)
         kq = np.clip((t - 0.72) / 0.28, 0, 1)
         kq = kq * kq * (3 - 2 * kq)
         vv = yy / h
         band = np.maximum(np.clip(1 - vv / 0.22, 0, 1), np.clip((vv - 0.73) / 0.27, 0, 1))
         vig = vig * (1 - 0.6 * kq * band ** 1.5)
         out = out * vig[..., None]
-        # fine luminance grain, deterministic per frame
-        rng = np.random.default_rng(frame)
-        g = rng.normal(0, 0.010, (h, w)).astype(np.float32)
-        out = np.clip(out + g[..., None] * (0.35 + out.mean(axis=2, keepdims=True)), 0, 1)
-        res = Image.fromarray((out * 255 + 0.5).astype(np.uint8))
-        res.save(os.path.join(args.dst, name.replace(".png", ".webp")), "WEBP", quality=args.quality, method=6)
+        if getattr(args, "format", "png") == "webp":
+            # fine luminance grain for stills, deterministic per frame
+            rng = np.random.default_rng(frame)
+            g = rng.normal(0, 0.008, (h, w)).astype(np.float32)
+            out = np.clip(out + g[..., None] * (0.35 + out.mean(axis=2, keepdims=True)), 0, 1)
+        res = Image.fromarray((np.clip(out, 0, 1) * 255 + 0.5).astype(np.uint8))
+        if getattr(args, "format", "png") == "webp":
+            res.save(os.path.join(args.dst, name.replace(".png", ".webp")), "WEBP", quality=args.quality, method=6)
+        else:
+            res.save(os.path.join(args.dst, name), "PNG", compress_level=1)
         if args.poster and frame == 1:
-            res.save(args.poster, "JPEG", quality=82, optimize=True, progressive=True)
+            res.save(args.poster, "JPEG", quality=80, optimize=True, progressive=True)
     print(f"post: {len(files)} frames -> {args.dst}")
+
+
+# --------------------------------------------------------------------------
+# Encode: frames -> a video the page scrubs with scroll. A keyframe every few
+# frames keeps seeking cheap in both directions; faststart puts the index up
+# front. .mp4 = H.264 High (hardware decode everywhere), .webm = VP9 (for
+# browsers without H.264, e.g. open-source Chromium builds).
+# --------------------------------------------------------------------------
+def encode(args):
+    import subprocess
+
+    src = os.path.join(args.src, "%04d.png")
+    common = ["-y", "-loglevel", "error", "-framerate", str(args.fps), "-i", src, "-an", "-pix_fmt", "yuv420p",
+              "-g", str(args.gop), "-keyint_min", str(args.gop)]
+    if args.dst.endswith(".webm"):
+        cmd = ["ffmpeg", *common, "-c:v", "libvpx-vp9", "-b:v", "0", "-crf", str(args.crf),
+               "-row-mt", "1", "-deadline", "good", "-cpu-used", "2", args.dst]
+    else:
+        cmd = ["ffmpeg", *common, "-c:v", "libx264", "-profile:v", "high", "-preset", "slow", "-crf", str(args.crf),
+               "-sc_threshold", "0", "-movflags", "+faststart", args.dst]
+    t0 = time.time()
+    subprocess.run(cmd, check=True)
+    print(f"encode: {args.dst} {os.path.getsize(args.dst) / 1e6:.2f} MB in {time.time() - t0:.0f}s")
 
 
 if __name__ == "__main__":
     a = args_from_cli()
-    {"render": render, "still": still, "post": post, "look": look}[a.mode](a)
+    {"render": render, "still": still, "post": post, "look": look, "encode": encode}[a.mode](a)
