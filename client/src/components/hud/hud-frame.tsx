@@ -97,6 +97,9 @@ export function HudFrame() {
                 </button>
               );
             })}
+            <Link href="/now" className="px-2.5 py-1 font-mono text-[0.7rem] uppercase tracking-[0.12em] text-muted-foreground transition-colors hover:text-foreground">
+              /Now
+            </Link>
             <Link href="/blog" className="px-2.5 py-1 font-mono text-[0.7rem] uppercase tracking-[0.12em] text-muted-foreground transition-colors hover:text-foreground">
               /Blog
             </Link>
@@ -141,6 +144,7 @@ export function HudFrame() {
               </button>
             ))}
             <div className="mt-4 flex gap-2">
+              <Link href="/now" onClick={() => setMenu(false)} className="btn-hud btn-hud-ghost flex-1 py-2.5">Now</Link>
               <Link href="/blog" onClick={() => setMenu(false)} className="btn-hud btn-hud-ghost flex-1 py-2.5">Blog</Link>
               <button onClick={() => { setMenu(false); openShell(); }} className="btn-hud btn-hud-ghost flex-1 py-2.5">Shell</button>
             </div>
