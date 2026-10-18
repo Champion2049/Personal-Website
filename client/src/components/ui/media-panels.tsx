@@ -94,19 +94,10 @@ export function SpotifyPanel(_: { onMouseMove?: any } = {}) {
           </div>
         </div>
 
-        {/* Dial: ticks, a needle parked on this song's "frequency", and an EQ that only moves when something's actually playing */}
+        {/* Dial: ticks and a needle parked on this song's "frequency" (the live EQ is Chids FM, above) */}
         <div className="mt-7" aria-hidden>
-          <div className="flex items-end justify-between gap-[3px] h-8">
-            {Array.from({ length: 28 }).map((_, i) => (
-              <span
-                key={i}
-                className={`flex-1 origin-bottom bg-primary/70 ${playing ? 'animate-[nc-eq_900ms_ease-in-out_infinite_alternate]' : ''}`}
-                style={{ height: `${25 + ((i * 37) % 70)}%`, animationDelay: `${(i * 83) % 600}ms`, opacity: playing ? 1 : 0.35 }}
-              />
-            ))}
-          </div>
           <div
-            className="relative mt-2 h-7 border-t border-primary/30"
+            className="relative h-7 border-t border-primary/30"
             style={{
               backgroundImage: 'repeating-linear-gradient(to right, hsl(2 100% 60% / 0.35) 0 1px, transparent 1px 2.5%)',
               backgroundSize: '100% 8px',

@@ -503,4 +503,3 @@ html.cyber-scroll body {
   80%  { clip-path: inset(74% 0 8% 0);  transform: translate(2px, 0); }
   100% { opacity: 0; }
 }
-@keyframes nc-eq { from { transform: scaleY(0.3); } to { transform: scaleY(1); } }
