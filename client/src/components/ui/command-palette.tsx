@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/command';
 import {
   Home, User, Cpu, Briefcase, FileText, FolderGit2, Github as GithubIcon,
-  MessageSquare, Mail, Linkedin, Download, Phone, Joystick, PenLine,
+  MessageSquare, Mail, Linkedin, Download, Phone, Joystick, PenLine, Clock,
 } from 'lucide-react';
 
 const sections = [
@@ -88,6 +88,10 @@ export function CommandPalette() {
           <CommandItem value="get to know me about personal hobbies games movies" onSelect={() => run(() => window.dispatchEvent(new CustomEvent('enter-grid', { detail: { to: '/about-me' } })))}>
             <Joystick className="mr-2 h-4 w-4" />
             <span>Get to know me</span>
+          </CommandItem>
+          <CommandItem value="now currently building listening watching reading" onSelect={() => run(() => setLocation('/now'))}>
+            <Clock className="mr-2 h-4 w-4" />
+            <span>Now</span>
           </CommandItem>
           <CommandItem value="blog writing posts articles" onSelect={() => run(() => setLocation('/blog'))}>
             <PenLine className="mr-2 h-4 w-4" />

@@ -16,6 +16,7 @@ const HELP: [string, string][] = [
   ['contact', 'jump to Contact'],
   ['resume', 'open my résumé (PDF)'],
   ['blog', 'open the blog'],
+  ['now', "what I'm up to right now"],
   ['nightcity', 'enter the "get to know me" page'],
   ['social', 'github / linkedin / email'],
   ['neofetch', 'system readout'],
@@ -100,6 +101,10 @@ export function HeroTerminal({ onClose }: { onClose?: () => void }) {
         push({ kind: 'out', text: 'opening résumé.pdf …' });
         window.open('/Chirayu_Chaudhari_Resume.pdf', '_blank', 'noopener');
         closeSoon();
+        break;
+      case 'now':
+        push({ kind: 'out', text: 'loading /now …' });
+        setTimeout(() => setLocation('/now'), 250);
         break;
       case 'blog':
         push({ kind: 'out', text: 'loading /blog …' });
