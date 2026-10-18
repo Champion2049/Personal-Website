@@ -27,13 +27,18 @@
   status = 200
 
 [[redirects]]
-  from = "/api/mal-favorites"
-  to = "/.netlify/functions/mal-favorites"
+  from = "/api/spotify-login"
+  to = "/.netlify/functions/spotify-login"
   status = 200
 
 [[redirects]]
-  from = "/api/mal-stats"
-  to = "/.netlify/functions/mal-stats"
+  from = "/api/spotify-callback"
+  to = "/.netlify/functions/spotify-callback"
+  status = 200
+
+[[redirects]]
+  from = "/api/mal"
+  to = "/.netlify/functions/mal"
   status = 200
 
 ## SPA fallback

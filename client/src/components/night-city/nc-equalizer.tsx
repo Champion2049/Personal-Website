@@ -166,9 +166,6 @@ export function NCEqualizer() {
         </button>
       </div>
       <canvas ref={canvas} aria-hidden className="mt-5 block h-32 w-full md:h-40" />
-      <p className="mt-2 text-sm text-muted-foreground">
-        Reacting live to this page's soundtrack: <span className="text-foreground">End of Line</span> by Daft Punk.
-      </p>
     </div>
   );
 }
