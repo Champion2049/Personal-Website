@@ -14,6 +14,7 @@ import { BreachProtocol } from '@/components/night-city/breach-protocol';
 import { NCOutro } from '@/components/night-city/nc-outro';
 import { NCRain } from '@/components/night-city/nc-rain';
 import { NCArrival } from '@/components/night-city/nc-arrival';
+import { GraffitiWall } from '@/components/night-city/graffiti-wall';
 import { playGridTrack, stopGridTrack } from '@/lib/grid-audio';
 import { identity, quiz } from '@/lib/personal-data';
 import { loadFonts, NIGHT_CITY_FONTS } from '@/lib/fonts';
@@ -121,6 +122,10 @@ export default function AboutMe() {
               <BreachProtocol />
             </div>
           </div>
+        </NCSection>
+
+        <NCSection id="wall" index="08" title="The Wall" meta="Messages from people passing through">
+          <GraffitiWall />
         </NCSection>
 
         <NCOutro />
