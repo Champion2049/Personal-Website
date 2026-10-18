@@ -64,6 +64,9 @@
 
 @layer base {
   * { @apply border-border; }
+  /* No text selection anywhere (a highlighted page looks messy); form fields stay editable. */
+  * { -webkit-user-select: none; user-select: none; }
+  input, textarea, select, [contenteditable='true'] { -webkit-user-select: text; user-select: text; }
   html { scroll-behavior: smooth; }
   body {
     @apply font-sans antialiased bg-background text-foreground;
@@ -84,6 +87,10 @@
 }
 
 @layer components {
+  /* Intro: the "double-click to skip" hint fades in once the sting is under way */
+  .intro-skip-hint { animation: intro-hint 700ms ease 1.2s both; }
+  @keyframes intro-hint { from { opacity: 0; } to { opacity: 1; } }
+
   /* Solid HUD bar. No backdrop-filter: re-blurring content as it scrolls underneath costs every frame. */
   .glass-effect {
     background: hsl(216 33% 3% / 0.94);

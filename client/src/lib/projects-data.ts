@@ -16,6 +16,8 @@ export interface Project {
 export type CaseVisualKind = 'face-mesh' | 'call-signal' | 'constellation' | 'learning-curves';
 
 export interface CaseFile {
+  /** A couple of words for the case-file selector. */
+  short: string;
   /** One line, the whole project. */
   summary: string;
   problem: string;
@@ -34,6 +36,7 @@ export const projectsData: Project[] = [
     category: 'AI / ML',
     featured: true,
     caseFile: {
+      short: 'DECA',
       summary: 'Making a 3D face model hold up when faces get expressive.',
       problem: 'Pretrained DECA struggles on hard-case expressions.',
       approach: 'A residual correction head over its frozen encoder, fine-tuned on FaceScape, with a CUDA training pipeline and an evaluation harness that diagnoses failures per sample.',
@@ -50,6 +53,7 @@ export const projectsData: Project[] = [
     category: 'AI / ML',
     featured: true,
     caseFile: {
+      short: 'Spam-call agents',
       summary: 'Catching scam calls, and explaining every flag.',
       problem: 'Classifier scores on their own are hard to trust or audit.',
       approach: 'Whisper transcription, a Log-Mel spectrogram CNN and an NLP scam-scoring model, combined by weighted late fusion.',
@@ -66,6 +70,7 @@ export const projectsData: Project[] = [
     category: 'Signals & Hardware',
     featured: true,
     caseFile: {
+      short: 'Signal anomalies',
       summary: 'Spotting anomalies in live radio spectrum.',
       problem: 'Anomalous bursts hide among normal traffic in the ISM bands.',
       approach: 'Live I/Q capture on an ADALM-PLUTO SDR, a generator for parameterised QPSK bursts, and SVM-RBF and Random Forest baselines against a custom PyTorch 1D CNN on raw I/Q.',
@@ -82,6 +87,7 @@ export const projectsData: Project[] = [
     category: 'AI / ML',
     featured: true,
     caseFile: {
+      short: 'Thermoelectric RL',
       summary: 'Teaching agents to run a thermoelectric generator.',
       problem: "Optimising a thermoelectric generator's energy output.",
       approach: 'A Gymnasium environment for the generator, with Optuna-tuned PPO, A2C, DDPG, SAC and DQN agents in Stable-Baselines3.',
