@@ -3,8 +3,13 @@ import { createHmac, randomUUID, timingSafeEqual } from 'crypto';
 
 const TOKEN_ENDPOINT = 'https://accounts.spotify.com/api/token';
 export const SCOPES = 'user-read-currently-playing user-read-recently-played user-top-read';
-/** Only this Spotify account can be connected (it's the profile linked on the site). */
-export const OWNER_ID = process.env.SPOTIFY_OWNER_ID || '31k76x23j55ygnc4myz53h4j3yma';
+/**
+ * Optional: the only Spotify user ID allowed to connect. Without it, Spotify's
+ * own rule does the job: a development-mode app only serves its owner and the
+ * users allowlisted in its dashboard, and the callback stops when Spotify won't
+ * hand over the profile.
+ */
+export const OWNER_ID = process.env.SPOTIFY_OWNER_ID || '';
 
 type LambdaLike = { blobs?: string; headers?: Record<string, string | undefined> };
 

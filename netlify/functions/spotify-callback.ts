@@ -15,15 +15,15 @@ export const handler: Handler = async (event) => {
     return page(502, 'Spotify didn’t hand over a token', tokens.error_description || tokens.error || `HTTP ${res.status}`);
   }
 
-  // only the owner's account may drive what the site shows
+  // Spotify only hands the profile to the app's owner and allowlisted users
   const me = await fetch('https://api.spotify.com/v1/me', { headers: { Authorization: `Bearer ${tokens.access_token}` } });
   const profile: any = await me.json().catch(() => ({}));
   if (!me.ok) {
     const why = profile?.error?.message || `HTTP ${me.status}`;
     return page(502, 'Couldn’t read the Spotify profile', /premium/i.test(why) ? `${why}. Spotify now requires the app owner to have Premium.` : why);
   }
-  if (profile.id !== OWNER_ID) {
-    return page(403, 'Wrong account', 'Only the site owner’s Spotify account can be connected here.');
+  if (OWNER_ID && profile.id !== OWNER_ID) {
+    return page(403, 'Wrong account', `This site only connects the Spotify account set in SPOTIFY_OWNER_ID; you signed in as ${profile.display_name || profile.id} (${profile.id}).`);
   }
 
   try {
@@ -34,5 +34,6 @@ export const handler: Handler = async (event) => {
   }
 
   const renew = new Date(Date.now() + 182 * 86400_000).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-  return page(200, 'Spotify is connected', `The site will show what you’re playing again. Spotify expires this sign-in after six months, so come back to /api/spotify-login before ${renew}.`);
+  const who = profile.display_name || profile.id;
+  return page(200, 'Spotify is connected', `Connected as ${who}. The site will show what you’re playing again. Spotify expires this sign-in after six months, so come back to /api/spotify-login before ${renew}.`);
 };
