@@ -2,12 +2,11 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { Link } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, ArrowUpRight } from 'lucide-react';
-import { now, socials } from '@/lib/personal-data';
+import { now, socials, credit } from '@/lib/personal-data';
 import { projectsData } from '@/lib/projects-data';
 import { enterNightCity } from '@/components/hud/hud-frame';
 
 const GITHUB = 'Champion2049';
-const MAL = 'Champion2049';
 
 /** "3h ago" style relative time. */
 function ago(iso: string) {
@@ -47,27 +46,28 @@ function useCommits() {
 
 interface MalUpdate { title: string; url: string; status: string; progress: string; at: string }
 
-/** Recent anime/manga list updates from MyAnimeList (via Jikan). */
+const STATUS: Record<string, string> = { watching: 'Watching', reading: 'Reading', completed: 'Completed', on_hold: 'On hold', dropped: 'Dropped' };
+const RECENT_MS = 60 * 86400_000;
+
+/** What I'm watching/reading on MyAnimeList: anything in progress, plus whatever else changed in the last two months. */
 function useMal() {
   return useQuery<{ anime: MalUpdate[]; manga: MalUpdate[] }>({
     queryKey: ['now-mal'],
     staleTime: 10 * 60_000,
     queryFn: async () => {
-      const { data } = await json(`https://api.jikan.moe/v4/users/${MAL}/userupdates`);
-      const map = (u: any, kind: 'anime' | 'manga'): MalUpdate => ({
-        title: u.entry.title,
-        url: u.entry.url,
-        status: u.status,
-        progress:
-          kind === 'anime'
-            ? u.episodes_seen != null ? `ep ${u.episodes_seen}${u.episodes_total ? ` / ${u.episodes_total}` : ''}` : ''
-            : u.chapters_read != null ? `ch ${u.chapters_read}${u.chapters_total ? ` / ${u.chapters_total}` : ''}` : '',
-        at: u.date,
-      });
-      return {
-        anime: (data?.anime ?? []).slice(0, 3).map((u: any) => map(u, 'anime')),
-        manga: (data?.manga ?? []).slice(0, 2).map((u: any) => map(u, 'manga')),
-      };
+      const data = await json('/api/mal');
+      const pick = (kind: 'anime' | 'manga', n: number): MalUpdate[] =>
+        (data?.[kind]?.recent ?? [])
+          .filter((e: any) => e.status === 'watching' || e.status === 'reading' || Date.now() - +new Date(e.updatedAt) < RECENT_MS)
+          .slice(0, n)
+          .map((e: any) => ({
+            title: e.title,
+            url: e.url,
+            status: STATUS[e.status] ?? '',
+            progress: e.progress ? `${kind === 'anime' ? 'ep' : 'ch'} ${e.progress}${e.total ? ` / ${e.total}` : ''}` : '',
+            at: e.updatedAt,
+          }));
+      return { anime: pick('anime', 3), manga: pick('manga', 2) };
     },
   });
 }
@@ -125,9 +125,11 @@ export default function Now() {
   const track = useTrack();
   const time = useClock();
   const recent = projectsData.slice(0, 2);
-  const reading = now.reading && now.reading.toLowerCase() !== 'none' ? now.reading : null;
-  // the API answers with a placeholder title when nothing's available; a real track always has an artist
-  const song = track.data?.title && track.data.artist ? track.data : null;
+  const book = now.reading && now.reading.toLowerCase() !== 'none' ? credit(now.reading) : null;
+  const song = credit(now.listening);
+  // what Spotify is playing this minute, when it's something other than the song above
+  const live = track.data?.isPlaying && track.data.title && track.data.artist && track.data.title !== song.title ? track.data : null;
+  const manga = mal.data?.manga ?? [];
 
   useEffect(() => {
     const prev = document.title;
@@ -194,16 +196,21 @@ export default function Now() {
           </ul>
         </Row>
 
-        <Row label="Listening" live={!!song}>
-          {song ? (
-            <>
-              <Big>{song.songUrl ? <Ext href={song.songUrl}>{song.title}</Ext> : song.title}</Big>
-              <Meta>
-                {song.artist} · {song.isPlaying ? 'playing right now' : 'last played'}
-              </Meta>
-            </>
-          ) : (
-            <Big>{now.listening}</Big>
+        <Row label="Listening" live={!!live}>
+          <Big>{now.listeningUrl ? <Ext href={now.listeningUrl}>{song.title}</Ext> : song.title}</Big>
+          <Meta>{[song.by, 'on repeat'].filter(Boolean).join(' · ')}</Meta>
+          {live && (
+            <p className="mt-4 text-sm text-muted-foreground">
+              Playing right now:{' '}
+              {live.songUrl ? (
+                <a href={live.songUrl} target="_blank" rel="noopener noreferrer" className="text-foreground hover:text-primary">
+                  {live.title}
+                </a>
+              ) : (
+                <span className="text-foreground">{live.title}</span>
+              )}{' '}
+              · {live.artist}
+            </p>
           )}
         </Row>
 
@@ -226,10 +233,16 @@ export default function Now() {
           </ul>
         </Row>
 
-        <Row label="Reading" live={!!mal.data?.manga.length}>
-          {mal.data?.manga.length ? (
+        <Row label="Reading" live={!!manga.length}>
+          {book || manga.length ? (
             <ul className="space-y-5">
-              {mal.data.manga.map((m) => (
+              {book && (
+                <li>
+                  <Big>{book.title}</Big>
+                  {book.by && <Meta>{book.by}</Meta>}
+                </li>
+              )}
+              {manga.map((m) => (
                 <li key={m.url}>
                   <Big>
                     <Ext href={m.url}>{m.title}</Ext>
@@ -238,8 +251,6 @@ export default function Now() {
                 </li>
               ))}
             </ul>
-          ) : reading ? (
-            <Big>{reading}</Big>
           ) : (
             <Big>
               Nothing right now.{' '}

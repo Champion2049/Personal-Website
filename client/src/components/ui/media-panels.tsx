@@ -2,21 +2,20 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Tv, BookOpen, Eye, Star, CheckCircle2, Clock, CalendarDays,
-  PauseCircle, XCircle, List, Rewind, TrendingUp, ExternalLink, Disc3, Layers,
+  PauseCircle, XCircle, List, TrendingUp, ExternalLink, Disc3, Layers,
 } from 'lucide-react';
-import { profiles, now, music } from '@/lib/personal-data';
+import { profiles, now, music, credit } from '@/lib/personal-data';
 
-const MAL_USER = 'Champion2049';
 const fmt = (n: any, d = 0) => (typeof n === 'number' ? n.toFixed(d) : '—');
 
 /* =====================  SPOTIFY → NIGHT CITY RADIO  ===================== */
 interface Track { isPlaying: boolean; title?: string; artist?: string; album?: string; albumImageUrl?: string; songUrl?: string; }
 interface Artist { name: string; url: string; image?: string; genres?: string[]; }
 
-/** "Title - Artist" from personal-data, used when Spotify can't be reached. */
+/** The song from personal-data, used when Spotify can't be reached. */
 function onRepeat() {
-  const [title, ...rest] = now.listening.split(/\s+[-–—]\s+/);
-  return { title: title?.trim() || now.listening, artist: rest.join(' - ').trim() };
+  const { title, by } = credit(now.listening);
+  return { title, artist: by };
 }
 
 /** Stable pseudo-frequency for a song so the needle doesn't jump around. */
@@ -67,7 +66,7 @@ export function SpotifyPanel(_: { onMouseMove?: any } = {}) {
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
       {/* Tuner */}
       <a
-        href={live ? track!.songUrl : profiles.spotify}
+        href={live ? track!.songUrl : now.listeningUrl || profiles.spotify}
         target="_blank"
         rel="noopener noreferrer"
         className="shard shard-lg shard-hover group block p-5 md:p-7"
@@ -170,59 +169,59 @@ export function SpotifyPanel(_: { onMouseMove?: any } = {}) {
 }
 
 /* =====================  ANIME / MANGA  ===================== */
-interface Media { mal_id: number; title: string; url: string; images: { jpg: { image_url: string } }; type: string; }
+/** One list entry from /api/mal (netlify/functions/_mal.ts). */
+interface Media { id: number; title: string; url: string; image: string | null; type: string; score: number }
+interface MalSide { stats: Record<string, number>; top: Media[] }
 type Tab = 'anime' | 'manga';
 
+// eight tiles each, so the grid always fills
 const animeStatCfg = [
   { k: 'days_watched', label: 'Days watched', icon: Eye, d: 1 },
+  { k: 'total_entries', label: 'Total entries', icon: List },
   { k: 'mean_score', label: 'Mean score', icon: Star, d: 2 },
   { k: 'completed', label: 'Completed', icon: CheckCircle2 },
   { k: 'watching', label: 'Watching', icon: Clock },
   { k: 'plan_to_watch', label: 'Plan to watch', icon: CalendarDays },
   { k: 'on_hold', label: 'On hold', icon: PauseCircle },
   { k: 'dropped', label: 'Dropped', icon: XCircle },
-  { k: 'total_entries', label: 'Total entries', icon: List },
-  { k: 'rewatched', label: 'Rewatched', icon: Rewind },
   { k: 'episodes_watched', label: 'Episodes', icon: TrendingUp },
 ];
 const mangaStatCfg = [
-  { k: 'days_read', label: 'Days read', icon: Eye, d: 1 },
   { k: 'mean_score', label: 'Mean score', icon: Star, d: 2 },
   { k: 'completed', label: 'Completed', icon: CheckCircle2 },
   { k: 'reading', label: 'Reading', icon: Clock },
   { k: 'plan_to_read', label: 'Plan to read', icon: CalendarDays },
   { k: 'on_hold', label: 'On hold', icon: PauseCircle },
   { k: 'dropped', label: 'Dropped', icon: XCircle },
-  { k: 'total_entries', label: 'Total entries', icon: List },
-  { k: 'reread', label: 'Reread', icon: Rewind },
   { k: 'chapters_read', label: 'Chapters', icon: BookOpen },
   { k: 'volumes_read', label: 'Volumes', icon: Layers },
 ];
 
+/** Days watched needs episode lengths, which only the official MAL API gives; otherwise show total entries. */
+function statTiles(tab: Tab, stat: Record<string, number> | null) {
+  if (tab === 'manga') return mangaStatCfg;
+  const days = !!stat && 'days_watched' in stat;
+  return animeStatCfg.filter((s) => s.k !== (days ? 'total_entries' : 'days_watched'));
+}
+
 export function AnimeMangaPanel(_: { onMouseMove?: any } = {}) {
   const [tab, setTab] = useState<Tab>('anime');
-  const [stats, setStats] = useState<{ anime?: any; manga?: any } | null>(null);
-  const [favs, setFavs] = useState<{ anime: Media[]; manga: Media[] } | null>(null);
+  const [mal, setMal] = useState<{ anime: MalSide; manga: MalSide } | null>(null);
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     let c = false;
-    Promise.all([
-      fetch(`https://api.jikan.moe/v4/users/${MAL_USER}/full`).then((r) => (r.ok ? r.json() : Promise.reject())),
-      fetch(`https://api.jikan.moe/v4/users/${MAL_USER}/favorites`).then((r) => (r.ok ? r.json() : Promise.reject())),
-    ])
-      .then(([full, favorites]) => {
-        if (c) return;
-        setStats(full?.data?.statistics ?? null);
-        setFavs({ anime: favorites?.data?.anime ?? [], manga: favorites?.data?.manga ?? [] });
-      })
+    fetch('/api/mal')
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((d) => { if (!c && d?.anime && d?.manga) setMal(d); else if (!c) setFailed(true); })
       .catch(() => { if (!c) setFailed(true); });
     return () => { c = true; };
   }, []);
 
-  const cfg = tab === 'anime' ? animeStatCfg : mangaStatCfg;
-  const stat = stats ? stats[tab] : null;
-  const favList = (favs ? favs[tab] : []).slice(0, 4);
+  const side = mal?.[tab];
+  const stat = side && Object.keys(side.stats).length ? side.stats : null;
+  const cfg = statTiles(tab, stat);
+  const topList = (side?.top ?? []).slice(0, 4);
 
   return (
     <div className="shard shard-lg p-5 md:p-7">
@@ -250,7 +249,7 @@ export function AnimeMangaPanel(_: { onMouseMove?: any } = {}) {
         </a>
       </div>
 
-      {failed && !stat ? (
+      {!stat && (failed || mal) ? (
         <p className="mt-8 text-muted-foreground">
           MyAnimeList isn't answering right now, so the live stats can't load.{' '}
           <a className="text-primary underline underline-offset-4" href={profiles.myanimelist} target="_blank" rel="noopener noreferrer">
@@ -260,7 +259,7 @@ export function AnimeMangaPanel(_: { onMouseMove?: any } = {}) {
         </p>
       ) : (
         <motion.div key={tab} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
-          <dl className="mt-6 grid grid-cols-2 gap-px bg-primary/10 sm:grid-cols-3 lg:grid-cols-5">
+          <dl className="mt-6 grid grid-cols-2 gap-px bg-primary/10 sm:grid-cols-4">
             {cfg.map((s) => (
               <div key={s.k} className="bg-[hsl(0_45%_5%)] px-4 py-3">
                 <dt className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -275,26 +274,30 @@ export function AnimeMangaPanel(_: { onMouseMove?: any } = {}) {
 
           <h3 className="mt-8 flex items-center gap-2 font-display text-lg font-bold uppercase tracking-widest">
             {tab === 'anime' ? <Tv size={16} className="text-primary" /> : <BookOpen size={16} className="text-primary" />}
-            Favourite {tab}
+            Top rated {tab}
           </h3>
           <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
-            {favList.length
-              ? favList.map((m) => (
+            {topList.length
+              ? topList.map((m) => (
                   <a
-                    key={m.mal_id}
+                    key={m.id}
                     href={m.url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="group relative block aspect-[3/4] overflow-hidden [clip-path:polygon(0_0,calc(100%-12px)_0,100%_12px,100%_100%,12px_100%,0_calc(100%-12px))]"
                   >
-                    <img src={m.images.jpg.image_url} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                    {m.image ? (
+                      <img src={m.image} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                    ) : (
+                      <div className="h-full w-full bg-primary/10" />
+                    )}
                     <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-3 pt-10">
                       <div className="font-display text-base font-semibold leading-tight line-clamp-2">{m.title}</div>
-                      <div className="mt-0.5 text-xs text-white/60">{m.type}</div>
+                      <div className="mt-0.5 text-xs text-white/60">{[m.type, m.score ? `★ ${m.score}` : ''].filter(Boolean).join(' · ')}</div>
                     </div>
                   </a>
                 ))
-              : Array.from({ length: 4 }).map((_, i) => <div key={i} className="aspect-[3/4] animate-pulse bg-muted" />)}
+              : !mal && Array.from({ length: 4 }).map((_, i) => <div key={i} className="aspect-[3/4] animate-pulse bg-muted" />)}
           </div>
         </motion.div>
       )}
