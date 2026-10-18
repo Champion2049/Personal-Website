@@ -2034,6 +2034,7 @@ def post(args):
         else:
             res.save(os.path.join(args.dst, name), "PNG", compress_level=1)
         if args.poster and frame == 1:
+            os.makedirs(os.path.dirname(os.path.abspath(args.poster)), exist_ok=True)
             res.save(args.poster, "JPEG", quality=80, optimize=True, progressive=True)
     print(f"post: {len(files)} frames -> {args.dst}")
 
