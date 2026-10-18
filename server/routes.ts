@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { insertGuestbookSchema } from "@shared/schema";
 import { storage } from "./storage";
+import { fetchMal } from "../netlify/functions/_mal";
 
 const TOKEN_ENDPOINT = "https://accounts.spotify.com/api/token";
 
@@ -84,6 +85,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       /* ignore — fall through to offline payload */
     }
     return res.json({ isPlaying: false, title: 'Nothing to show' });
+  });
+
+  // MyAnimeList (same module as the Netlify function; MAL_CLIENT_ID optional).
+  app.get('/api/mal', async (_req, res) => {
+    try {
+      res.json(await fetchMal('Champion2049', process.env.MAL_CLIENT_ID));
+    } catch (e) {
+      res.status(502).json({ error: e instanceof Error ? e.message : String(e) });
+    }
   });
 
   app.get('/api/spotify-stats', async (_req, res) => {
