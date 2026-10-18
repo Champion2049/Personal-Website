@@ -9,6 +9,19 @@ export interface Project {
   github: string;
   category: Category;
   featured?: boolean;
+  /** Featured projects get a full-screen case file (projects section). */
+  caseFile?: CaseFile;
+}
+
+export type CaseVisualKind = 'face-mesh' | 'call-signal' | 'constellation' | 'learning-curves';
+
+export interface CaseFile {
+  /** One line, the whole project. */
+  summary: string;
+  problem: string;
+  approach: string;
+  result: string;
+  visual: CaseVisualKind;
 }
 
 export const projectsData: Project[] = [
@@ -20,6 +33,13 @@ export const projectsData: Project[] = [
     github: 'https://github.com/Champion2049/DECA',
     category: 'AI / ML',
     featured: true,
+    caseFile: {
+      summary: 'Making a 3D face model hold up when faces get expressive.',
+      problem: 'Pretrained DECA struggles on hard-case expressions.',
+      approach: 'A residual correction head over its frozen encoder, fine-tuned on FaceScape, with a CUDA training pipeline and an evaluation harness that diagnoses failures per sample.',
+      result: 'The fine-tuned model beat the pretrained baseline.',
+      visual: 'face-mesh',
+    },
   },
   {
     title: 'Agentic Spam Call & Misinformation Detection',
@@ -29,6 +49,13 @@ export const projectsData: Project[] = [
     github: 'https://github.com/Champion2049/Agentic-Spam-Call-Detection',
     category: 'AI / ML',
     featured: true,
+    caseFile: {
+      summary: 'Catching scam calls, and explaining every flag.',
+      problem: 'Classifier scores on their own are hard to trust or audit.',
+      approach: 'Whisper transcription, a Log-Mel spectrogram CNN and an NLP scam-scoring model, combined by weighted late fusion.',
+      result: 'An LLM agent justifies every flagged call, so the scores are auditable.',
+      visual: 'call-signal',
+    },
   },
   {
     title: 'Suspicious Signal Detection — ML & SDR',
@@ -38,6 +65,13 @@ export const projectsData: Project[] = [
     github: 'https://github.com/Champion2049/SuspiciousSignal-ML-SDR',
     category: 'Signals & Hardware',
     featured: true,
+    caseFile: {
+      summary: 'Spotting anomalies in live radio spectrum.',
+      problem: 'Anomalous bursts hide among normal traffic in the ISM bands.',
+      approach: 'Live I/Q capture on an ADALM-PLUTO SDR, a generator for parameterised QPSK bursts, and SVM-RBF and Random Forest baselines against a custom PyTorch 1D CNN on raw I/Q.',
+      result: 'The CNN caught temporal and spectral anomalies the others missed.',
+      visual: 'constellation',
+    },
   },
   {
     title: 'Thermoelectric Energy Optimization with Deep RL',
@@ -47,6 +81,13 @@ export const projectsData: Project[] = [
     github: 'https://github.com/ShreyaKunda/Thermoelectric-Energy-Optimization-with-Deep-Reinforcement-Learning',
     category: 'AI / ML',
     featured: true,
+    caseFile: {
+      summary: 'Teaching agents to run a thermoelectric generator.',
+      problem: "Optimising a thermoelectric generator's energy output.",
+      approach: 'A Gymnasium environment for the generator, with Optuna-tuned PPO, A2C, DDPG, SAC and DQN agents in Stable-Baselines3.',
+      result: 'Benchmarked head to head, and published in a Springer Nature journal.',
+      visual: 'learning-curves',
+    },
   },
   {
     title: 'LLM-Optimized Gold Nanoparticle Synthesis',

@@ -5,6 +5,11 @@ import { SectionHeading } from '@/components/ui/section-heading';
 import { gsap, ScrollTrigger, useGSAP } from '@/lib/gsap';
 import { useLenis } from '@/components/ui/lenis-scroll-provider';
 import { projectsData, type Category, type Project } from '@/lib/projects-data';
+import { CaseFiles } from './case-files';
+
+const caseFiles = projectsData.filter((p) => p.caseFile);
+// everything without a case file goes in the gallery below them
+const others = projectsData.filter((p) => !p.caseFile);
 
 const filters: ('All' | Category)[] = ['All', 'AI / ML', 'Signals & Hardware', 'Web & Systems', 'Research'];
 
@@ -168,7 +173,7 @@ export function ProjectsSection() {
   const lenis = useLenis();
   const section = useRef<HTMLElement>(null);
 
-  const visible = active === 'All' ? projectsData : projectsData.filter((p) => p.category === active);
+  const visible = active === 'All' ? others : others.filter((p) => p.category === active);
 
   const choose = (f: 'All' | Category) => {
     if (f === active) return;
@@ -184,7 +189,7 @@ export function ProjectsSection() {
   const filtersBar = (
     <div className="flex flex-wrap gap-2">
       {filters.map((f) => {
-        const count = f === 'All' ? projectsData.length : projectsData.filter((p) => p.category === f).length;
+        const count = f === 'All' ? others.length : others.filter((p) => p.category === f).length;
         return (
           <button
             key={f}
@@ -209,15 +214,18 @@ export function ProjectsSection() {
         <SectionHeading
           index="05"
           title={<>Things I've <span className="accent-text">built</span></>}
-          description="From 3D face reconstruction and RF anomaly detection to reinforcement-learning agents and full-stack tooling. Filter by domain."
+          description="From 3D face reconstruction and RF anomaly detection to reinforcement-learning agents and full-stack tooling."
         />
+        <CaseFiles projects={caseFiles} />
+        <h3 className="mt-24 font-display text-2xl font-bold uppercase tracking-wide md:mt-32 md:text-3xl">More projects</h3>
+        <p className="mt-2 text-muted-foreground">Filter by domain.</p>
       </div>
 
       {gallery ? (
         <Gallery items={visible} active={active} filtersBar={filtersBar} />
       ) : (
         <div className="container mx-auto px-6 md:px-10">
-          <div className="mb-10">{filtersBar}</div>
+          <div className="mb-10 mt-6">{filtersBar}</div>
           <motion.div layout className="grid gap-5 md:grid-cols-2">
             <AnimatePresence mode="popLayout">
               {visible.map((project) => (
