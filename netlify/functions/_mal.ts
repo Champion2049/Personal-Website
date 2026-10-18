@@ -63,10 +63,17 @@ function typeLabel(t: unknown) {
   return s.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-/** MAL list thumbnails are resized copies; the original sits at the same path without /r/WxH. */
+/**
+ * MAL list thumbnails are resized copies (/r/WxH/…). Drop that for the original
+ * path, then ask for the large variant (an "l" before the extension, ~425px wide)
+ * so cards aren't upscaled from a 225px image.
+ */
 function fullImage(src: unknown) {
   if (!src || typeof src !== 'string') return null;
-  return src.replace(/\/r\/\d+x\d+/, '').replace(/\?.*$/, '');
+  return src
+    .replace(/\/r\/\d+x\d+/, '')
+    .replace(/\?.*$/, '')
+    .replace(/(\/\d+)(\.\w+)$/, '$1l$2');
 }
 
 /** A failed MAL request, with its HTTP status (404 = no such user; 400/401/403 usually a private list). */
