@@ -261,7 +261,7 @@ export function AnimeMangaPanel(_: { onMouseMove?: any } = {}) {
         <motion.div key={tab} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
           <dl className="mt-6 grid grid-cols-2 gap-px bg-primary/10 sm:grid-cols-4">
             {cfg.map((s) => (
-              <div key={s.k} className="bg-[hsl(0_45%_5%)] px-4 py-3">
+              <div key={s.k} className="bg-[hsl(225_45%_5%)] px-4 py-3">
                 <dt className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <s.icon size={12} className="text-primary" /> {s.label}
                 </dt>

@@ -247,20 +247,20 @@
    Wrap any subtree in <div class="theme-cyber"> to recolor it.
    ============================================================ */
 .theme-cyber {
-  --background: hsl(0 45% 4%);
-  --foreground: hsl(40 30% 93%);
-  --card: hsl(0 40% 8%);
-  --card-foreground: hsl(40 25% 90%);
-  --popover: hsl(0 45% 6%);
-  --popover-foreground: hsl(40 30% 93%);
+  --background: hsl(225 45% 4%);
+  --foreground: hsl(210 25% 94%);
+  --card: hsl(225 35% 8%);
+  --card-foreground: hsl(210 20% 90%);
+  --popover: hsl(225 40% 6%);
+  --popover-foreground: hsl(210 25% 94%);
   --primary: hsl(2 100% 60%);
-  --primary-foreground: hsl(0 45% 5%);
-  --muted: hsl(0 28% 12%);
-  --muted-foreground: hsl(2 15% 62%);
+  --primary-foreground: hsl(225 45% 5%);
+  --muted: hsl(225 25% 12%);
+  --muted-foreground: hsl(215 16% 64%);
   --accent: hsl(45 100% 56%);
-  --accent-foreground: hsl(0 45% 5%);
+  --accent-foreground: hsl(225 45% 5%);
   --border: hsl(0 55% 18%);
-  --input: hsl(0 50% 14%);
+  --input: hsl(225 35% 12%);
   --ring: hsl(2 100% 60%);
   background: var(--background);
   color: var(--foreground);
@@ -291,9 +291,9 @@
 .theme-cyber .card-spotlight::before {
   background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), hsl(2 100% 60% / 0.18), transparent 60%);
 }
-.theme-cyber .tag-chip { background: hsl(0 40% 12% / 0.7); border-color: hsl(2 100% 70% / 0.16); }
+.theme-cyber .tag-chip { background: hsl(225 30% 12% / 0.7); border-color: hsl(2 100% 70% / 0.16); }
 .theme-cyber .hairline { background: linear-gradient(90deg, transparent, hsl(2 100% 62% / 0.3), transparent); }
-.theme-cyber .glass-effect { background: hsl(0 40% 8% / 0.6); border: 1px solid hsl(2 100% 70% / 0.12); }
+.theme-cyber .glass-effect { background: hsl(225 35% 8% / 0.6); border: 1px solid hsl(2 100% 70% / 0.12); }
 .theme-cyber ::selection { background: hsl(2 100% 60% / 0.3); }
 
 /* Grid-rush + glitch used by the transition overlay */
@@ -315,10 +315,10 @@ html.cyber-scroll::-webkit-scrollbar-thumb:hover {
   background-clip: content-box;
 }
 /* While on the Night City page, force the document background to the cyber
-   dark-red so the default dark-blue body bg never shows below the content. */
+   navy so the portfolio's body bg never shows below the content. */
 html.cyber-scroll,
 html.cyber-scroll body {
-  background-color: hsl(0 45% 4%);
+  background-color: hsl(225 45% 4%);
 }
 
 /* ===== micro-interactions ===== */
@@ -366,7 +366,7 @@ html.cyber-scroll body {
     position: relative;
     clip-path: polygon(0 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% 100%, var(--cut) 100%, 0 calc(100% - var(--cut)));
   }
-  .shard { background: linear-gradient(180deg, hsl(0 40% 9% / 0.8), hsl(0 45% 5% / 0.8)); }
+  .shard { background: linear-gradient(180deg, hsl(225 35% 9% / 0.8), hsl(225 45% 5% / 0.8)); }
   .shard::after, .nc-btn-ghost::after {
     content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none;
     background-color: var(--shard-line);
@@ -392,7 +392,7 @@ html.cyber-scroll body {
     font-family: var(--font-display); font-weight: 700; font-size: 0.95rem;
     letter-spacing: 0.08em; text-transform: uppercase;
     padding: 0.7rem 1.4rem;
-    background: var(--nc-red); color: hsl(0 45% 5%);
+    background: var(--nc-red); color: hsl(225 45% 5%);
     clip-path: polygon(0 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% 100%, var(--cut) 100%, 0 calc(100% - var(--cut)));
     transition: background-color .2s ease, color .2s ease, scale 160ms var(--ease-out);
   }
@@ -419,14 +419,14 @@ html.cyber-scroll body {
     font-family: var(--font-display); font-weight: 600; font-size: 0.8rem; letter-spacing: 0.06em;
     text-transform: uppercase; padding: 0.3rem 0.75rem;
     clip-path: polygon(0 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% 100%, var(--cut) 100%, 0 calc(100% - var(--cut)));
-    background: hsl(0 40% 12% / 0.8); color: hsl(2 15% 70%);
+    background: hsl(225 30% 12% / 0.8); color: hsl(215 15% 72%);
     transition: background-color .2s ease, color .2s ease, scale 160ms var(--ease-out);
   }
   .nc-chip:active:not(:disabled) { scale: 0.96; }
   .nc-chip:disabled { opacity: 0.5; cursor: not-allowed; }
-  .nc-chip[aria-pressed="true"], .nc-chip[aria-selected="true"], .nc-chip-gold { background: var(--nc-yellow); color: #120504; }
+  .nc-chip[aria-pressed="true"], .nc-chip[aria-selected="true"], .nc-chip-gold { background: var(--nc-yellow); color: #05070e; }
   @media (hover: hover) and (pointer: fine) {
-    .nc-chip:not([aria-pressed="true"]):not([aria-selected="true"]):hover { background: hsl(0 40% 18%); color: hsl(40 30% 93%); }
+    .nc-chip:not([aria-pressed="true"]):not([aria-selected="true"]):hover { background: hsl(225 30% 18%); color: hsl(210 25% 94%); }
   }
   .nc-chip:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--nc-yellow); }
 
@@ -446,17 +446,17 @@ html.cyber-scroll body {
   }
 
   /* Attribute pips (character sheet) */
-  .nc-pip { flex: 1 1 0; max-width: 7px; min-width: 3px; height: 14px; transform: skewX(-18deg); background: hsl(0 30% 18%); }
+  .nc-pip { flex: 1 1 0; max-width: 7px; min-width: 3px; height: 14px; transform: skewX(-18deg); background: hsl(225 22% 18%); }
   .nc-pip[data-on="true"] { background: var(--nc-yellow); box-shadow: 0 0 8px hsl(56 100% 48% / 0.45); }
 
   /* Faint CRT scanlines over the whole Night City page */
   /* Graffiti wall (night-city/graffiti-wall.tsx): grimy bricks from gradients, neon spray-paint tags */
   .nc-bricks {
-    background-color: hsl(4 30% 7%);
+    background-color: hsl(222 22% 7%);
     background-image:
       radial-gradient(ellipse at 30% 20%, hsl(2 100% 50% / 0.12), transparent 55%),
       radial-gradient(ellipse at 80% 90%, hsl(0 0% 0% / 0.6), transparent 60%),
-      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='60'><rect width='120' height='60' fill='%23080303'/><rect x='1' y='1' width='58' height='28' fill='%232a1210'/><rect x='61' y='1' width='58' height='28' fill='%2324100e'/><rect x='-29' y='31' width='58' height='28' fill='%2322100e'/><rect x='31' y='31' width='58' height='28' fill='%232c1311'/><rect x='91' y='31' width='58' height='28' fill='%2325100e'/></svg>");
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='60'><rect width='120' height='60' fill='%2304060b'/><rect x='1' y='1' width='58' height='28' fill='%23141a27'/><rect x='61' y='1' width='58' height='28' fill='%23111622'/><rect x='-29' y='31' width='58' height='28' fill='%2310151f'/><rect x='31' y='31' width='58' height='28' fill='%23161c2a'/><rect x='91' y='31' width='58' height='28' fill='%23121723'/></svg>");
     background-size: 100% 100%, 100% 100%, 120px 60px;
     box-shadow: inset 0 0 90px hsl(0 0% 0% / 0.85);
   }
@@ -466,8 +466,23 @@ html.cyber-scroll body {
   .nc-tag-fresh { animation: nc-spray 1.1s steps(12, end) both; }
   @keyframes nc-spray { from { clip-path: inset(0 100% 0 0); filter: blur(3px); } to { clip-path: inset(0 0 0 0); filter: blur(0); } }
   .nc-scanlines {
-    position: fixed; inset: 0; pointer-events: none; z-index: 60; opacity: 0.16;
+    position: fixed; inset: 0; pointer-events: none; z-index: 60; opacity: 0.07;
     background: repeating-linear-gradient(to bottom, transparent 0 2px, hsl(0 0% 0% / 0.5) 2px 3px);
+  }
+
+  /* Night City backdrop: neon bokeh from a blurred flythrough still, vignetted into the page navy */
+  .nc-backdrop {
+    opacity: 0.5;
+    background:
+      radial-gradient(ellipse 85% 75% at 50% 42%, transparent 30%, hsl(225 45% 4% / 0.9) 100%),
+      url('/nightcity/backdrop.jpg') center / cover no-repeat;
+  }
+  @media (max-aspect-ratio: 9/10) {
+    .nc-backdrop {
+      background:
+        radial-gradient(ellipse 90% 70% at 50% 42%, transparent 30%, hsl(225 45% 4% / 0.9) 100%),
+        url('/nightcity/backdrop-mobile.jpg') center / cover no-repeat;
+    }
   }
 
   /* Backlog covers sit desaturated until you look at them */

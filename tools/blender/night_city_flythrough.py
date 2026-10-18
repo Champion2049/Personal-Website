@@ -90,36 +90,38 @@ def srgb(hexstr):
     return (*out, 1.0)
 
 
+# v4 palette: a dark navy city lit in red and blue (the reference is Night City's
+# skyline at night). Blue takes the old yellow's role in signs, screens and spill.
 RED_DEEP = srgb("#c2140c")
-AMBER = srgb("#ffb347")      # warm window light
-CYAN = srgb("#00f0ff")       # --nc-cyan: holograms only (rare accent)
-WHITE_WARM = srgb("#ffe9c9")
-COOL_WHITE = srgb("#bfe6ee")  # a few office floors, for colour contrast
+AMBER = srgb("#58c4ff")      # window light: mostly cyan-blue now (the name is the v3 role)
+CYAN = srgb("#00f0ff")       # --nc-cyan: holograms, a few windows
+WHITE_WARM = srgb("#f2efe8")  # near-neutral white for lamps and some windows
+COOL_WHITE = srgb("#c4dcff")  # cool office floors
 # Emission versions of the neon colours. #ff3a2e has enough blue that a bright
 # emitter clips to salmon/pink once red saturates; these keep blue << green so
 # hot cores go red-orange instead.
-NEON_RED = (1.0, 0.03, 0.006, 1.0)
-NEON_YELLOW = (0.95, 0.72, 0.0, 1.0)       # --nc-yellow #f3e600, warmed so it reads in haze
-HAZE = srgb("#18232a")                     # grey-teal smog: dull and cool, so the neon is the only colour
+NEON_RED = (1.0, 0.012, 0.003, 1.0)  # v4: near-pure red: green tips blooms orange, blue tips them pink
+NEON_BLUE = (0.02, 0.32, 1.0, 1.0)        # electric blue; hot cores bloom towards cyan-white
+HAZE = srgb("#0a1326")                     # deep navy smog, so the neon is the only colour
 
 SIGN_WORDS = [
     # (text, colour key, style)  - words from lib/personal-data.ts
     # styles: blade (vertical, projecting), tube (outline glass on a board),
     #         box (filled letters on a lit panel), bulbs (marquee with chaser dots)
     ("SYNTHWAVE", "red", "blade"),
-    ("GUITAR", "yellow", "blade"),
+    ("GUITAR", "blue", "blade"),
     ("PHONK", "red", "box"),
-    ("ARCADE", "yellow", "bulbs"),
+    ("ARCADE", "blue", "bulbs"),
     ("SOULS", "red", "blade"),
-    ("ANIME", "yellow", "blade"),
+    ("ANIME", "blue", "blade"),
     ("RADIO", "red", "tube"),
     ("SCI-FI", "red", "box"),
-    ("ROVER", "yellow", "blade"),
+    ("ROVER", "blue", "blade"),
     ("OST", "cyan", "tube"),
-    ("NOODLES", "yellow", "blade"),
+    ("NOODLES", "blue", "blade"),
     ("EDGERUNNER", "red", "blade"),
     ("SEKIRO", "red", "tube"),
-    ("RAIN", "yellow", "box"),
+    ("RAIN", "blue", "box"),
 ]
 FLICKER_WORDS = {"SOULS", "RADIO", "NOODLES", "RAIN"}
 
@@ -375,7 +377,7 @@ def mat_emit(name, color, strength, haze=0.7, attr=None):
     return m
 
 
-def mat_dark(name, color=(0.010, 0.010, 0.011, 1), rough=0.5, metal=0.3, grime=0.0):
+def mat_dark(name, color=(0.008, 0.009, 0.014, 1), rough=0.5, metal=0.3, grime=0.0):
     """Plain surface. `grime` > 0 breaks it up with blotches and wet streaks
     (darker patches, glossier where rain runs), so concrete and metal read as
     old and soaked rather than as flat CG boxes."""
@@ -407,7 +409,7 @@ def facade_bsdf(n, l, math_, u, z, rnd, facade, cool):
     only the lights bring to life."""
     b = n.new("ShaderNodeBsdfPrincipled")
     if facade == "glass" or cool:
-        b.inputs["Base Color"].default_value = (0.020, 0.023, 0.026, 1)
+        b.inputs["Base Color"].default_value = (0.012, 0.016, 0.028, 1)
         b.inputs["Roughness"].default_value = 0.18
         b.inputs["Metallic"].default_value = 0.7
         return b.outputs[0]
@@ -426,9 +428,9 @@ def facade_bsdf(n, l, math_, u, z, rnd, facade, cool):
     if facade == "masonry":
         vec = n.new("ShaderNodeCombineXYZ"); l.new(u, vec.inputs[0]); l.new(z, vec.inputs[1])
         br = n.new("ShaderNodeTexBrick")
-        br.inputs["Color1"].default_value = (0.070, 0.050, 0.040, 1)
-        br.inputs["Color2"].default_value = (0.052, 0.042, 0.036, 1)
-        br.inputs["Mortar"].default_value = (0.022, 0.022, 0.022, 1)
+        br.inputs["Color1"].default_value = (0.036, 0.040, 0.054, 1)
+        br.inputs["Color2"].default_value = (0.028, 0.032, 0.046, 1)
+        br.inputs["Mortar"].default_value = (0.014, 0.016, 0.024, 1)
         br.inputs["Scale"].default_value = 1.0
         br.inputs["Mortar Size"].default_value = 0.018
         br.inputs["Brick Width"].default_value = 0.9
@@ -442,7 +444,7 @@ def facade_bsdf(n, l, math_, u, z, rnd, facade, cool):
         joint_v = math_("LESS_THAN", math_("FRACT", math_("MULTIPLY", z, vb=1 / 3.1)), vb=0.02)
         joint = math_("SUBTRACT", va=1.0, b=math_("MULTIPLY", math_("MAXIMUM", joint_u, joint_v), vb=0.55))
         mix = n.new("ShaderNodeVectorMath"); mix.operation = "SCALE"
-        mix.inputs[0].default_value = (0.068, 0.067, 0.064) if facade == "concrete" else (0.036, 0.034, 0.032)
+        mix.inputs[0].default_value = (0.040, 0.046, 0.062) if facade == "concrete" else (0.020, 0.024, 0.036)
         l.new(joint, mix.inputs["Scale"])
         base = mix.outputs[0]
         rough_lo, metal = (0.6, 0.0) if facade == "concrete" else (0.5, 0.15)
@@ -557,7 +559,7 @@ def mat_road():
     bump = n.new("ShaderNodeBump"); bump.inputs["Strength"].default_value = 0.035
     l.new(bump_n.outputs["Fac"], bump.inputs["Height"])
     b = n.new("ShaderNodeBsdfPrincipled")
-    b.inputs["Base Color"].default_value = (0.011, 0.011, 0.012, 1)
+    b.inputs["Base Color"].default_value = (0.008, 0.009, 0.014, 1)
     b.inputs["Metallic"].default_value = 0.0
     if "Specular IOR Level" in b.inputs:
         b.inputs["Specular IOR Level"].default_value = 0.8
@@ -713,8 +715,8 @@ def mat_world(scene):
     mr.inputs["From Max"].default_value = 0.4
     l.new(sep.outputs["Z"], mr.inputs["Value"])
     mix = n.new("ShaderNodeMix"); mix.data_type = "RGBA"
-    mix.inputs[6].default_value = (0.034, 0.060, 0.068, 1)  # horizon: grey-teal smog lit by the city
-    mix.inputs[7].default_value = (0.004, 0.0055, 0.0065, 1)  # zenith: overcast, never quite black
+    mix.inputs[6].default_value = (0.010, 0.020, 0.056, 1)  # horizon: navy smog lit by the city
+    mix.inputs[7].default_value = (0.0015, 0.0025, 0.0075, 1)  # zenith: near-black blue
     l.new(mr.outputs[0], mix.inputs[0])
     # light pollution: a teal glow band hugging the skyline (only seen once the camera clears the roofs)
     gl = n.new("ShaderNodeMapRange")
@@ -724,7 +726,7 @@ def mat_world(scene):
     glow = n.new("ShaderNodeMix"); glow.data_type = "RGBA"; glow.blend_type = "ADD"
     l.new(gl.outputs[0], glow.inputs[0])
     l.new(mix.outputs[2], glow.inputs[6])
-    glow.inputs[7].default_value = (0.012, 0.036, 0.044, 1)
+    glow.inputs[7].default_value = (0.008, 0.024, 0.080, 1)
     l.new(glow.outputs[2], bg.inputs["Color"])
     bg.inputs["Strength"].default_value = 1.0
     # camera-ray switch, used by the volume pass
@@ -870,7 +872,7 @@ SCREEN_Y = 304.0                  # low block with the giant CHIDS FM screen, we
 MEGA_FACE = END_Y + 9.6
 SIGN_Z = 128.0
 
-SPILL = {"red": (1.0, 0.07, 0.025), "yellow": (1.0, 0.55, 0.06), "cyan": (0.25, 0.8, 1.0), "cool": (0.62, 0.82, 1.0)}
+SPILL = {"red": (1.0, 0.07, 0.025), "blue": (0.08, 0.38, 1.0), "cyan": (0.25, 0.8, 1.0), "cool": (0.62, 0.82, 1.0)}
 
 
 class Dyn:
@@ -913,8 +915,8 @@ def build_city(scene, rnd, dyn):
         "red": mat_emit("neon_red", NEON_RED, 6.5),
         "red_dim": mat_emit("neon_red_dim", NEON_RED, 2.2),
         "red_deep": mat_emit("neon_red_deep", RED_DEEP, 2.4),
-        "yellow": mat_emit("neon_yellow", NEON_YELLOW, 5.0),
-        "yellow_dim": mat_emit("neon_yellow_dim", NEON_YELLOW, 1.6),
+        "blue": mat_emit("neon_blue", NEON_BLUE, 5.0),
+        "blue_dim": mat_emit("neon_blue_dim", NEON_BLUE, 1.6),
         "cyan": mat_emit("neon_cyan", CYAN, 5.0),
         "warm": mat_emit("lamp_warm", WHITE_WARM, 9.0),
         "cool": mat_emit("lamp_cool", COOL_WHITE, 12.0, haze=0.4),
@@ -923,7 +925,7 @@ def build_city(scene, rnd, dyn):
         "tail_streak": mat_emit("tail_streak", NEON_RED, 1.2, haze=0.4),
         "head": mat_emit("head_light", WHITE_WARM, 14.0, haze=0.4),
         "giant": mat_emit("giant_sign", NEON_RED, 10.0, haze=0.2),
-        "giant_y": mat_emit("giant_sign_y", NEON_YELLOW, 7.0, haze=0.2),
+        "giant_b": mat_emit("giant_sign_b", NEON_BLUE, 7.0, haze=0.2),
         "window_train": mat_emit("train_windows", WHITE_WARM, 4.5, haze=0.5),
         "beacon": mat_emit("beacon", NEON_RED, 12.0, haze=0.3),
     }
@@ -999,14 +1001,14 @@ def build_city(scene, rnd, dyn):
                     greebles.add(fx - side * 0.4, cy + e * (w / 2 - 0.3), 5, 0.8, 0.25, min(h, 120) - 5)
             # vertical corner strip on the street-facing edge
             if rnd.random() < 0.4:
-                strip = emit[rnd.choice(["red_dim", "red_dim", "yellow_dim"])]
+                strip = emit[rnd.choice(["red_dim", "red_dim", "blue_dim"])]
                 for e in (-1, 1):
                     box(f"st{side}_{int(y)}_{e}", (face_x - side * 0.15, cy + e * (w / 2 - 0.2), 6),
                         (0.12, 0.12, min(h, 140) - 8), strip, city)
             # shopfront band: canopy + glowing strip + lit window
             box(f"cn{side}_{int(y)}", (side * (ST_EDGE - 1.2), cy, 4.2), (2.6, w - 1, 0.25), dark, city)
             box(f"cl{side}_{int(y)}", (side * (ST_EDGE - 2.45), cy, 4.15), (0.08, w - 1.2, 0.08),
-                emit[rnd.choice(["red", "yellow_dim", "red_dim", "warm"])], city)
+                emit[rnd.choice(["red", "blue_dim", "red_dim", "warm"])], city)
             plane(f"sf{side}_{int(y)}", (side * (ST_EDGE - 0.02), cy, 1.75), (w - 1.5, 2.9),
                   (math.pi / 2, 0, math.pi / 2), rnd.choice(shops), city)
 
@@ -1016,7 +1018,7 @@ def build_city(scene, rnd, dyn):
                 sign_i += 1
                 mat = emit[ck]
                 if word in FLICKER_WORDS:  # its own material, driven per object, so it can stutter on its own
-                    mat = mat_emit(f"neon_{word}", NEON_RED if ck == "red" else NEON_YELLOW, 6.0 if ck == "red" else 5.0, attr="flick")
+                    mat = mat_emit(f"neon_{word}", NEON_RED if ck == "red" else NEON_BLUE, 6.0 if ck == "red" else 5.0, attr="flick")
                     dyn.flickers.append((mat.name, rnd.random() * 100))
                 place_sign(word, ck, style, side, cy, rnd, mat, board, signs, lights, emit)
             y += w + gap
@@ -1081,8 +1083,8 @@ def build_dressing(dyn, city, signs, lights, movers, emit, dark, metal, board):
     trash = mat_dark("trash", color=(0.016, 0.018, 0.017, 1), rough=0.3, metal=0.0, grime=0.5)
     bulb = mat_emit("bulb", WHITE_WARM, 7.0, haze=0.4)
     vend = [mat_emit("vend_cool", COOL_WHITE, 2.6, haze=0.4), mat_emit("vend_red", NEON_RED, 2.4, haze=0.4),
-            mat_emit("vend_yellow", NEON_YELLOW, 2.2, haze=0.4)]
-    goods = [emit["red_dim"], emit["yellow_dim"], mat_emit("goods_cool", COOL_WHITE, 1.4, haze=0.4)]
+            mat_emit("vend_blue", NEON_BLUE, 2.2, haze=0.4)]
+    goods = [emit["red_dim"], emit["blue_dim"], mat_emit("goods_cool", COOL_WHITE, 1.4, haze=0.4)]
     posts, bags = BoxBatch(), BoxBatch()
 
     def clear_of_poles(y):
@@ -1108,7 +1110,7 @@ def build_dressing(dyn, city, signs, lights, movers, emit, dark, metal, board):
             for k in range(6):  # bulb string along the front edge
                 box(f"bulb{side}_{int(y)}_{k}", (x_out - side * 0.05, y - sw / 2 + (k + 0.5) * sw / 6, 2.28 - 0.08 * (k % 2)),
                     (0.11, 0.11, 0.11), bulb, signs)
-            add_light(f"stall{side}_{int(y)}", "POINT", (side * 9.5, y, 2.1), (1.0, 0.66, 0.36), 110, lights, size=0.6)
+            add_light(f"stall{side}_{int(y)}", "POINT", (side * 9.5, y, 2.1), (0.62, 0.78, 1.0), 110, lights, size=0.6)
             plane(f"stall_sign{side}_{int(y)}", (side * 10.55, y, 1.95), (sw - 0.6, 0.7), (math.pi / 2, 0, math.pi / 2),
                   rd.choice(goods), signs)
             for _ in range(rd.randint(2, 5)):  # goods on the counter
@@ -1129,7 +1131,7 @@ def build_dressing(dyn, city, signs, lights, movers, emit, dark, metal, board):
         box(f"vend{i}", (side * (ST_EDGE - 0.45), y, 0.16), (0.8, 1.1, 1.95), dark, city)
         mat = rd.choice(vend)
         plane(f"vend_front{i}", (side * (ST_EDGE - 0.86), y, 1.2), (0.95, 1.5), (math.pi / 2, 0, math.pi / 2), mat, signs)
-        add_light(f"vend_l{i}", "POINT", (side * (ST_EDGE - 1.6), y, 1.2), (0.7, 0.85, 1.0) if mat is vend[0] else SPILL["red" if mat is vend[1] else "yellow"],
+        add_light(f"vend_l{i}", "POINT", (side * (ST_EDGE - 1.6), y, 1.2), (0.7, 0.85, 1.0) if mat is vend[0] else SPILL["red" if mat is vend[1] else "blue"],
                   60, lights, size=0.5)
 
     # trash: wet bags piled against the walls
@@ -1172,7 +1174,7 @@ def build_dressing(dyn, city, signs, lights, movers, emit, dark, metal, board):
     coat = mat_dark("coat", color=(0.018, 0.018, 0.02, 1), rough=0.45, metal=0.0, grime=0.4)
     brolly = mat_dark("umbrella", color=(0.012, 0.012, 0.014, 1), rough=0.18, metal=0.0)
     person, canopy, shaft = person_meshes()
-    shaft_mats = [emit["red"], emit["yellow"], emit["cool"]]
+    shaft_mats = [emit["red"], emit["blue"], emit["cool"]]
     for i in range(96):
         side = rd.choice((-1, 1))
         y0 = rd.uniform(-6, 250)
@@ -1189,12 +1191,12 @@ def build_dressing(dyn, city, signs, lights, movers, emit, dark, metal, board):
 
     # animated LED billboards, slanted towards the street; each throws coloured light on the wet street
     boards = [
-        (38.0, -1, 27.0, 9.0, 5.4, "scroll", NEON_RED, NEON_YELLOW, "red"),
-        (70.0, 1, 25.0, 9.0, 5.4, "eq", NEON_YELLOW, NEON_RED, "yellow"),
+        (38.0, -1, 27.0, 9.0, 5.4, "scroll", NEON_RED, NEON_BLUE, "red"),
+        (70.0, 1, 25.0, 9.0, 5.4, "eq", NEON_BLUE, NEON_RED, "blue"),
         (122.0, -1, 35.0, 13.0, 7.5, "wave", COOL_WHITE, NEON_RED, "cool"),
-        (158.0, 1, 39.0, 13.0, 7.5, "rings", NEON_YELLOW, NEON_RED, "yellow"),
-        (204.0, 1, 44.0, 11.0, 40.0, "eq", NEON_RED, NEON_YELLOW, "red"),
-        (232.0, -1, 48.0, 15.0, 8.5, "scroll", NEON_YELLOW, NEON_RED, "yellow"),
+        (158.0, 1, 39.0, 13.0, 7.5, "rings", NEON_BLUE, NEON_RED, "blue"),
+        (204.0, 1, 44.0, 11.0, 40.0, "eq", NEON_RED, NEON_BLUE, "red"),
+        (232.0, -1, 48.0, 15.0, 8.5, "scroll", NEON_BLUE, NEON_RED, "blue"),
     ]
     for i, (by, side, bz, bw, bh, kind, ca, cb, spill) in enumerate(boards):
         mat = mat_billboard(f"billboard{i}", kind, ca, cb)
@@ -1280,7 +1282,7 @@ def place_sign(word, ck, style, side, cy, rnd, mat, board, signs, lights, emit):
                         off = Vector((math.cos(rz), math.sin(rz), 0)) * (-width / 2 + (k + 0.5) * width / n_b)
                         p = Vector((px, cy, zc + e * size * 0.68)) + off + nb * 0.05
                         box(f"bulb_{word}{k}{e}", tuple(p), (0.16, 0.16, 0.16),
-                            emit["warm"] if (k % 2) else emit["yellow"], signs)
+                            emit["warm"] if (k % 2) else emit["blue"], signs)
         lo = add_light(f"spill_{word}", "AREA", (px - side * 2.5, cy, zc - 1), spill, 380, lights, size=width)
         lo.rotation_euler = (0, -side * math.pi / 2.4, 0)
 
@@ -1301,7 +1303,7 @@ def build_rail(rnd, dyn, city, movers, lights, emit, concrete, metal, dark):
     for x in (-5, 5):
         add_light(f"rail_spot{x}", "SPOT", (x, RAIL_Y, RAIL_Z - 0.3), (0.7, 0.86, 1.0), 4500, lights,
                   size=0.4, rot=(0, 0, 0), spot=math.radians(95), blend=0.6)
-    box("rail_sign_bg", (0, RAIL_Y - deck_w / 2 - 0.2, RAIL_Z + 0.15), (18, 0.2, 1.1), emit["yellow_dim"], city)
+    box("rail_sign_bg", (0, RAIL_Y - deck_w / 2 - 0.2, RAIL_Z + 0.15), (18, 0.2, 1.1), emit["blue_dim"], city)
     # the train: an empty carrying 6 cars
     train = bpy.data.objects.new("train", None)
     link(train, movers)
@@ -1316,7 +1318,7 @@ def build_rail(rnd, dyn, city, movers, lights, emit, concrete, metal, dark):
             part.parent = train
     head = box("train_head", (-0.3, 0, 1.2), (0.3, 2.2, 0.5), emit["head"], movers)
     head.parent = train
-    hl = add_light("train_beam", "SPOT", (-0.5, 0, 1.4), (1.0, 0.85, 0.7), 60000, lights, size=0.3,
+    hl = add_light("train_beam", "SPOT", (-0.5, 0, 1.4), (0.85, 0.92, 1.0), 60000, lights, size=0.3,
                    rot=(0, math.pi / 2, 0), spot=math.radians(28), blend=0.4)  # along -X, the way it travels
     hl.parent = train
     dyn.train = train
@@ -1335,7 +1337,7 @@ def build_holograms(dyn, signs, lights):
     """Two giant see-through holograms the camera banks past: the handle on the
     left, a slowly turning wireframe globe on the right (the rare cyan accent)."""
     red = mat_holo("holo_red", NEON_RED, strength=4.2, alpha=0.6)
-    yel = mat_holo("holo_yellow", NEON_YELLOW, strength=3.0, alpha=0.5)
+    yel = mat_holo("holo_blue", NEON_BLUE, strength=3.0, alpha=0.5)
     cyan = mat_holo("holo_cyan", CYAN, strength=2.6, alpha=0.5)
     dyn.holo_mats += [red.name, yel.name, cyan.name]
     # CHIDS, hanging in the air over the left lanes; the camera flies under it
@@ -1389,7 +1391,7 @@ def build_climb(rnd, dyn, city, signs, lights, emit, tower, tower_cool, board, c
             depth = 2.2 + 0.6 * k
             box(f"terrace{side}{k}", (side * (ST_EDGE - depth / 2 + 0.2), 236.0 + 6 * k, z), (depth, 14.0, 0.5), concrete, city)
             box(f"terrace_led{side}{k}", (side * (ST_EDGE - depth + 0.25), 236.0 + 6 * k, z - 0.08), (0.08, 14.0, 0.08),
-                emit["led" if k % 2 else "yellow_dim"], city)
+                emit["led" if k % 2 else "blue_dim"], city)
             for j in range(4):
                 box(f"rail{side}{k}{j}", (side * (ST_EDGE - depth + 0.3), 230.5 + 6 * k + j * 3.6, z + 0.5), (0.08, 0.08, 1.1), board, city)
     # the screen block, low enough to drop out of the final frame
@@ -1401,9 +1403,9 @@ def build_climb(rnd, dyn, city, signs, lights, emit, tower, tower_cool, board, c
     screen = mat_holo("gate_screen", NEON_RED, strength=1.1, alpha=1.0, glow=0.25)
     plane("gate_screen", (0, SCREEN_Y - 0.15, scr_z), (sw, sh), (math.pi / 2, 0, 0), screen, city)
     dyn.holo_mats.append(screen.name)
-    box("gate_screen_frame_t", (0, SCREEN_Y - 0.2, scr_z + sh / 2), (sw + 0.6, 0.12, 0.3), emit["yellow"], city)
-    box("gate_screen_frame_b", (0, SCREEN_Y - 0.2, scr_z - sh / 2 - 0.3), (sw + 0.6, 0.12, 0.3), emit["yellow"], city)
-    neon_text("gate_fm", "CHIDS FM", 8.0, emit["yellow"], (0, SCREEN_Y - 0.45, scr_z + 3.2), (math.pi / 2, 0, 0),
+    box("gate_screen_frame_t", (0, SCREEN_Y - 0.2, scr_z + sh / 2), (sw + 0.6, 0.12, 0.3), emit["blue"], city)
+    box("gate_screen_frame_b", (0, SCREEN_Y - 0.2, scr_z - sh / 2 - 0.3), (sw + 0.6, 0.12, 0.3), emit["blue"], city)
+    neon_text("gate_fm", "CHIDS FM", 8.0, emit["blue"], (0, SCREEN_Y - 0.45, scr_z + 3.2), (math.pi / 2, 0, 0),
               coll=city, spacing=1.08)
     neon_text("gate_freq", "97.8  //  ON AIR", 2.6, emit["warm"], (0, SCREEN_Y - 0.45, scr_z - 5.6), (math.pi / 2, 0, 0),
               fontfile=FONT_SUB, coll=city, spacing=1.5)
@@ -1418,20 +1420,20 @@ def build_mega(rnd, dyn, city, signs, lights, emit, mega_mat, board, tower, towe
     box("mega_t3", (0, cy + 4, 240), (36, 22, 40), mega_mat, city)
     box("mega_spire", (0, cy + 4, 280), (1.6, 1.6, 60), emit["red"], city)
     for zz, ww in ((160, 70), (240, 54), (280, 36)):
-        box(f"mega_edge{zz}", (0, MEGA_FACE - 0.1 + (0 if zz == 160 else 4 if zz == 240 else 9), zz - 0.4), (ww, 0.2, 0.3), emit["yellow_dim"], city)
+        box(f"mega_edge{zz}", (0, MEGA_FACE - 0.1 + (0 if zz == 160 else 4 if zz == 240 else 9), zz - 0.4), (ww, 0.2, 0.3), emit["blue_dim"], city)
     gz = SIGN_Z
     box("giant_board", (0, MEGA_FACE, gz - 13), (60, 0.6, 26), board, signs)
     neon_text("giant_night", "NIGHT CITY", 13.0, emit["giant"], (0, MEGA_FACE - 0.6, gz + 2.5), (math.pi / 2, 0, 0),
               coll=signs, spacing=1.08)
-    neon_text("giant_handle", "WELCOME, CHOOM", 3.3, emit["giant_y"], (0, MEGA_FACE - 0.6, gz - 8.5), (math.pi / 2, 0, 0),
+    neon_text("giant_handle", "WELCOME, CHOOM", 3.3, emit["giant_b"], (0, MEGA_FACE - 0.6, gz - 8.5), (math.pi / 2, 0, 0),
               fontfile=FONT_SUB, coll=signs, spacing=1.6)
     for e in (-1, 1):
         box(f"giant_rule{e}", (e * 17, MEGA_FACE - 0.6, gz - 8.4), (14, 0.2, 0.22), emit["red"], signs)
-        box(f"giant_post{e}", (e * 30.2, MEGA_FACE - 0.4, gz - 13), (0.35, 0.3, 26), emit["yellow_dim"], signs)
+        box(f"giant_post{e}", (e * 30.2, MEGA_FACE - 0.4, gz - 13), (0.35, 0.3, 26), emit["blue_dim"], signs)
         for k in range(3):
             box(f"mega_rib{e}{k}", (e * (34.6 - k * 1.2), MEGA_FACE + 0.3, 0), (0.25, 0.25, 160 - k * 30), emit["red_dim"], signs)
-    box("giant_top", (0, MEGA_FACE - 0.4, gz + 13), (60.6, 0.3, 0.35), emit["yellow_dim"], signs)
-    box("giant_bot", (0, MEGA_FACE - 0.4, gz - 13.35), (60.6, 0.3, 0.35), emit["yellow_dim"], signs)
+    box("giant_top", (0, MEGA_FACE - 0.4, gz + 13), (60.6, 0.3, 0.35), emit["blue_dim"], signs)
+    box("giant_bot", (0, MEGA_FACE - 0.4, gz - 13.35), (60.6, 0.3, 0.35), emit["blue_dim"], signs)
     for k in range(6):
         box(f"mega_band{k}", (0, MEGA_FACE + 0.25, 20 + k * 28), (70.2, 0.3, 1.4), board, city)
     add_light("giant_spill", "AREA", (0, MEGA_FACE - 14, gz - 4), (1, 0.12, 0.05), 38000, lights, size=40,
@@ -1439,13 +1441,13 @@ def build_mega(rnd, dyn, city, signs, lights, emit, mega_mat, board, tower, towe
     # searchlights on the crown, sweeping the smog
     for i, (x, phase) in enumerate(((-15, 0.0), (0, 2.1), (15, 4.2))):
         lamp = box(f"search_head{i}", (x, cy + 4, 280), (1.2, 1.2, 0.8), emit["led"], city)
-        lo = add_light(f"search{i}", "SPOT", (x, cy + 2, 281.5), (1.0, 0.92, 0.8), 4.0e6, lights, size=0.4,
+        lo = add_light(f"search{i}", "SPOT", (x, cy + 2, 281.5), (0.78, 0.88, 1.0), 4.0e6, lights, size=0.4,
                        spot=math.radians(2.6), blend=0.15)
         lo.rotation_mode = "XYZ"
         dyn.searchlights.append((lo, phase))
     # two more from the far skyline
     for i, (x, y_, z_, phase) in enumerate(((-140, 420, 160, 1.0), (150, 460, 180, 3.0))):
-        lo = add_light(f"search_far{i}", "SPOT", (x, y_, z_), (1.0, 0.85, 0.6), 3.0e6, lights, size=0.4,
+        lo = add_light(f"search_far{i}", "SPOT", (x, y_, z_), (0.7, 0.82, 1.0), 3.0e6, lights, size=0.4,
                        spot=math.radians(2.2), blend=0.15)
         lo.rotation_mode = "XYZ"
         dyn.searchlights.append((lo, phase))
@@ -1483,7 +1485,7 @@ def build_street(rnd, dyn, city, signs, lights, movers, emit, dark, metal):
                 t = (k + 1) / 8
                 x = -ST_EDGE + t * 2 * ST_EDGE
                 sag = (1 - (2 * t - 1) ** 2) * 2.2
-                box(f"lan{i}_{k}", (x, yy, z0 - sag - 0.6), (0.35, 0.35, 0.45), emit[rnd.choice(["red", "yellow"])], signs)
+                box(f"lan{i}_{k}", (x, yy, z0 - sag - 0.6), (0.35, 0.35, 0.45), emit[rnd.choice(["red", "blue"])], signs)
 
     # cool LED street lamps: the main light in the low smog, so the haze reads steel-teal
     for side in (-1, 1):
@@ -1497,7 +1499,7 @@ def build_street(rnd, dyn, city, signs, lights, movers, emit, dark, metal):
                       size=0.4, spot=math.radians(100), blend=0.5)
 
     # street steam: vents on the sidewalks, each lit from below by a coloured lamp
-    for i, (x, y_, col) in enumerate(((-8.6, 26, "cool"), (8.4, 52, "yellow"), (-8.2, 80, "cool"),
+    for i, (x, y_, col) in enumerate(((-8.6, 26, "cool"), (8.4, 52, "blue"), (-8.2, 80, "cool"),
                                        (8.8, 118, "red"), (-8.6, 150, "cool"), (8.4, 196, "cool"))):
         m = mat_steam(i)
         ob = box(f"steam{i}", (x, y_, 0.1), (5.0, 5.0, 16.0), m, signs)
@@ -1554,7 +1556,7 @@ def build_avs(dyn, movers, lights, emit, dark):
                  box(f"avu{i}", (0, 0, -0.45), (1.6, 3.6, 0.04), emit["red_dim"], movers)]
         for p in parts:
             p.parent = av
-        beam = add_light(f"av_beam{i}", "SPOT", (0, 2.7, 0.0), (1.0, 0.9, 0.75), 40000, lights, size=0.2,
+        beam = add_light(f"av_beam{i}", "SPOT", (0, 2.7, 0.0), (0.85, 0.92, 1.0), 40000, lights, size=0.2,
                          rot=(math.radians(78), 0, 0), spot=math.radians(14), blend=0.4)  # forward, slightly down
         beam.parent = av
         dyn.avs.append((av, Vector(a), Vector(b), win))
@@ -1990,7 +1992,7 @@ def post(args):
         hot_s = np.asarray(Image.fromarray((hot * 255).astype(np.uint8)).resize((sw, sh), Image.BILINEAR)).astype(np.float32) / 255.0
         streak = hblur(hot_s, max(3, sw // 10))
         streak = np.asarray(Image.fromarray((np.clip(streak * 3.0, 0, 1) * 255).astype(np.uint8)).resize((w, h), Image.BILINEAR)).astype(np.float32) / 255.0
-        streak *= np.array([1.0, 0.55, 0.45], np.float32) * 0.5  # warm-tinted
+        streak *= np.array([0.55, 0.72, 1.0], np.float32) * 0.5  # cool-tinted
         out = 1 - (1 - disp) * (1 - np.clip(glow + streak, 0, 1))
         # chromatic aberration: red pushed out, blue pulled in, towards the edges
         res = Image.fromarray((np.clip(out, 0, 1) * 255 + 0.5).astype(np.uint8))
@@ -2008,8 +2010,8 @@ def post(args):
         dull = (dull * (1 - 0.75 * end * cool))[..., None]
         out = out + (luma2[..., None] - out) * dull
         shadow = (np.clip(1 - luma2 / 0.38, 0, 1) ** 1.4)[..., None]
-        out = out * (1 - shadow * np.array([0.14, 0.03, -0.06], np.float32))
-        lift = (1 - np.clip(luma2 / 0.25, 0, 1))[..., None] * np.array([0.020, 0.027, 0.031], np.float32)
+        out = out * (1 - shadow * np.array([0.30, 0.14, -0.10], np.float32))
+        lift = (1 - np.clip(luma2 / 0.25, 0, 1))[..., None] * np.array([0.006, 0.012, 0.034], np.float32)
         out = out + lift * (1 - out)
         # vignette + quiet bands for the overlaid copy, easing in over the last quarter
         yy, xx = np.mgrid[0:h, 0:w]
