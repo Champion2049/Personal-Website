@@ -16,6 +16,8 @@ import { NCRain } from '@/components/night-city/nc-rain';
 import { NCArrival } from '@/components/night-city/nc-arrival';
 import { GraffitiWall } from '@/components/night-city/graffiti-wall';
 import { NCEqualizer } from '@/components/night-city/nc-equalizer';
+import { AnimeMatch } from '@/components/night-city/anime-match';
+import { SteamLive } from '@/components/night-city/steam-live';
 import { playGridTrack, stopGridTrack } from '@/lib/grid-audio';
 import { identity, quiz } from '@/lib/personal-data';
 import { loadFonts, NIGHT_CITY_FONTS } from '@/lib/fonts';
@@ -89,9 +91,11 @@ export default function AboutMe() {
 
         <NCSection id="anime" index="02" title="Anime & manga" meta="Live from MyAnimeList">
           <AnimeMangaPanel />
+          <AnimeMatch />
         </NCSection>
 
         <NCSection id="games" index="03" title="Games" meta={gamesMeta}>
+          <SteamLive />
           <GameLibrary onOpen={openLightbox} />
         </NCSection>
 

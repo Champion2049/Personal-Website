@@ -5,6 +5,7 @@ import { ArrowLeft, ArrowUpRight } from 'lucide-react';
 import { now, socials, credit } from '@/lib/personal-data';
 import { projectsData } from '@/lib/projects-data';
 import { enterNightCity } from '@/components/hud/hud-frame';
+import { useSteam } from '@/components/night-city/steam-live';
 
 const GITHUB = 'Champion2049';
 
@@ -123,6 +124,7 @@ export default function Now() {
   const commits = useCommits();
   const mal = useMal();
   const track = useTrack();
+  const steam = useSteam();
   const time = useClock();
   const recent = projectsData.slice(0, 2);
   const book = now.reading && now.reading.toLowerCase() !== 'none' ? credit(now.reading) : null;
@@ -261,8 +263,29 @@ export default function Now() {
           )}
         </Row>
 
-        <Row label="Playing">
+        <Row label="Playing" live={steam?.status === 'in-game'}>
           <Big>{now.playing}</Big>
+          {steam?.inGame ? (
+            <p className="mt-4 text-sm text-muted-foreground">
+              On Steam right now:{' '}
+              <a href={steam.inGame.url} target="_blank" rel="noopener noreferrer" className="text-foreground hover:text-primary">
+                {steam.inGame.name}
+              </a>
+            </p>
+          ) : steam?.recent.length ? (
+            <p className="mt-4 text-sm text-muted-foreground">
+              Lately on Steam:{' '}
+              {steam.recent.slice(0, 3).map((g, i) => (
+                <span key={g.appid}>
+                  {i > 0 && ', '}
+                  <a href={g.url} target="_blank" rel="noopener noreferrer" className="text-foreground hover:text-primary">
+                    {g.name}
+                  </a>{' '}
+                  ({g.hours2w ?? 0} h)
+                </span>
+              ))}
+            </p>
+          ) : null}
         </Row>
 
         <Row label="Status">

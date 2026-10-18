@@ -69,9 +69,16 @@ function fullImage(src: unknown) {
   return src.replace(/\/r\/\d+x\d+/, '').replace(/\?.*$/, '');
 }
 
+/** A failed MAL request, with its HTTP status (404 = no such user; 400/401/403 usually a private list). */
+export class MalHttpError extends Error {
+  constructor(public status: number, host: string) {
+    super(`${status} from ${host}`);
+  }
+}
+
 async function getJson(url: string, headers: Record<string, string> = {}) {
   const res = await fetch(url, { headers: { 'User-Agent': UA, Accept: 'application/json', ...headers } });
-  if (!res.ok) throw new Error(`${res.status} from ${new URL(url).host}`);
+  if (!res.ok) throw new MalHttpError(res.status, new URL(url).host);
   return res.json();
 }
 
@@ -143,6 +150,9 @@ async function publicList(user: string, kind: Kind): Promise<Raw[]> {
 
 /* ------------------------------ shaping ------------------------------ */
 
+/** An entry without the stats-only fields. */
+const strip = ({ volumes: _v, duration: _d, ...e }: Raw): MalEntry => e;
+
 function side(kind: Kind, rows: Raw[]): MalSide {
   const count = (s: MalStatus) => rows.filter((r) => r.status === s).length;
   const scored = rows.filter((r) => r.score > 0);
@@ -168,7 +178,6 @@ function side(kind: Kind, rows: Raw[]): MalSide {
     stats.volumes_read = rows.reduce((a, r) => a + (r.volumes || 0), 0);
   }
 
-  const strip = ({ volumes: _v, duration: _d, ...e }: Raw): MalEntry => e;
   const newest = (a: Raw, b: Raw) => +new Date(b.updatedAt) - +new Date(a.updatedAt);
   const top = (scored.length ? [...scored].sort((a, b) => b.score - a.score || newest(a, b)) : rows.filter((r) => r.status === 'completed').sort(newest))
     .slice(0, 8)
@@ -202,4 +211,81 @@ export async function fetchMal(user: string, clientId?: string): Promise<MalData
     }
   }
   return load('list');
+}
+
+/* ------------------------------ taste match ------------------------------ */
+
+export interface MatchEntry extends MalEntry {
+  /** the visitor's score, on titles both lists have */
+  theirScore?: number;
+}
+
+export interface MatchResult {
+  user: string;
+  /** MAL-style affinity: the correlation of our scores on titles we've both rated, -100..100; null under 3 */
+  affinity: number | null;
+  /** titles both lists have (planned ones don't count) */
+  shared: number;
+  /** of those, how many we've both scored */
+  sharedScored: number;
+  theirTotal: number;
+  /** shared, both scored 8+ */
+  bothLoved: MatchEntry[];
+  /** my 8+ titles that aren't on their list at all */
+  forThem: MatchEntry[];
+  /** their 8+ titles that aren't on my list at all */
+  forMe: MatchEntry[];
+}
+
+/** One anime list: the official API when a client ID is set, else the public list JSON. */
+export async function animeList(user: string, clientId?: string): Promise<MalEntry[]> {
+  if (clientId) {
+    try {
+      return (await officialList(user, 'anime', clientId)).map(strip);
+    } catch (e) {
+      if (e instanceof MalHttpError && e.status === 404) throw e;
+      console.error('MAL official API failed, trying the public list:', e);
+    }
+  }
+  return (await publicList(user, 'anime')).map(strip);
+}
+
+function pearson(pairs: [number, number][]) {
+  const n = pairs.length;
+  const mx = pairs.reduce((a, [x]) => a + x, 0) / n;
+  const my = pairs.reduce((a, [, y]) => a + y, 0) / n;
+  let sxy = 0;
+  let sxx = 0;
+  let syy = 0;
+  for (const [x, y] of pairs) {
+    sxy += (x - mx) * (y - my);
+    sxx += (x - mx) ** 2;
+    syy += (y - my) ** 2;
+  }
+  return sxx && syy ? sxy / Math.sqrt(sxx * syy) : null;
+}
+
+export function matchTaste(user: string, mine: MalEntry[], theirs: MalEntry[]): MatchResult {
+  const seen = (e: MalEntry) => !e.status.startsWith('plan_to');
+  const theirById = new Map(theirs.map((e) => [e.id, e]));
+  const mineById = new Map(mine.map((e) => [e.id, e]));
+  const shared = mine.filter((m) => seen(m) && theirById.has(m.id) && seen(theirById.get(m.id)!));
+  const scored = shared.filter((m) => m.score > 0 && theirById.get(m.id)!.score > 0);
+  const r = scored.length >= 3 ? pearson(scored.map((m) => [m.score, theirById.get(m.id)!.score])) : null;
+  const byScore = (a: MalEntry, b: MalEntry) => b.score - a.score || a.title.localeCompare(b.title);
+
+  return {
+    user,
+    affinity: r === null ? null : Math.round(r * 1000) / 10,
+    shared: shared.length,
+    sharedScored: scored.length,
+    theirTotal: theirs.filter(seen).length,
+    bothLoved: scored
+      .filter((m) => m.score >= 8 && theirById.get(m.id)!.score >= 8)
+      .map((m) => ({ ...m, theirScore: theirById.get(m.id)!.score }))
+      .sort((a, b) => b.score + b.theirScore! - (a.score + a.theirScore!) || a.title.localeCompare(b.title))
+      .slice(0, 6),
+    forThem: mine.filter((m) => m.score >= 8 && !theirById.has(m.id)).sort(byScore).slice(0, 6),
+    forMe: theirs.filter((t) => t.score >= 8 && !mineById.has(t.id)).sort(byScore).slice(0, 6),
+  };
 }
