@@ -30,8 +30,11 @@ Each frame is two renders composited in post:
     python night_city_flythrough.py post --src /tmp/nc/d --dst /tmp/nc/d/post --size 1280x720 \
         --format png --poster client/public/nightcity/fly/poster.jpg
 
-    # encode the frames to a scrubbable H.264 MP4 (a keyframe every 6 frames)
-    python night_city_flythrough.py encode --src /tmp/nc/d/post --dst client/public/nightcity/fly/nc-desktop.mp4 --crf 24
+    # encode the frames to scrubbable video (a keyframe every 6 frames). The extension
+    # picks the codec: .mp4 = H.264 High, .webm = VP9. v3 shipped with desktop
+    # mp4 CRF 28 / webm CRF 44 (~3.5 MB each), mobile mp4 CRF 27 / webm CRF 42.
+    python night_city_flythrough.py encode --src /tmp/nc/d/post --dst client/public/nightcity/fly/nc-desktop.mp4 --crf 28
+    python night_city_flythrough.py encode --src /tmp/nc/d/post --dst client/public/nightcity/fly/nc-desktop.webm --crf 44
 
     # look-dev: both passes + post for a few frames, into one folder
     python night_city_flythrough.py look --res desktop --frames 240 --frames-list 1,60,110,160,200,240 --out /tmp/nc/look
@@ -130,7 +133,7 @@ def args_from_cli():
     p.add_argument("--pass", dest="pass_", choices=["beauty", "volume"], default="beauty")
     p.add_argument("--frames", type=int, default=240)
     p.add_argument("--format", choices=["png", "webp"], default="png", help="post output format")
-    p.add_argument("--crf", type=int, default=24, help="encode: x264 constant rate factor")
+    p.add_argument("--crf", type=int, default=28, help="encode: constant rate factor (x264 ~28, VP9 ~44)")
     p.add_argument("--fps", type=int, default=30, help="encode: frame rate")
     p.add_argument("--gop", type=int, default=6, help="encode: keyframe interval (small = smooth scrubbing)")
     p.add_argument("--frame", type=int, default=1)
