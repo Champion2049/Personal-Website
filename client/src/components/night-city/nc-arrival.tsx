@@ -8,15 +8,97 @@ import { useIntroReady } from '@/lib/intro-gate';
  * scrubbed by scroll on a canvas, Apple-product-page style. The section pins
  * while you scroll through it; a few lines of copy hand over along the way.
  *
- * Frames stream in after the first one; the canvas always shows the nearest
- * frame that has loaded. Portrait screens get their own re-framed sequence.
- * Reduced motion: the poster frame, no pin.
+ * Frames arrive as compressed blobs (a few MB in total) and are decoded off the
+ * main thread with createImageBitmap, but only a window around the current
+ * frame is kept decoded (a whole sequence of decoded 720p frames would be
+ * hundreds of MB and thrash the image cache). (No blending between frames:
+ * the camera moves too far per frame, so a blend reads as a double image.)
+ * Portrait screens get their own re-framed sequence. Reduced motion: the
+ * poster frame, no pin.
  */
 const SETS = {
   desktop: { dir: '/nightcity/fly/d', count: 120 },
   mobile: { dir: '/nightcity/fly/m', count: 90 },
 } as const;
 const src = (dir: string, i: number) => `${dir}/${String(i + 1).padStart(4, '0')}.webp`;
+const BEHIND = 4; // decoded frames kept behind the playhead
+const AHEAD = 12; // ...and ahead of it, in the direction of travel
+
+/** Compressed frames plus a small window of decoded ones around the playhead. */
+function createFrameStore(dir: string, count: number, onDecoded: (i: number) => void) {
+  const blobs: (Blob | undefined)[] = new Array(count);
+  const bitmaps = new Map<number, ImageBitmap>();
+  const pending = new Set<number>();
+  let lo = 0;
+  let hi = AHEAD;
+  let dead = false;
+
+  const decode = (i: number) => {
+    const blob = blobs[i];
+    if (!blob || bitmaps.has(i) || pending.has(i)) return;
+    pending.add(i);
+    createImageBitmap(blob)
+      .then((bmp) => {
+        pending.delete(i);
+        if (dead || i < lo || i > hi) return bmp.close();
+        bitmaps.set(i, bmp);
+        onDecoded(i);
+      })
+      .catch(() => pending.delete(i));
+  };
+
+  return {
+    /** Fetch every frame (frame 0 first), a few at a time. */
+    async load(only?: number) {
+      const fetchOne = async (i: number) => {
+        try {
+          const res = await fetch(src(dir, i));
+          if (!res.ok) return;
+          blobs[i] = await res.blob();
+          if (i >= lo && i <= hi) decode(i);
+        } catch {
+          /* offline / aborted: the nearest frame stands in */
+        }
+      };
+      await fetchOne(0);
+      if (only !== undefined) return;
+      const queue = Array.from({ length: count - 1 }, (_, k) => k + 1);
+      const worker = async () => {
+        while (queue.length && !dead) await fetchOne(queue.shift()!);
+      };
+      await Promise.all([worker(), worker(), worker(), worker()]);
+    },
+    /** Move the decode window to `i` (direction-aware) and release frames outside it. */
+    focus(i: number, dir: number) {
+      lo = Math.max(0, i - (dir >= 0 ? BEHIND : AHEAD));
+      hi = Math.min(count - 1, i + (dir >= 0 ? AHEAD : BEHIND));
+      bitmaps.forEach((bmp, k) => {
+        if (k < lo || k > hi) {
+          bmp.close();
+          bitmaps.delete(k);
+        }
+      });
+      for (let k = lo; k <= hi; k++) decode(k);
+    },
+    /** The decoded frame nearest to i. */
+    nearest(i: number) {
+      if (bitmaps.has(i)) return bitmaps.get(i)!;
+      for (let d = 1; d < count; d++) {
+        const b = bitmaps.get(i - d) ?? bitmaps.get(i + d);
+        if (b) return b;
+      }
+      return undefined;
+    },
+    get(i: number) {
+      return bitmaps.get(i);
+    },
+    dispose() {
+      dead = true;
+      bitmaps.forEach((b) => b.close());
+      bitmaps.clear();
+    },
+  };
+}
 
 export function NCArrival({ onCover }: { onCover?: (covering: boolean) => void }) {
   const root = useRef<HTMLElement>(null);
@@ -24,22 +106,20 @@ export function NCArrival({ onCover }: { onCover?: (covering: boolean) => void }
   const ready = useIntroReady();
   const [reduce] = useState(prefersReducedMotion);
   const [set] = useState(() => (typeof window !== 'undefined' && window.innerWidth / window.innerHeight < 0.9 ? SETS.mobile : SETS.desktop));
-  const frames = useRef<(HTMLImageElement | null)[]>([]);
-  const current = useRef(0);
+  const store = useRef<ReturnType<typeof createFrameStore> | null>(null);
+  const pos = useRef(0); // current frame
 
-  // Draw frame i (or the nearest loaded one) cover-fitted to the canvas.
-  const draw = (i: number) => {
+  // Draw the current frame (or the nearest decoded one), cover-fitted.
+  const draw = () => {
     const c = canvas.current;
     const ctx = c?.getContext('2d');
-    if (!c || !ctx) return;
-    let img: HTMLImageElement | null = null;
-    for (let d = 0; d < set.count && !img; d++) {
-      img = frames.current[i - d] ?? frames.current[i + d] ?? null;
-    }
+    const st = store.current;
+    if (!c || !ctx || !st) return;
+    const img = st.nearest(pos.current);
     if (!img) return;
-    const s = Math.max(c.width / img.naturalWidth, c.height / img.naturalHeight);
-    const w = img.naturalWidth * s;
-    const h = img.naturalHeight * s;
+    const s = Math.max(c.width / img.width, c.height / img.height);
+    const w = img.width * s;
+    const h = img.height * s;
     ctx.drawImage(img, (c.width - w) / 2, (c.height - h) / 2, w, h);
   };
 
@@ -47,41 +127,24 @@ export function NCArrival({ onCover }: { onCover?: (covering: boolean) => void }
   useEffect(() => {
     const c = canvas.current;
     if (!c) return;
+    const st = createFrameStore(set.dir, set.count, (i) => {
+      if (Math.abs(i - pos.current) < 2) draw();
+    });
+    store.current = st;
+    st.focus(0, 1);
     // 1x is enough: the frames are only 1280px wide, and a bigger canvas just costs more per draw
     const resize = () => {
       c.width = c.clientWidth;
       c.height = c.clientHeight;
-      draw(current.current);
+      draw();
     };
     resize();
     window.addEventListener('resize', resize);
-
-    let cancelled = false;
-    // decode() finishes decoding off the main thread, so a later drawImage doesn't stall a scroll frame
-    const load = async (i: number) => {
-      const img = new Image();
-      img.src = src(set.dir, i);
-      try {
-        await img.decode();
-      } catch {
-        return;
-      }
-      if (cancelled) return;
-      frames.current[i] = img;
-      if (i === 0 || Math.abs(i - current.current) < 2) draw(current.current);
-    };
-    // first frame now; the rest a few at a time so they don't crowd out the page
-    load(0).then(async () => {
-      if (reduce) return;
-      const queue = Array.from({ length: set.count - 1 }, (_, k) => k + 1);
-      const worker = async () => {
-        while (queue.length && !cancelled) await load(queue.shift()!);
-      };
-      await Promise.all([worker(), worker(), worker()]);
-    });
+    st.load(reduce ? 0 : undefined);
     return () => {
-      cancelled = true;
       window.removeEventListener('resize', resize);
+      st.dispose();
+      store.current = null;
     };
   }, [set, reduce]);
 
@@ -95,10 +158,11 @@ export function NCArrival({ onCover }: { onCover?: (covering: boolean) => void }
       let want = 0;
       let lastDraw = 0;
       const tick = (time: number) => {
-        if (want === current.current || time - lastDraw < 1 / 30) return;
+        if (want === pos.current || time - lastDraw < 1 / 30) return;
         lastDraw = time;
-        current.current = want;
-        draw(want);
+        store.current?.focus(want, Math.sign(want - pos.current));
+        pos.current = want;
+        draw();
       };
       gsap.ticker.add(tick);
       gsap
