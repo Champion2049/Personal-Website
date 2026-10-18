@@ -4,167 +4,88 @@ import { useIntroReady } from '@/lib/intro-gate';
 
 /**
  * Arrival: a camera flythrough of a rainy Night City street, rendered in
- * Blender (tools/blender/night_city_flythrough.py) as a WebP frame sequence and
- * scrubbed by scroll on a canvas, Apple-product-page style. The section pins
+ * Blender (tools/blender/night_city_flythrough.py) and encoded as a short
+ * H.264 video that scroll scrubs, Apple-product-page style. The section pins
  * while you scroll through it; a few lines of copy hand over along the way.
  *
- * Frames arrive as compressed blobs (a few MB in total) and are decoded off the
- * main thread with createImageBitmap, but only a window around the current
- * frame is kept decoded (a whole sequence of decoded 720p frames would be
- * hundreds of MB and thrash the image cache). (No blending between frames:
- * the camera moves too far per frame, so a blend reads as a double image.)
- * Portrait screens get their own re-framed sequence. Reduced motion: the
- * poster frame, no pin.
+ * Why a video and not frames: it's one small file, the GPU's video decoder
+ * does the work off the main thread, and only the current frame is ever held
+ * in memory. It's encoded with a keyframe every 6 frames, so a seek in either
+ * direction decodes at most a handful of frames. The file is fetched whole into
+ * a blob so scrubbing never waits on range requests. Seeks are queued: a new
+ * one is only issued once the previous `seeked` fires.
+ *
+ * Portrait screens get their own re-framed video, and there's a VP9 WebM for
+ * browsers without H.264. Reduced motion: the poster, no pin.
  */
-const SETS = {
-  desktop: { dir: '/nightcity/fly/d', count: 120 },
-  mobile: { dir: '/nightcity/fly/m', count: 90 },
+const SOURCES = {
+  desktop: { name: 'nc-desktop', poster: '/nightcity/fly/poster.jpg' },
+  mobile: { name: 'nc-mobile', poster: '/nightcity/fly/poster-mobile.jpg' },
 } as const;
-const src = (dir: string, i: number) => `${dir}/${String(i + 1).padStart(4, '0')}.webp`;
-const BEHIND = 4; // decoded frames kept behind the playhead
-const AHEAD = 12; // ...and ahead of it, in the direction of travel
 
-/** Compressed frames plus a small window of decoded ones around the playhead. */
-function createFrameStore(dir: string, count: number, onDecoded: (i: number) => void) {
-  const blobs: (Blob | undefined)[] = new Array(count);
-  const bitmaps = new Map<number, ImageBitmap>();
-  const pending = new Set<number>();
-  let lo = 0;
-  let hi = AHEAD;
-  let dead = false;
-
-  const decode = (i: number) => {
-    const blob = blobs[i];
-    if (!blob || bitmaps.has(i) || pending.has(i)) return;
-    pending.add(i);
-    createImageBitmap(blob)
-      .then((bmp) => {
-        pending.delete(i);
-        if (dead || i < lo || i > hi) return bmp.close();
-        bitmaps.set(i, bmp);
-        onDecoded(i);
-      })
-      .catch(() => pending.delete(i));
-  };
-
-  return {
-    /** Fetch every frame (frame 0 first), a few at a time. */
-    async load(only?: number) {
-      const fetchOne = async (i: number) => {
-        try {
-          const res = await fetch(src(dir, i));
-          if (!res.ok) return;
-          blobs[i] = await res.blob();
-          if (i >= lo && i <= hi) decode(i);
-        } catch {
-          /* offline / aborted: the nearest frame stands in */
-        }
-      };
-      await fetchOne(0);
-      if (only !== undefined) return;
-      const queue = Array.from({ length: count - 1 }, (_, k) => k + 1);
-      const worker = async () => {
-        while (queue.length && !dead) await fetchOne(queue.shift()!);
-      };
-      await Promise.all([worker(), worker(), worker(), worker()]);
-    },
-    /** Move the decode window to `i` (direction-aware) and release frames outside it. */
-    focus(i: number, dir: number) {
-      lo = Math.max(0, i - (dir >= 0 ? BEHIND : AHEAD));
-      hi = Math.min(count - 1, i + (dir >= 0 ? AHEAD : BEHIND));
-      bitmaps.forEach((bmp, k) => {
-        if (k < lo || k > hi) {
-          bmp.close();
-          bitmaps.delete(k);
-        }
-      });
-      for (let k = lo; k <= hi; k++) decode(k);
-    },
-    /** The decoded frame nearest to i. */
-    nearest(i: number) {
-      if (bitmaps.has(i)) return bitmaps.get(i)!;
-      for (let d = 1; d < count; d++) {
-        const b = bitmaps.get(i - d) ?? bitmaps.get(i + d);
-        if (b) return b;
-      }
-      return undefined;
-    },
-    get(i: number) {
-      return bitmaps.get(i);
-    },
-    dispose() {
-      dead = true;
-      bitmaps.forEach((b) => b.close());
-      bitmaps.clear();
-    },
-  };
+/** H.264 everywhere it plays (all major browsers); VP9 WebM for builds without it (e.g. some Linux Chromiums). */
+function videoUrl(v: HTMLVideoElement, name: string) {
+  const h264 = v.canPlayType('video/mp4; codecs="avc1.640028"');
+  return `/nightcity/fly/${name}.${h264 ? 'mp4' : 'webm'}`;
 }
 
 export function NCArrival({ onCover }: { onCover?: (covering: boolean) => void }) {
   const root = useRef<HTMLElement>(null);
-  const canvas = useRef<HTMLCanvasElement>(null);
+  const video = useRef<HTMLVideoElement>(null);
   const ready = useIntroReady();
   const [reduce] = useState(prefersReducedMotion);
-  const [set] = useState(() => (typeof window !== 'undefined' && window.innerWidth / window.innerHeight < 0.9 ? SETS.mobile : SETS.desktop));
-  const store = useRef<ReturnType<typeof createFrameStore> | null>(null);
-  const pos = useRef(0); // current frame
+  const [source] = useState(() =>
+    typeof window !== 'undefined' && window.innerWidth / window.innerHeight < 0.9 ? SOURCES.mobile : SOURCES.desktop,
+  );
+  const progress = useRef(0); // wanted position through the clip, 0..1
 
-  // Draw the current frame (or the nearest decoded one), cover-fitted.
-  const draw = () => {
-    const c = canvas.current;
-    const ctx = c?.getContext('2d');
-    const st = store.current;
-    if (!c || !ctx || !st) return;
-    const img = st.nearest(pos.current);
-    if (!img) return;
-    const s = Math.max(c.width / img.width, c.height / img.height);
-    const w = img.width * s;
-    const h = img.height * s;
-    ctx.drawImage(img, (c.width - w) / 2, (c.height - h) / 2, w, h);
+  // Load the whole file, then prime it (iOS won't decode frames for seeking until it has played once).
+  useEffect(() => {
+    const v = video.current;
+    if (!v || reduce) return;
+    let url = '';
+    let cancelled = false;
+    fetch(videoUrl(v, source.name))
+      .then((r) => (r.ok ? r.blob() : Promise.reject(r.status)))
+      .then((blob) => {
+        if (cancelled) return;
+        url = URL.createObjectURL(blob);
+        v.src = url;
+        return v.play().then(() => {
+          v.pause();
+          seek(v); // catch up with wherever the page is already scrolled
+        });
+      })
+      .catch(() => {
+        /* the poster stays up */
+      });
+    return () => {
+      cancelled = true;
+      if (url) URL.revokeObjectURL(url);
+    };
+  }, [source, reduce]);
+
+  // Seek queue: one seek in flight at a time, always towards the latest target.
+  useEffect(() => {
+    const v = video.current;
+    if (!v || reduce) return;
+    const onSeeked = () => seek(v);
+    v.addEventListener('seeked', onSeeked);
+    return () => v.removeEventListener('seeked', onSeeked);
+  }, [reduce]);
+
+  const seek = (v: HTMLVideoElement) => {
+    if (v.seeking || v.readyState < 1 || !v.duration) return;
+    const t = Math.max(0, Math.min(progress.current * v.duration, v.duration - 0.001));
+    if (Math.abs(v.currentTime - t) > 1 / 60) v.currentTime = t;
   };
 
-  // Size the canvas to the viewport and stream the frames in, first frame first.
-  useEffect(() => {
-    const c = canvas.current;
-    if (!c) return;
-    const st = createFrameStore(set.dir, set.count, (i) => {
-      if (Math.abs(i - pos.current) < 2) draw();
-    });
-    store.current = st;
-    st.focus(0, 1);
-    // 1x is enough: the frames are only 1280px wide, and a bigger canvas just costs more per draw
-    const resize = () => {
-      c.width = c.clientWidth;
-      c.height = c.clientHeight;
-      draw();
-    };
-    resize();
-    window.addEventListener('resize', resize);
-    st.load(reduce ? 0 : undefined);
-    return () => {
-      window.removeEventListener('resize', resize);
-      st.dispose();
-      store.current = null;
-    };
-  }, [set, reduce]);
-
-  // Scroll: pin and scrub the frames; two lines of copy hand over, then the render's own sign.
+  // Scroll: pin and scrub the video; two lines of copy hand over, then the render's own sign.
   useGSAP(
     () => {
       if (reduce) return;
       const q = gsap.utils.selector(root);
-      const proxy = { f: 0 };
-      // Redraw at most 30 times a second; it's a film sequence, and each draw is a full-screen blit.
-      let want = 0;
-      let lastDraw = 0;
-      const tick = (time: number) => {
-        if (want === pos.current || time - lastDraw < 1 / 30) return;
-        lastDraw = time;
-        store.current?.focus(want, Math.sign(want - pos.current));
-        pos.current = want;
-        draw();
-      };
-      gsap.ticker.add(tick);
+      const proxy = { p: 0 };
       gsap
         .timeline({
           defaults: { ease: 'none' },
@@ -181,10 +102,11 @@ export function NCArrival({ onCover }: { onCover?: (covering: boolean) => void }
           },
         })
         .to(proxy, {
-          f: set.count - 1,
+          p: 1,
           duration: 1,
           onUpdate: () => {
-            want = Math.round(proxy.f);
+            progress.current = proxy.p;
+            if (video.current) seek(video.current);
           },
         }, 0)
         .to(q('[data-hint]'), { autoAlpha: 0, duration: 0.05 }, 0.02)
@@ -193,9 +115,8 @@ export function NCArrival({ onCover }: { onCover?: (covering: boolean) => void }
         .to(q('[data-beat="2"]'), { autoAlpha: 0, y: -40, duration: 0.1 }, 0.55)
         // the last stretch belongs to the sign in the render; dim it a little as the page takes over
         .to(q('[data-shade]'), { opacity: 0.45, duration: 0.08 }, 0.92);
-      return () => gsap.ticker.remove(tick);
     },
-    { scope: root, dependencies: [set] },
+    { scope: root },
   );
 
   // Entrance once the grid transition lifts.
@@ -209,7 +130,15 @@ export function NCArrival({ onCover }: { onCover?: (covering: boolean) => void }
 
   return (
     <section ref={root} aria-label="Arrival in Night City" className="relative h-[100svh] overflow-hidden bg-[hsl(0_45%_4%)]">
-      <canvas ref={canvas} aria-hidden className="absolute inset-0 h-full w-full" />
+      <video
+        ref={video}
+        aria-hidden
+        muted
+        playsInline
+        preload="none"
+        poster={source.poster}
+        className="absolute inset-0 h-full w-full object-cover"
+      />
       {/* keep the copy legible over the brightest frames */}
       <div aria-hidden className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,hsl(0_45%_4%/0.55),transparent_30%,transparent_60%,hsl(0_45%_4%/0.85))]" />
       <div data-shade aria-hidden className="pointer-events-none absolute inset-0 bg-[hsl(0_45%_4%)] opacity-0" />

@@ -12,4 +12,4 @@ export function loadFonts(id: string, href: string) {
 }
 
 export const NIGHT_CITY_FONTS =
-  'https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Barlow:ital,wght@0,400;0,500;0,600;1,400&family=Orbitron:wght@700;900&display=swap';
+  'https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Barlow:ital,wght@0,400;0,500;0,600;1,400&family=Orbitron:wght@700;900&family=Permanent+Marker&display=swap';

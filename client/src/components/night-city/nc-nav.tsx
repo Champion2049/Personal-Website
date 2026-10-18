@@ -11,6 +11,7 @@ export const NC_TABS = [
   { id: 'screen', label: 'Films & TV' },
   { id: 'vibe', label: 'Vibe check' },
   { id: 'arcade', label: 'Arcade' },
+  { id: 'wall', label: 'Wall' },
 ];
 
 export function scrollToSection(id: string) {

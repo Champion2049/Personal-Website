@@ -52,7 +52,7 @@ export default function BlogPost() {
             </header>
 
             <div
-              className="prose prose-invert max-w-none prose-headings:font-space prose-headings:font-bold prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-code:text-primary prose-code:font-mono prose-pre:bg-black/50 prose-pre:border prose-pre:border-border prose-blockquote:border-l-primary prose-blockquote:text-muted-foreground prose-strong:text-foreground"
+              className="prose prose-invert max-w-none prose-headings:font-space prose-headings:font-bold prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-code:text-primary prose-code:font-mono prose-code:font-normal prose-code:before:content-none prose-code:after:content-none prose-pre:bg-black/50 prose-pre:border prose-pre:border-border prose-blockquote:border-l-primary prose-blockquote:text-muted-foreground prose-strong:text-foreground"
               dangerouslySetInnerHTML={{ __html: renderMarkdown(post.content) }}
             />
           </article>

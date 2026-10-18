@@ -58,6 +58,8 @@ export const now = {
   watching: 'The Mentalist',
   playing: 'Stellar Blade & 007 First Light',
   reading: 'None',
+  /** shown on /now; bump it when you edit this block */
+  updated: 'October 2026',
 };
 
 export const taste = [

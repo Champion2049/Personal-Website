@@ -19,6 +19,8 @@ let fadeRaf = 0;
 let muted = false;
 let active = false; // are we meant to be playing (i.e. on the page)?
 let unlockArmed = false;
+let ctx: AudioContext | null = null;
+let analyser: AnalyserNode | null = null;
 
 function ensure(): HTMLAudioElement {
   if (!audio) {
@@ -72,7 +74,10 @@ function disarmUnlock() {
 function attemptPlay() {
   const a = ensure();
   a.play()
-    .then(() => fadeTo(TARGET_VOL, 1300))
+    .then(() => {
+      ctx?.resume().catch(() => {});
+      fadeTo(TARGET_VOL, 1300);
+    })
     .catch(() => armUnlock()); // autoplay blocked → start on first interaction
 }
 
@@ -107,3 +112,34 @@ export function toggleMute(): boolean {
 }
 
 export function isMuted() { return muted; }
+
+/** The <audio> element, once it exists (for play/pause listeners). */
+export function gridAudioElement() { return audio; }
+
+/**
+ * A frequency analyser on the track, for the radio's equalizer. Created only
+ * once the track is actually playing: routing an element through an
+ * AudioContext that autoplay rules keep suspended would silence it.
+ */
+export function getGridAnalyser(): AnalyserNode | null {
+  if (analyser) return analyser;
+  const a = audio;
+  if (!a || a.paused || typeof AudioContext === 'undefined') return null;
+  // An element routed into a context can't be un-routed; without a user gesture the context may stay
+  // suspended and silence the track, so wait until the visitor has interacted with the page.
+  const activation = (navigator as Navigator & { userActivation?: { hasBeenActive: boolean } }).userActivation;
+  if (!activation?.hasBeenActive) return null;
+  try {
+    ctx = new AudioContext();
+    const src = ctx.createMediaElementSource(a);
+    analyser = ctx.createAnalyser();
+    analyser.fftSize = 256;
+    analyser.smoothingTimeConstant = 0.8;
+    src.connect(analyser);
+    analyser.connect(ctx.destination);
+    ctx.resume().catch(() => {});
+  } catch {
+    return null;
+  }
+  return analyser;
+}
