@@ -28,7 +28,11 @@ function useRoleDecode(ref: React.RefObject<HTMLSpanElement>, run: boolean) {
       const next = roles[(k + 1) % roles.length];
       tl.to(el, { duration: 0.8, ease: 'none', scrambleText: { text: next, chars: DECODE_CHARS, speed: 0.8 } }, `+=${k === 0 ? 2.2 : 2.4}`);
     });
+    // each decode re-lays out the line; no point doing that while it's scrolled away
+    const io = new IntersectionObserver(([e]) => (e.isIntersecting ? tl.resume() : tl.pause()));
+    io.observe(el);
     return () => {
+      io.disconnect();
       tl.kill();
     };
   }, [run]);
