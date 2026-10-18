@@ -53,14 +53,23 @@ export const music = {
   note: 'Synthwave just hits different, but hey so does Phonk and Pop. I have eclectic tastes.',
 };
 
+/* "Title - Artist" / "Title - Author"; set reading to 'None' when there's no book. */
 export const now = {
-  listening: 'Eyes Without a Face - Billy Idol',
+  listening: 'Voices of the Chord - Hiroyuki Sawano',
+  /** optional link for the song above */
+  listeningUrl: 'https://open.spotify.com/track/4LUJzSLpBtgH3dpOH7J7Nf',
   watching: 'The Mentalist',
   playing: 'Stellar Blade & 007 First Light',
-  reading: 'None',
+  reading: 'Dark Matter - Blake Crouch',
   /** shown on /now; bump it when you edit this block */
   updated: 'October 2026',
 };
+
+/** Splits "Title - Artist" into its parts. */
+export function credit(s: string) {
+  const [title, ...rest] = s.split(/\s+[-–—]\s+/);
+  return { title: title?.trim() || s, by: rest.join(' - ').trim() };
+}
 
 export const taste = [
   { label: 'Souls-likes', value: 95 },
