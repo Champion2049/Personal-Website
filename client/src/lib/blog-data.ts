@@ -64,7 +64,7 @@ python night_city_flythrough.py look --res desktop --frames 240 --out /tmp/nc/lo
 python night_city_flythrough.py render --res desktop --frames 240 --pass beauty --out /tmp/nc/d/beauty
 python night_city_flythrough.py render --res desktop --frames 240 --pass volume --out /tmp/nc/d/volume
 python night_city_flythrough.py post --src /tmp/nc/d --dst /tmp/nc/d/post --size 1280x720
-python night_city_flythrough.py encode --src /tmp/nc/d/post --dst nc-desktop.mp4 --crf 24
+python night_city_flythrough.py encode --src /tmp/nc/d/post --dst nc-desktop.mp4 --crf 28
 \`\`\`
 
 The \`look\` command earned its keep. Six frames render in about a minute, so most of the work on the city happened six frames at a time.
@@ -97,13 +97,13 @@ It worked, but:
 
 ## Version two: a video
 
-A video codec is built for exactly this: consecutive frames that are nearly identical. The same shot as H.264 came out at 2.7 MB for desktop and 1.35 MB for phones. The browser's hardware decoder does the work, and only the current frame is held in memory.
+A video codec is built for exactly this: consecutive frames that are nearly identical. The same shot as H.264 came out at 2.7 MB for desktop and 1.35 MB for phones. The browser's hardware decoder does the work, and only the current frame is held in memory. That headroom paid for the next render: twice the frames and a much busier street, in 3.5 MB.
 
 The catch is seeking. Video is stored as keyframes plus differences, so to show a frame the decoder starts from the previous keyframe and works forward. Normal video has keyframes seconds apart, which makes scrubbing backwards stutter. So this encode has one every six frames:
 
 \`\`\`bash
 ffmpeg -framerate 30 -i post/%04d.png -an -pix_fmt yuv420p -g 6 -keyint_min 6 \\
-  -c:v libx264 -profile:v high -preset slow -crf 24 \\
+  -c:v libx264 -profile:v high -preset slow -crf 28 \\
   -sc_threshold 0 -movflags +faststart nc-desktop.mp4
 \`\`\`
 
