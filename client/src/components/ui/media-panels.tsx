@@ -261,7 +261,7 @@ export function AnimeMangaPanel(_: { onMouseMove?: any } = {}) {
         <motion.div key={tab} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
           <dl className="mt-6 grid grid-cols-2 gap-px bg-primary/10 sm:grid-cols-4">
             {cfg.map((s) => (
-              <div key={s.k} className="bg-[hsl(0_45%_5%)] px-4 py-3">
+              <div key={s.k} className="bg-[hsl(225_45%_5%)] px-4 py-3">
                 <dt className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <s.icon size={12} className="text-primary" /> {s.label}
                 </dt>
@@ -284,7 +284,7 @@ export function AnimeMangaPanel(_: { onMouseMove?: any } = {}) {
                     href={m.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group relative block aspect-[3/4] overflow-hidden [clip-path:polygon(0_0,calc(100%-12px)_0,100%_12px,100%_100%,12px_100%,0_calc(100%-12px))]"
+                    className="group relative block aspect-[5/7] overflow-hidden [clip-path:polygon(0_0,calc(100%-12px)_0,100%_12px,100%_100%,12px_100%,0_calc(100%-12px))]"
                   >
                     {m.image ? (
                       <img src={m.image} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
@@ -297,7 +297,7 @@ export function AnimeMangaPanel(_: { onMouseMove?: any } = {}) {
                     </div>
                   </a>
                 ))
-              : !mal && Array.from({ length: 4 }).map((_, i) => <div key={i} className="aspect-[3/4] animate-pulse bg-muted" />)}
+              : !mal && Array.from({ length: 4 }).map((_, i) => <div key={i} className="aspect-[5/7] animate-pulse bg-muted" />)}
           </div>
         </motion.div>
       )}

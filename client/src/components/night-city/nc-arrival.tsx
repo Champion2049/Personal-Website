@@ -129,7 +129,7 @@ export function NCArrival({ onCover }: { onCover?: (covering: boolean) => void }
   );
 
   return (
-    <section ref={root} aria-label="Arrival in Night City" className="relative h-[100svh] overflow-hidden bg-[hsl(0_45%_4%)]">
+    <section ref={root} aria-label="Arrival in Night City" className="relative h-[100svh] overflow-hidden bg-[hsl(225_45%_4%)]">
       <video
         ref={video}
         aria-hidden
@@ -140,8 +140,8 @@ export function NCArrival({ onCover }: { onCover?: (covering: boolean) => void }
         className="absolute inset-0 h-full w-full object-cover"
       />
       {/* keep the copy legible over the brightest frames */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,hsl(0_45%_4%/0.55),transparent_30%,transparent_60%,hsl(0_45%_4%/0.85))]" />
-      <div data-shade aria-hidden className="pointer-events-none absolute inset-0 bg-[hsl(0_45%_4%)] opacity-0" />
+      <div aria-hidden className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,hsl(225_45%_4%/0.55),transparent_30%,transparent_60%,hsl(225_45%_4%/0.85))]" />
+      <div data-shade aria-hidden className="pointer-events-none absolute inset-0 bg-[hsl(225_45%_4%)] opacity-0" />
 
       <div className="container relative mx-auto flex h-full flex-col justify-end px-5 pb-[14vh] md:px-10">
         <div data-beat="1" className="max-w-4xl">

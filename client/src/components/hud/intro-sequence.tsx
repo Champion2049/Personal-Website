@@ -11,7 +11,8 @@ import { useLenis } from '@/components/ui/lenis-scroll-provider';
  * collapses the overlay into the hero.
  *
  * Plays on every fresh load of "/" (not on in-app navigation back to it),
- * never with reduced motion. Skip button / click / Esc / Enter jumps to the exit.
+ * never with reduced motion. A double-click (or double-tap), Esc or Enter jumps
+ * to the exit; a faint hint says so.
  */
 const W = 1600;
 const H = 900;
@@ -215,13 +216,25 @@ export function IntroSequence() {
     return () => ctx.revert();
   }, [active, geo]);
 
-  // Skippable from the first frame: click anywhere, Esc, Enter or Space.
+  // Skippable from the first frame: double-click or double-tap anywhere, Esc, Enter or Space.
+  // Double taps are timed by hand: touch browsers don't reliably fire dblclick.
   useEffect(() => {
     if (!active || !root.current) return;
     const skip = () => {
       skipRequested.current = true;
       const tl = tlRef.current;
       if (tl && tl.time() < tl.labels.exit) tl.seek('exit');
+    };
+    let lastTap = 0;
+    const onPointer = (e: PointerEvent) => {
+      if (e.button > 0) return;
+      const now = performance.now();
+      if (now - lastTap < 350) {
+        lastTap = 0;
+        skip();
+      } else {
+        lastTap = now;
+      }
     };
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') {
@@ -230,13 +243,15 @@ export function IntroSequence() {
       }
     };
     const el = root.current;
-    el.addEventListener('click', skip);
+    el.addEventListener('pointerdown', onPointer);
     window.addEventListener('keydown', onKey);
     return () => {
-      el.removeEventListener('click', skip);
+      el.removeEventListener('pointerdown', onPointer);
       window.removeEventListener('keydown', onKey);
     };
   }, [active]);
+
+  const [coarse] = useState(() => typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches);
 
   if (!active) return null;
 
@@ -246,7 +261,7 @@ export function IntroSequence() {
     <div
       ref={root}
       role="presentation"
-      className="fixed inset-0 z-[150] cursor-pointer select-none bg-[#030508]"
+      className="fixed inset-0 z-[150] cursor-default touch-manipulation select-none bg-[#030508]"
       style={{ clipPath: 'inset(0% 0% 0% 0%)' }}
     >
       <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" className="absolute inset-0 h-full w-full" aria-hidden>
@@ -359,11 +374,9 @@ export function IntroSequence() {
 
       {/* exit light line */}
       <div data-line className="invisible absolute left-0 right-0 top-1/2 h-[3px] -translate-y-1/2 bg-[linear-gradient(90deg,transparent,#fff,transparent)] shadow-[0_0_24px_6px_rgba(0,229,255,0.7)]" />
-      <button
-        className="absolute bottom-6 right-6 border border-white/25 px-3 py-1.5 font-mono text-[0.65rem] uppercase tracking-[0.25em] text-white/60 transition-colors hover:border-[#00e5ff] hover:text-[#00e5ff]"
-      >
-        Skip intro ›
-      </button>
+      <p aria-hidden className="intro-skip-hint pointer-events-none absolute inset-x-0 bottom-6 text-center font-mono text-[0.65rem] uppercase tracking-[0.3em] text-white/25">
+        {coarse ? 'Double-tap' : 'Double-click'} to skip
+      </p>
     </div>
   );
 }

@@ -2,7 +2,8 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { insertGuestbookSchema } from "@shared/schema";
 import { storage } from "./storage";
-import { fetchMal } from "../netlify/functions/_mal";
+import { MalHttpError, animeList, fetchMal, matchTaste } from "../netlify/functions/_mal";
+import { SteamError, fetchSteam } from "../netlify/functions/_steam";
 
 const TOKEN_ENDPOINT = "https://accounts.spotify.com/api/token";
 
@@ -93,6 +94,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(await fetchMal('Champion2049', process.env.MAL_CLIENT_ID));
     } catch (e) {
       res.status(502).json({ error: e instanceof Error ? e.message : String(e) });
+    }
+  });
+
+  app.get('/api/mal-match', async (req, res) => {
+    const user = String(req.query.user || '').trim();
+    if (!/^[A-Za-z0-9_-]{2,16}$/.test(user)) return res.status(400).json({ error: 'invalid_user' });
+    try {
+      const [mine, theirs] = await Promise.all([animeList('Champion2049', process.env.MAL_CLIENT_ID), animeList(user, process.env.MAL_CLIENT_ID)]);
+      res.json(matchTaste(user, mine, theirs));
+    } catch (e) {
+      const status = e instanceof MalHttpError ? e.status : 0;
+      res.status(status === 404 ? 404 : status && status < 500 ? 403 : 502).json({ error: status === 404 ? 'not_found' : status && status < 500 ? 'private_or_missing' : 'unavailable' });
+    }
+  });
+
+  app.get('/api/steam', async (_req, res) => {
+    try {
+      res.json(await fetchSteam(process.env.STEAM_API_KEY, process.env.STEAM_ID));
+    } catch (e) {
+      res.json({ reason: e instanceof SteamError ? e.reason : 'unavailable' });
     }
   });
 

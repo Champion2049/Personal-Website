@@ -3,15 +3,14 @@ import { ScrollTrigger } from '@/lib/gsap';
 
 const DROPS = 90;
 const FRAME_MS = 1000 / 30;
-const SCALE = 1; // the canvas renders at half resolution; soft streaks read as rain anyway
 
 /**
- * Rain that only falls while you move. Scrolling brings it in, the streaks
- * stretch and rush with scroll speed and swing with direction (scroll down and
- * you're climbing through it), and it fades out shortly after you stop. While
- * you're reading it's gone and costs nothing: no loop, no layer updates.
- * A half-resolution canvas at 30fps while active; hidden while `paused`;
- * none for reduced motion.
+ * Rain that only falls while you move. Scrolling brings it in, and the faster
+ * you scroll the heavier it gets: drops fall faster and stretch into streaks.
+ * It always falls down, whichever way you scroll, and fades out shortly after
+ * you stop. While you're reading it's gone and costs nothing: no loop, no
+ * layer updates. A canvas at 30fps while active; hidden while `paused`; none
+ * for reduced motion.
  */
 export function NCRain({ paused = false }: { paused?: boolean }) {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -28,19 +27,19 @@ export function NCRain({ paused = false }: { paused?: boolean }) {
       d.x = Math.random() * (w + 100) - 50;
       d.y = anywhere ? Math.random() * h : -20 - Math.random() * 60;
       d.len = 5 + Math.random() * 11;
-      d.speed = 190 + Math.random() * 210; // px/s at half resolution
+      d.speed = 190 + Math.random() * 210; // px/s
       d.alpha = 0.1 + Math.random() * 0.2;
     };
     const resize = () => {
-      w = canvas.width = Math.round(window.innerWidth * SCALE);
-      h = canvas.height = Math.round(window.innerHeight * SCALE);
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
       drops.forEach((d) => seed(d, true));
     };
     resize();
 
     let raf = 0;
     let last = 0;
-    let v = 0; // scroll velocity, px/s
+    let v = 0; // scroll speed, px/s (either direction)
     let level = 0; // 0..1, how much rain is showing
     let target = 0;
 
@@ -58,22 +57,17 @@ export function NCRain({ paused = false }: { paused?: boolean }) {
         raf = 0;
         return;
       }
-      const boost = Math.min(1, Math.abs(v) / 2500);
+      const boost = Math.min(1, v / 2500);
       const fall = 1 + boost * 2.2;
       const stretch = 1 + boost * 3;
       ctx.lineWidth = 1;
       ctx.strokeStyle = 'hsl(4 80% 72%)';
       for (const d of drops) {
-        const vy = d.speed * fall + v * SCALE * 0.35;
+        const vy = d.speed * fall;
         const vx = -d.speed * 0.18;
         d.y += vy * s;
         d.x += vx * s;
-        if (vy >= 0 ? d.y > h + 30 : d.y < -30) {
-          seed(d, false);
-          if (vy < 0) d.y = h + 10 + Math.random() * 50;
-        } else if (d.x < -60) {
-          seed(d, false);
-        }
+        if (d.y > h + 30 || d.x < -60) seed(d, false);
         const l = d.len * stretch;
         const m = Math.hypot(vx, vy) || 1;
         ctx.globalAlpha = d.alpha * level * (1 + boost);
@@ -94,8 +88,8 @@ export function NCRain({ paused = false }: { paused?: boolean }) {
       start: 0,
       end: 'max',
       onUpdate: (self) => {
-        v = self.getVelocity();
-        target = Math.min(1, 0.35 + Math.abs(v) / 1500);
+        v = Math.abs(self.getVelocity());
+        target = Math.min(1, 0.35 + v / 1500);
         wake();
       },
     });

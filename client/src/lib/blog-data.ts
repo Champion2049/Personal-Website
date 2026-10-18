@@ -43,9 +43,11 @@ A real-time WebGL city would look worse and cost more. Every visitor's GPU would
 
 The camera, the train, the flicker on the signs, the rain: every moving thing is a pure function of the frame number. That sounds like a technicality, but it's what lets the page scrub the shot backwards without anything jumping.
 
-## A dull city, vivid light
+## A dark city, vivid light
 
-The reference I kept coming back to is Night City in the rain. The buildings are grey, brown and filthy. All the colour comes from light: neon, screens, lamps, and their reflections in the road. So the materials are deliberately dull (wet concrete, masonry, grey-teal smog) and only the light sources carry the palette.
+The reference I kept coming back to is Night City's skyline at night. The buildings themselves are close to black, a deep navy. All the colour comes from light: red and blue neon, screens, windows, and their reflections in the road. So the materials are deliberately dark (wet concrete, slate brick, navy smog) and only the light sources carry the palette.
+
+My first pass got the darkness right but the colours wrong. Everything glowed orange and yellow, so the whole city read as one warm smear. Moving the lights to red and electric blue, and keeping the red almost pure so its bloom doesn't drift to orange or pink, did more for the mood than any amount of added detail.
 
 ## Two renders per frame
 

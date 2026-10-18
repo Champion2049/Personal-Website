@@ -14,6 +14,8 @@ const others = projectsData.filter((p) => !p.caseFile);
 const filters: ('All' | Category)[] = ['All', 'AI / ML', 'Signals & Hardware', 'Web & Systems', 'Research'];
 
 const pad = (n: number) => String(n).padStart(2, '0');
+/** Where the gallery holds the page: this many px past the top of the screen, inside its trigger. */
+const HOLD_AT = 2;
 
 /** Large screens with motion allowed get the pinned horizontal gallery; everything else keeps the grid. */
 function useGalleryMode() {
@@ -57,13 +59,19 @@ function ProjectCard({ project }: { project: Project }) {
 }
 
 /**
- * Pinned horizontal gallery: vertical scroll drives the track sideways, the
- * track leans into fast scrolling (velocity skew) and each card swings in as it
- * crosses the right edge. Transform-only; rebuilt whenever the filter changes.
+ * Horizontal gallery, one card per scroll. When the gallery reaches the top of
+ * the screen it holds the page: each scroll gesture (wheel, trackpad swipe,
+ * touch swipe or arrow key) moves the track exactly one card, however big the
+ * gesture, and moving again takes a new gesture (the rest of a flick and its
+ * inertia are swallowed). Past the last card, or back before the first, the
+ * page scrolls on as normal. Input is intercepted before Lenis sees it rather
+ * than stopping Lenis, so nav links and the command palette still work, and
+ * scrolling away by any means releases the hold. Rebuilt when the filter changes.
  */
 function Gallery({ items, active, filtersBar }: { items: Project[]; active: string; filtersBar: React.ReactNode }) {
   const root = useRef<HTMLDivElement>(null);
   const counter = useRef<HTMLSpanElement>(null);
+  const lenis = useLenis();
 
   useGSAP(
     () => {
@@ -71,65 +79,149 @@ function Gallery({ items, active, filtersBar }: { items: Project[]; active: stri
       const track = el.querySelector<HTMLElement>('[data-track]')!;
       const cards = gsap.utils.toArray<HTMLElement>('[data-card]', el);
       const lane = track.parentElement!;
-      // pan until the last card's right edge meets the container's right edge
+      const bar = el.querySelector<HTMLElement>('[data-progress]');
+      // how far the track can travel: until the last card's right edge meets the container's right edge
       const distance = () => {
         const cs = getComputedStyle(lane);
         return Math.max(0, track.offsetWidth - (lane.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)));
       };
       if (distance() < 8) {
-        // everything fits (a narrow filter): nothing to pan
+        // everything fits (a narrow filter): nothing to step through
         gsap.set(el.querySelector('[data-pan-hint]'), { autoAlpha: 0 });
+        gsap.set(bar, { scaleX: 1 });
         return;
       }
-      const lean = gsap.quickTo(track, 'skewX', { duration: 0.5, ease: 'power3.out' });
-      const clampSkew = gsap.utils.clamp(-7, 7);
-      let settle: gsap.core.Tween | undefined;
+      // one stop per card, clamped to the end (the last few cards share the final stop)
+      const stops = () => {
+        const d = distance();
+        const out: number[] = [];
+        for (const c of cards) {
+          const x = Math.min(c.offsetLeft - cards[0].offsetLeft, d);
+          if (!out.length || x - out[out.length - 1] > 4) out.push(x);
+        }
+        return out;
+      };
+      let at = stops();
+      let index = 0;
+      const lean = gsap.quickTo(track, 'skewX', { duration: 0.45, ease: 'power3.out' });
 
-      const slide = gsap.to(track, {
-        x: () => -distance(),
-        ease: 'none',
-        scrollTrigger: {
-          trigger: el,
-          start: 'top top',
-          end: () => `+=${distance()}`,
-          pin: true,
-          scrub: 0.8,
-          invalidateOnRefresh: true,
-          onUpdate: (self) => {
-            lean(clampSkew(self.getVelocity() / -260));
-            settle?.kill();
-            settle = gsap.delayedCall(0.12, () => lean(0));
-            if (counter.current) {
-              const i = Math.min(items.length, Math.round(self.progress * (items.length - 1)) + 1);
-              counter.current.textContent = pad(i);
-            }
-          },
+      const show = (dir = 0) => {
+        gsap.to(track, { x: -at[index], duration: dir ? 0.75 : 0, ease: 'power3.out', overwrite: 'auto' });
+        gsap.to(bar, { scaleX: at.length > 1 ? index / (at.length - 1) : 1, duration: dir ? 0.75 : 0, ease: 'power3.out', overwrite: 'auto' });
+        // cards already passed fade back, so their cut-off edge in the margin doesn't compete
+        cards.forEach((c, i) => gsap.to(c, { autoAlpha: i < index ? 0.2 : 1, duration: dir ? 0.5 : 0, overwrite: 'auto' }));
+        if (dir) {
+          lean(-dir * 4);
+          gsap.delayedCall(0.18, () => lean(0));
+        }
+        if (counter.current) counter.current.textContent = pad(index === at.length - 1 ? items.length : index + 1);
+      };
+      show();
+
+      // ---- the hold ----
+      let held = false;
+      let armed = false; // a new gesture may move the track
+      let quiet = 0;
+      let lastInput = -1e9; // when the visitor last scrolled by hand (vs. a nav link's programmatic scroll)
+      const rearm = () => {
+        window.clearTimeout(quiet);
+        quiet = window.setTimeout(() => (armed = true), 220); // a gesture has ended once input goes quiet
+      };
+      const hold = (self: ScrollTrigger, force = false) => {
+        if (held) return;
+        // only when the visitor scrolled here themselves: a nav link or the command palette passing
+        // through on its way somewhere else mustn't get caught
+        if (!force && (performance.now() - lastInput > 600 || Math.abs(self.scroll() - self.start) > window.innerHeight)) return;
+        held = true;
+        armed = false;
+        rearm();
+        // stop wherever the gesture that brought us here was heading, with the gallery filling the screen.
+        // Hold a couple of pixels inside the trigger: sitting exactly on its start counts as having left.
+        const y = self.start + HOLD_AT;
+        if (lenis) lenis.scrollTo(y, { immediate: true, force: true });
+        else window.scrollTo(0, y);
+      };
+      const release = () => {
+        held = false;
+        window.clearTimeout(quiet);
+      };
+      const move = (dir: number) => {
+        const next = index + dir;
+        if (next < 0 || next >= at.length) return release(); // past either end: the page takes over
+        index = next;
+        show(dir);
+      };
+
+      const onWheel = (e: WheelEvent) => {
+        lastInput = performance.now();
+        if (!held) return;
+        e.preventDefault();
+        e.stopPropagation(); // capture phase: Lenis never sees it
+        const d = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
+        const go = armed && Math.abs(d) > 2;
+        armed = false;
+        rearm();
+        if (go) move(Math.sign(d));
+      };
+      let touchY = 0;
+      const onTouchStart = (e: TouchEvent) => {
+        lastInput = performance.now();
+        if (held) touchY = e.touches[0].clientY;
+      };
+      const onTouchMove = (e: TouchEvent) => {
+        lastInput = performance.now();
+        if (held) e.preventDefault();
+      };
+      const onTouchEnd = (e: TouchEvent) => {
+        if (!held) return;
+        const dy = touchY - e.changedTouches[0].clientY;
+        if (Math.abs(dy) > 30) move(Math.sign(dy));
+      };
+      const onKey = (e: KeyboardEvent) => {
+        lastInput = performance.now();
+        if (!held || (e.target as HTMLElement)?.closest?.('input, textarea, select, [contenteditable="true"]')) return;
+        const fwd = ['ArrowDown', 'ArrowRight', 'PageDown'].includes(e.key) || (e.key === ' ' && !e.shiftKey);
+        const back = ['ArrowUp', 'ArrowLeft', 'PageUp'].includes(e.key) || (e.key === ' ' && e.shiftKey);
+        if (!fwd && !back) return;
+        e.preventDefault();
+        move(fwd ? 1 : -1);
+      };
+      window.addEventListener('wheel', onWheel, { capture: true, passive: false });
+      window.addEventListener('touchstart', onTouchStart, { capture: true, passive: true });
+      window.addEventListener('touchmove', onTouchMove, { capture: true, passive: false });
+      window.addEventListener('touchend', onTouchEnd, { capture: true });
+      window.addEventListener('keydown', onKey, { capture: true });
+
+      // hold when the gallery's top reaches the top of the screen, from either direction; any scroll away releases
+      const st = ScrollTrigger.create({
+        trigger: el,
+        start: 'top top',
+        end: `+=${HOLD_AT * 2}`,
+        onEnter: (self) => hold(self),
+        onEnterBack: (self) => hold(self),
+        // a fast scroll can jump the whole (tiny) trigger in one frame, so leave fires right after the
+        // enter that just pulled the page back inside: only let go if we're really outside now
+        onLeave: (self) => window.scrollY > self.end && release(),
+        onLeaveBack: (self) => window.scrollY < self.start && release(),
+        onRefresh: () => {
+          at = stops();
+          index = Math.min(index, at.length - 1);
+          show();
         },
       });
-      gsap.fromTo(el.querySelector('[data-progress]'), { scaleX: 0 }, { scaleX: 1, ease: 'none', scrollTrigger: { trigger: el, start: 'top top', end: () => `+=${distance()}`, scrub: true, invalidateOnRefresh: true } });
+      // rebuilt (a filter changed) while sitting on the gallery: keep holding
+      if (Math.abs(window.scrollY - (st.start + HOLD_AT)) < 3) hold(st, true);
 
-      // cards swing in from the right edge as the track carries them into view
-      cards.forEach((card) => {
-        gsap.fromTo(
-          card,
-          { rotateY: -28, rotateZ: 2.5, yPercent: 8, autoAlpha: 0.25, transformPerspective: 900, transformOrigin: '0% 50%' },
-          {
-            rotateY: 0,
-            rotateZ: 0,
-            yPercent: 0,
-            autoAlpha: 1,
-            ease: 'power2.out',
-            scrollTrigger: { trigger: card, containerAnimation: slide, start: 'left 100%', end: 'left 62%', scrub: true },
-          },
-        );
-      });
-      requestAnimationFrame(() => {
-        ScrollTrigger.sort();
-        ScrollTrigger.refresh();
-      });
-      return () => settle?.kill();
+      return () => {
+        release();
+        window.removeEventListener('wheel', onWheel, { capture: true });
+        window.removeEventListener('touchstart', onTouchStart, { capture: true });
+        window.removeEventListener('touchmove', onTouchMove, { capture: true });
+        window.removeEventListener('touchend', onTouchEnd, { capture: true });
+        window.removeEventListener('keydown', onKey, { capture: true });
+      };
     },
-    { scope: root, dependencies: [active], revertOnUpdate: true },
+    { scope: root, dependencies: [active, lenis], revertOnUpdate: true },
   );
 
   return (
@@ -161,7 +253,7 @@ function Gallery({ items, active, filtersBar }: { items: Project[]; active: stri
         <div className="relative h-px flex-1 bg-[var(--line)]">
           <span data-progress className="absolute inset-0 origin-left bg-primary shadow-[0_0_8px_hsl(186_100%_50%/0.8)]" />
         </div>
-        <span data-pan-hint className="text-sm text-muted-foreground">Scroll to pan</span>
+        <span data-pan-hint className="text-sm text-muted-foreground">Scroll for the next one</span>
       </div>
     </div>
   );
@@ -170,20 +262,12 @@ function Gallery({ items, active, filtersBar }: { items: Project[]; active: stri
 export function ProjectsSection() {
   const [active, setActive] = useState<'All' | Category>('All');
   const gallery = useGalleryMode();
-  const lenis = useLenis();
   const section = useRef<HTMLElement>(null);
 
   const visible = active === 'All' ? others : others.filter((p) => p.category === active);
 
   const choose = (f: 'All' | Category) => {
-    if (f === active) return;
-    // In the gallery the pin length changes with the filter: rewind to the first card first.
-    const pinned = gallery && section.current?.querySelector('.pin-spacer');
-    if (pinned && lenis) {
-      const top = (pinned as HTMLElement).getBoundingClientRect().top + window.scrollY;
-      if (window.scrollY > top) lenis.scrollTo(top, { immediate: true, force: true });
-    }
-    setActive(f);
+    if (f !== active) setActive(f);
   };
 
   const filtersBar = (

@@ -18,7 +18,7 @@ function Row({ item, rank, onOpen }: { item: RankItem; rank: number; onOpen: Ope
           className="absolute inset-0 -z-10 h-full w-full object-cover opacity-30 transition-opacity duration-300 group-hover:opacity-55"
         />
       )}
-      <span aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-r from-[hsl(0_45%_4%)] via-[hsl(0_45%_4%/0.8)] to-[hsl(0_45%_4%/0.35)]" />
+      <span aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-r from-[hsl(225_45%_4%)] via-[hsl(225_45%_4%/0.8)] to-[hsl(225_45%_4%/0.35)]" />
       <span className="nc-outline-num w-14 shrink-0 self-center text-center text-6xl md:w-16 md:text-7xl">{rank}</span>
       <span className="block min-w-0 flex-1 py-4">
         <span className="flex items-baseline gap-2">
