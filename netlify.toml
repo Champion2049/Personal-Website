@@ -41,6 +41,16 @@
   to = "/.netlify/functions/mal"
   status = 200
 
+[[redirects]]
+  from = "/api/mal-match"
+  to = "/.netlify/functions/mal-match"
+  status = 200
+
+[[redirects]]
+  from = "/api/steam"
+  to = "/.netlify/functions/steam"
+  status = 200
+
 ## SPA fallback
 [[redirects]]
   from = "/*"
