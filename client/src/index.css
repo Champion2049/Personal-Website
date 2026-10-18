@@ -450,6 +450,21 @@ html.cyber-scroll body {
   .nc-pip[data-on="true"] { background: var(--nc-yellow); box-shadow: 0 0 8px hsl(56 100% 48% / 0.45); }
 
   /* Faint CRT scanlines over the whole Night City page */
+  /* Graffiti wall (night-city/graffiti-wall.tsx): grimy bricks from gradients, neon spray-paint tags */
+  .nc-bricks {
+    background-color: hsl(4 30% 7%);
+    background-image:
+      radial-gradient(ellipse at 30% 20%, hsl(2 100% 50% / 0.12), transparent 55%),
+      radial-gradient(ellipse at 80% 90%, hsl(0 0% 0% / 0.6), transparent 60%),
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='60'><rect width='120' height='60' fill='%23080303'/><rect x='1' y='1' width='58' height='28' fill='%232a1210'/><rect x='61' y='1' width='58' height='28' fill='%2324100e'/><rect x='-29' y='31' width='58' height='28' fill='%2322100e'/><rect x='31' y='31' width='58' height='28' fill='%232c1311'/><rect x='91' y='31' width='58' height='28' fill='%2325100e'/></svg>");
+    background-size: 100% 100%, 100% 100%, 120px 60px;
+    box-shadow: inset 0 0 90px hsl(0 0% 0% / 0.85);
+  }
+  .font-marker { font-family: 'Permanent Marker', 'Barlow', cursive; }
+  .nc-tag { text-shadow: 0 0 6px var(--glow), 0 0 22px var(--glow); transition: text-shadow .3s ease, filter .3s ease; }
+  .nc-tag:hover { filter: brightness(1.25); text-shadow: 0 0 8px var(--glow), 0 0 32px var(--glow), 0 0 60px var(--glow); }
+  .nc-tag-fresh { animation: nc-spray 1.1s steps(12, end) both; }
+  @keyframes nc-spray { from { clip-path: inset(0 100% 0 0); filter: blur(3px); } to { clip-path: inset(0 0 0 0); filter: blur(0); } }
   .nc-scanlines {
     position: fixed; inset: 0; pointer-events: none; z-index: 60; opacity: 0.16;
     background: repeating-linear-gradient(to bottom, transparent 0 2px, hsl(0 0% 0% / 0.5) 2px 3px);
