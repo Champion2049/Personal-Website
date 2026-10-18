@@ -89,11 +89,15 @@ export function NCEqualizer() {
     let raf = 0;
     let last = 0;
     let visible = false;
+    let resting = true; // the canvas shows the still skyline
     const loop = (t: number) => {
       raf = requestAnimationFrame(loop);
       if (t - last < FRAME_MS) return;
       last = t;
-      draw(getGridAnalyser());
+      const an = getGridAnalyser();
+      if (!an && resting) return; // no analyser until the visitor interacts: nothing new to draw
+      draw(an);
+      resting = !an;
     };
     const sync = () => {
       const el = gridAudioElement();
@@ -101,10 +105,11 @@ export function NCEqualizer() {
       setPlaying(on);
       if (on && visible && !reduce) {
         if (!raf) raf = requestAnimationFrame(loop);
-      } else {
+      } else if (raf || !resting) {
         cancelAnimationFrame(raf);
         raf = 0;
         draw(null);
+        resting = true;
       }
     };
 
@@ -123,9 +128,12 @@ export function NCEqualizer() {
       el?.addEventListener('pause', sync);
     };
     const poll = setInterval(() => {
-      if (!el && (el = gridAudioElement())) attach();
+      if (el || !(el = gridAudioElement())) return;
+      clearInterval(poll);
+      attach();
       sync();
     }, 1000);
+    if (el) clearInterval(poll);
     attach();
     window.addEventListener('grid-audio-mute', sync);
     return () => {
