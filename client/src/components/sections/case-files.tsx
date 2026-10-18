@@ -1,6 +1,6 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { ArrowUpRight, Github } from 'lucide-react';
-import { gsap, useGSAP, prefersReducedMotion } from '@/lib/gsap';
+import { gsap, ScrollTrigger, useGSAP, prefersReducedMotion } from '@/lib/gsap';
 import type { Project } from '@/lib/projects-data';
 import { CaseVisual } from './case-visual';
 
@@ -12,13 +12,28 @@ import { CaseVisual } from './case-visual';
  */
 export function CaseFiles({ projects }: { projects: Project[] }) {
   const root = useRef<HTMLDivElement>(null);
+  // only the file in front animates its visual; the ones it covers hold a still frame
+  const [front, setFront] = useState(0);
 
   useGSAP(
     () => {
       if (prefersReducedMotion()) return;
+      const cards = gsap.utils.toArray<HTMLElement>('[data-file]', root.current);
+      // which file is in front (all widths): from the moment it starts sliding in until the next one does.
+      // Handing over early means the file being scaled back is already a still frame; scaling a layer
+      // while its canvas animates forces it to be redrawn every frame.
+      cards.forEach((card, i) => {
+        const next = cards[i + 1];
+        ScrollTrigger.create({
+          trigger: card,
+          start: 'top bottom',
+          ...(next ? { endTrigger: next, end: 'top bottom' } : { end: 'bottom top' }),
+          onToggle: (self) => self.isActive && setFront(i),
+        });
+      });
+      // desktop: the file underneath settles back as the next one slides over it
       const mm = gsap.matchMedia();
       mm.add('(min-width: 1024px)', () => {
-        const cards = gsap.utils.toArray<HTMLElement>('[data-file]', root.current);
         cards.forEach((card, i) => {
           const next = cards[i + 1];
           if (!next) return;
@@ -68,7 +83,8 @@ export function CaseFiles({ projects }: { projects: Project[] }) {
                   </div>
                 </div>
                 <div className="relative order-first aspect-video border-b border-[var(--line)] bg-[hsl(216_33%_4%)] lg:order-none lg:aspect-auto lg:border-b-0 lg:border-l">
-                  <CaseVisual kind={f.visual} className="absolute inset-0" />
+                  {/* on desktop a covered file hides its canvas: scaling a layer with a canvas in it is expensive, and the next file covers it anyway */}
+                  <CaseVisual kind={f.visual} running={front === i} className={`absolute inset-0 ${front === i ? '' : 'lg:invisible'}`} />
                 </div>
               </div>
               <div data-file-dim aria-hidden className="pointer-events-none absolute inset-0 bg-background opacity-0" />

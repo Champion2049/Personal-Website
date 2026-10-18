@@ -93,6 +93,12 @@ const faceMesh: Draw = (g, w, h, t) => {
   }
 };
 
+// spectrogram colours, precomputed (cool and faint at low energy, hot above ~0.45)
+const SPECTRO = Array.from({ length: 16 }, (_, i) => {
+  const e = (i + 0.5) / 16;
+  return e > 0.45 ? `hsl(${16 + e * 30} 100% ${40 + e * 25}% / ${0.25 + e * 0.6})` : `hsl(186 100% 50% / ${e * 0.35})`;
+});
+
 // Spam call: a voice waveform scrolling in, its spectrogram, and the fused score climbing past the flag line.
 const callSignal: Draw = (g, w, h, t) => {
   const top = h * 0.32;
@@ -118,7 +124,8 @@ const callSignal: Draw = (g, w, h, t) => {
     const tt = (c + Math.floor(t * 18)) * 0.19;
     for (let r = 0; r < rows; r++) {
       const e = Math.max(0, Math.sin(tt + r * 0.6) * Math.cos(tt * 0.41 - r * 0.25)) * (1 - r / rows);
-      g.fillStyle = e > 0.45 ? `hsl(${16 + e * 30} 100% ${40 + e * 25}% / ${0.25 + e * 0.6})` : `hsl(186 100% 50% / ${e * 0.35})`;
+      if (e < 0.04) continue;
+      g.fillStyle = SPECTRO[Math.min(SPECTRO.length - 1, Math.floor(e * SPECTRO.length))];
       g.fillRect(c * cw, sy + sh - (r + 1) * ch, cw - 1, ch - 1);
     }
   }
@@ -223,8 +230,13 @@ const DRAW: Record<CaseVisualKind, Draw> = {
   'learning-curves': learningCurves,
 };
 
-export function CaseVisual({ kind, className = '' }: { kind: CaseVisualKind; className?: string }) {
+/** `running` false holds a still frame (e.g. while another case file covers this one). */
+export function CaseVisual({ kind, running = true, className = '' }: { kind: CaseVisualKind; running?: boolean; className?: string }) {
   const ref = useRef<HTMLCanvasElement>(null);
+  const runningRef = useRef(running);
+  const syncRef = useRef<() => void>(() => {});
+  runningRef.current = running;
+  useEffect(() => syncRef.current(), [running]);
 
   useEffect(() => {
     const c = ref.current;
@@ -259,13 +271,14 @@ export function CaseVisual({ kind, className = '' }: { kind: CaseVisualKind; cla
       frame(performance.now());
     };
     const sync = () => {
-      if (visible && !reduce && !document.hidden) {
+      if (visible && runningRef.current && !reduce && !document.hidden) {
         if (!raf) raf = requestAnimationFrame(loop);
       } else {
         cancelAnimationFrame(raf);
         raf = 0;
       }
     };
+    syncRef.current = sync;
     resize();
     const ro = new ResizeObserver(resize);
     ro.observe(c);
